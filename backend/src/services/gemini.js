@@ -32,8 +32,7 @@ class GeminiService {
         if (!process.env.GEMINI_API_KEY) {
             throw new Error('GEMINI_API_KEY is not set in environment variables');
         }
-        console.log('Gemini API Key loaded:', process.env.GEMINI_API_KEY ? 'Yes' : 'No');
-        console.log('Gemini API Key value:', process.env.GEMINI_API_KEY);
+        console.log('Gemini API Key loaded successfully');
         // Initialize GoogleGenerativeAI here, after dotenv.config() has been called
         this.genAI = new generative_ai_1.GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         this.model = this.genAI.getGenerativeModel({
