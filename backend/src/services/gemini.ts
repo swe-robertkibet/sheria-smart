@@ -1,7 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
 const LEGAL_SYSTEM_PROMPT = `You are a legal assistant specialized in Kenyan law. Your role is to:
 
 1. Provide accurate legal information based on Kenyan legislation
@@ -21,10 +19,21 @@ Please respond in a friendly, professional manner while maintaining accuracy and
 
 export class GeminiService {
   private model;
+  private genAI;
 
   constructor() {
-    this.model = genAI.getGenerativeModel({ 
-      model: 'gemini-pro',
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY is not set in environment variables');
+    }
+    
+    console.log('Gemini API Key loaded:', process.env.GEMINI_API_KEY ? 'Yes' : 'No');
+    console.log('Gemini API Key value:', process.env.GEMINI_API_KEY);
+    
+    // Initialize GoogleGenerativeAI here, after dotenv.config() has been called
+    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    
+    this.model = this.genAI.getGenerativeModel({ 
+      model: 'gemini-2.0-flash',
       generationConfig: {
         temperature: 0.7,
         topK: 1,
