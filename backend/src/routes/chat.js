@@ -14,9 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const gemini_1 = require("../services/gemini");
+const structured_gemini_1 = require("../services/structured-gemini");
 const database_1 = __importDefault(require("../services/database"));
 const router = express_1.default.Router();
 const geminiService = new gemini_1.GeminiService();
+const structuredGeminiService = new structured_gemini_1.StructuredGeminiService();
 // Create a new chat session
 router.post('/session', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -29,7 +31,7 @@ router.post('/session', (req, res) => __awaiter(void 0, void 0, void 0, function
         res.status(500).json({ error: 'Failed to create chat session' });
     }
 }));
-// Send a message and get AI response
+// Send a message and get AI response (basic mode)
 router.post('/send', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { sessionId, message } = req.body;
@@ -56,6 +58,37 @@ router.post('/send', (req, res) => __awaiter(void 0, void 0, void 0, function* (
     catch (error) {
         console.error('Error processing chat message:', error);
         res.status(500).json({ error: 'Failed to process message' });
+    }
+}));
+// Send a message and get structured AI response
+router.post('/send-structured', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { sessionId, message } = req.body;
+        if (!sessionId || !message) {
+            return res.status(400).json({ error: 'Missing sessionId or message' });
+        }
+        // Get conversation history
+        const history = yield database_1.default.getMessageHistory(sessionId, 5);
+        const conversationHistory = history.reverse().map(msg => ({
+            role: msg.role,
+            content: msg.content
+        }));
+        // Save user message
+        yield database_1.default.addMessage(sessionId, message, 'USER');
+        // Generate structured AI response
+        const { classification, advice } = yield structuredGeminiService.generateFullResponse(message, conversationHistory);
+        // Save structured response as JSON string
+        const structuredResponse = JSON.stringify(advice);
+        yield database_1.default.addMessage(sessionId, structuredResponse, 'ASSISTANT');
+        res.json({
+            classification,
+            advice,
+            sessionId,
+        });
+    }
+    catch (error) {
+        console.error('Error processing structured chat message:', error);
+        res.status(500).json({ error: 'Failed to process structured message' });
     }
 }));
 // Get chat history

@@ -10,13 +10,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MessageCircle, FileText, User, LogOut, ChevronDown, Menu, X } from "lucide-react"
+import { MessageCircle, FileText, User, LogOut, ChevronDown, Menu, X, Scale } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { ChatInterface } from "@/components/chat-interface"
+import { StructuredChatInterface } from "@/components/structured-chat-interface"
 import { DocumentSelector } from "@/components/document-selector"
 
 export default function DashboardPage() {
-  const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "documents">("dashboard")
+  const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "structured-chat" | "documents">("dashboard")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [userName] = useState("John")
   const router = useRouter()
@@ -29,6 +30,10 @@ export default function DashboardPage() {
     setCurrentView("chat")
   }
 
+  const handleStartStructuredChat = () => {
+    setCurrentView("structured-chat")
+  }
+
   const handleCreateDocument = () => {
     setCurrentView("documents")
   }
@@ -39,6 +44,10 @@ export default function DashboardPage() {
 
   if (currentView === "chat") {
     return <ChatInterface onBack={handleBackToDashboard} />
+  }
+
+  if (currentView === "structured-chat") {
+    return <StructuredChatInterface onBack={handleBackToDashboard} />
   }
 
   if (currentView === "documents") {
@@ -115,52 +124,83 @@ export default function DashboardPage() {
           <h1 className="text-4xl md:text-5xl font-bold text-[#2D3748] mb-8">What legal help do you need?</h1>
         </div>
 
-        {/* Two Main Action Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Ask AI Assistant Card */}
+        {/* Three Main Action Cards */}
+        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {/* Basic Chat Card */}
           <div
-            className="bg-[#7C9885] rounded-3xl p-8 md:p-12 text-center cursor-pointer transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl group"
+            className="bg-[#7C9885] rounded-3xl p-6 md:p-8 text-center cursor-pointer transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl group"
             onClick={handleStartChat}
           >
-            <div className="space-y-6">
-              <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                <MessageCircle className="w-10 h-10 text-white" />
+            <div className="space-y-4">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
+                <MessageCircle className="w-8 h-8 text-white" />
               </div>
 
-              <div className="space-y-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-white">Ask Legal Question</h2>
-                <p className="text-lg text-white/90 leading-relaxed">
-                  Get instant answers about contracts, tenancy, and rights
+              <div className="space-y-3">
+                <h2 className="text-xl md:text-2xl font-bold text-white">Quick Chat</h2>
+                <p className="text-sm text-white/90 leading-relaxed">
+                  Get instant answers about legal questions
                 </p>
               </div>
 
               <Button
                 size="lg"
-                className="bg-white text-[#7C9885] hover:bg-white/90 font-semibold px-8 py-4 text-lg rounded-xl transform hover:scale-105 transition-all duration-300"
+                className="bg-white text-[#7C9885] hover:bg-white/90 font-semibold px-6 py-3 text-base rounded-xl transform hover:scale-105 transition-all duration-300"
               >
                 Start Chat
               </Button>
             </div>
           </div>
 
-          {/* Create Documents Card */}
+          {/* Structured Legal Analysis Card */}
           <div
-            className="bg-[#C99383] rounded-3xl p-8 md:p-12 text-center cursor-pointer transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl group"
-            onClick={handleCreateDocument}
+            className="bg-gradient-to-br from-[#7C9885] to-[#5D7A6B] rounded-3xl p-6 md:p-8 text-center cursor-pointer transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl group border-2 border-white/20"
+            onClick={handleStartStructuredChat}
           >
-            <div className="space-y-6">
-              <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                <FileText className="w-10 h-10 text-white" />
+            <div className="space-y-4">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
+                <Scale className="w-8 h-8 text-white" />
               </div>
 
-              <div className="space-y-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-white">Generate Documents</h2>
-                <p className="text-lg text-white/90 leading-relaxed">Create contracts, agreements, and legal notices</p>
+              <div className="space-y-3">
+                <h2 className="text-xl md:text-2xl font-bold text-white">Legal Analysis</h2>
+                <p className="text-sm text-white/90 leading-relaxed">
+                  Get detailed structured legal guidance
+                </p>
+                <div className="inline-block bg-white/20 text-xs text-white px-2 py-1 rounded-full">
+                  ENHANCED
+                </div>
               </div>
 
               <Button
                 size="lg"
-                className="bg-white text-[#C99383] hover:bg-white/90 font-semibold px-8 py-4 text-lg rounded-xl transform hover:scale-105 transition-all duration-300"
+                className="bg-white text-[#7C9885] hover:bg-white/90 font-semibold px-6 py-3 text-base rounded-xl transform hover:scale-105 transition-all duration-300"
+              >
+                Start Analysis
+              </Button>
+            </div>
+          </div>
+
+          {/* Create Documents Card */}
+          <div
+            className="bg-[#C99383] rounded-3xl p-6 md:p-8 text-center cursor-pointer transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl group"
+            onClick={handleCreateDocument}
+          >
+            <div className="space-y-4">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
+                <FileText className="w-8 h-8 text-white" />
+              </div>
+
+              <div className="space-y-3">
+                <h2 className="text-xl md:text-2xl font-bold text-white">Documents</h2>
+                <p className="text-sm text-white/90 leading-relaxed">
+                  Create contracts and legal notices
+                </p>
+              </div>
+
+              <Button
+                size="lg"
+                className="bg-white text-[#C99383] hover:bg-white/90 font-semibold px-6 py-3 text-base rounded-xl transform hover:scale-105 transition-all duration-300"
               >
                 Create Document
               </Button>

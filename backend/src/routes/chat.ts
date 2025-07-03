@@ -1,9 +1,11 @@
 import express from 'express';
 import { GeminiService } from '../services/gemini';
+import { StructuredGeminiService } from '../services/structured-gemini';
 import DatabaseService from '../services/database';
 
 const router = express.Router();
 const geminiService = new GeminiService();
+const structuredGeminiService = new StructuredGeminiService();
 
 // Create a new chat session
 router.post('/session', async (req, res) => {
@@ -17,7 +19,7 @@ router.post('/session', async (req, res) => {
   }
 });
 
-// Send a message and get AI response
+// Send a message and get AI response (basic mode)
 router.post('/send', async (req, res) => {
   try {
     const { sessionId, message } = req.body;
@@ -49,6 +51,43 @@ router.post('/send', async (req, res) => {
   } catch (error) {
     console.error('Error processing chat message:', error);
     res.status(500).json({ error: 'Failed to process message' });
+  }
+});
+
+// Send a message and get structured AI response
+router.post('/send-structured', async (req, res) => {
+  try {
+    const { sessionId, message } = req.body;
+
+    if (!sessionId || !message) {
+      return res.status(400).json({ error: 'Missing sessionId or message' });
+    }
+
+    // Get conversation history
+    const history = await DatabaseService.getMessageHistory(sessionId, 5);
+    const conversationHistory = history.reverse().map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
+
+    // Save user message
+    await DatabaseService.addMessage(sessionId, message, 'USER');
+
+    // Generate structured AI response
+    const { classification, advice } = await structuredGeminiService.generateFullResponse(message, conversationHistory);
+
+    // Save structured response as JSON string
+    const structuredResponse = JSON.stringify(advice);
+    await DatabaseService.addMessage(sessionId, structuredResponse, 'ASSISTANT');
+
+    res.json({
+      classification,
+      advice,
+      sessionId,
+    });
+  } catch (error) {
+    console.error('Error processing structured chat message:', error);
+    res.status(500).json({ error: 'Failed to process structured message' });
   }
 });
 
