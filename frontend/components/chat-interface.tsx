@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, Send, Mic } from "lucide-react"
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeSanitize from 'rehype-sanitize'
 
 interface Message {
   id: string
@@ -159,7 +162,34 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
                     : "bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0]"
                 }`}
               >
-                <p className="text-base leading-relaxed whitespace-pre-line">{message.content}</p>
+                {message.sender === "user" ? (
+                  <p className="text-base leading-relaxed whitespace-pre-line">{message.content}</p>
+                ) : (
+                  <div className="text-base leading-relaxed prose prose-sm max-w-none">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeSanitize]}
+                      components={{
+                        // Custom styling for markdown elements
+                        h1: ({children}) => <h1 className="text-lg font-bold mb-2 text-[#2D3748]">{children}</h1>,
+                        h2: ({children}) => <h2 className="text-base font-bold mb-2 text-[#2D3748]">{children}</h2>,
+                        h3: ({children}) => <h3 className="text-sm font-bold mb-1 text-[#2D3748]">{children}</h3>,
+                        strong: ({children}) => <strong className="font-semibold text-[#2D3748]">{children}</strong>,
+                        em: ({children}) => <em className="italic text-[#2D3748]">{children}</em>,
+                        p: ({children}) => <p className="mb-2 last:mb-0 text-[#2D3748]">{children}</p>,
+                        ul: ({children}) => <ul className="list-disc list-inside mb-2 space-y-1 text-[#2D3748]">{children}</ul>,
+                        ol: ({children}) => <ol className="list-decimal list-inside mb-2 space-y-1 text-[#2D3748]">{children}</ol>,
+                        li: ({children}) => <li className="text-[#2D3748]">{children}</li>,
+                        blockquote: ({children}) => <blockquote className="border-l-4 border-[#7C9885] pl-4 my-2 italic text-[#718096]">{children}</blockquote>,
+                        code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono text-[#2D3748]">{children}</code>,
+                        pre: ({children}) => <pre className="bg-gray-100 p-3 rounded-lg overflow-x-auto mb-2">{children}</pre>,
+                        a: ({children, href}) => <a href={href} className="text-[#7C9885] hover:text-[#5D7A6B] underline" target="_blank" rel="noopener noreferrer">{children}</a>,
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                )}
                 <div className="mt-2">
                   <span className={`text-xs ${message.sender === "user" ? "text-white/70" : "text-[#718096]"}`}>
                     {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
