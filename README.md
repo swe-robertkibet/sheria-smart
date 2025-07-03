@@ -12,12 +12,14 @@ A legal AI assistant application for Kenyan law, built with Next.js frontend and
 ## Tech Stack
 
 ### Frontend
+
 - Next.js 15 with TypeScript
 - Tailwind CSS for styling
 - shadcn/ui components
 - React hooks for state management
 
 ### Backend
+
 - Express.js with TypeScript
 - Prisma ORM with MySQL
 - Google Gemini API integration
@@ -26,37 +28,43 @@ A legal AI assistant application for Kenyan law, built with Next.js frontend and
 ## Setup Instructions
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - MySQL database
 - Google Gemini API key
 
 ### Backend Setup
 
 1. Navigate to backend directory:
+
 ```bash
 cd backend
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
-The `.env` file is already configured with:
+   The `.env` file is already configured with:
+
 ```
 DATABASE_URL="mysql://root:P%40sswo3d%23@localhost:3306/sheriasmart"
-GEMINI_API_KEY="AIzaSyCYFIndQrHWeFphSzGezeQbIFOxz_Rhs_w"
+GEMINI_API_KEY="your_api_key"
 PORT=5000
 ```
 
 4. Set up database:
+
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
 5. Start the backend server:
+
 ```bash
 npm run dev
 ```
@@ -66,16 +74,19 @@ The backend will be available at `http://localhost:5000`
 ### Frontend Setup
 
 1. Navigate to frontend directory:
+
 ```bash
 cd frontend
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -115,6 +126,7 @@ curl -X POST http://localhost:5000/api/chat/send \
 ## Database Schema
 
 The application uses two main tables:
+
 - `chat_sessions`: Stores chat session information
 - `messages`: Stores individual messages with role (USER/ASSISTANT)
 
