@@ -46,3 +46,21 @@ export class GeminiService {
 ${context ? `Previous conversation:\n${context}\n` : ''}
 
 User: ${userMessage}
+
+Assistant:`;
+
+      const result = await this.model.generateContent(prompt);
+      const response = result.response;
+      const text = response.text();
+      
+      if (!text) {
+        throw new Error('Empty response from Gemini API');
+      }
+      
+      return text;
+    } catch (error) {
+      console.error('Error generating response:', error);
+      throw new Error('Failed to generate AI response');
+    }
+  }
+}

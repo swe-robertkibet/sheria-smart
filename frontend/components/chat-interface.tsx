@@ -12,6 +12,13 @@ interface Message {
   timestamp: Date
 }
 
+interface ApiMessage {
+  id: string
+  content: string
+  role: "USER" | "ASSISTANT"
+  createdAt: string
+}
+
 interface ChatInterfaceProps {
   onBack: () => void
 }
@@ -27,6 +34,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   ])
   const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const [sessionId, setSessionId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -37,8 +45,32 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     scrollToBottom()
   }, [messages])
 
+  // Initialize chat session
+  useEffect(() => {
+    const initSession = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/chat/session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({}),
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          setSessionId(data.sessionId)
+        }
+      } catch (error) {
+        console.error('Failed to initialize chat session:', error)
+      }
+    }
+    
+    initSession()
+  }, [])
+
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return
+    if (!inputMessage.trim() || !sessionId) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -48,27 +80,53 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     }
 
     setMessages((prev) => [...prev, userMessage])
+    const currentMessage = inputMessage
     setInputMessage("")
     setIsTyping(true)
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage: Message = {
+    try {
+      const response = await fetch('http://localhost:5000/api/chat/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId,
+          message: currentMessage,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: data.response,
+          sender: "ai",
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, aiMessage])
+      } else {
+        // Handle error
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: "Sorry, I'm having trouble processing your request right now. Please try again later.",
+          sender: "ai",
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, errorMessage])
+      }
+    } catch (error) {
+      console.error('Error sending message:', error)
+      const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `I understand your question about "${inputMessage}". Under Kenyan law, there are specific provisions that apply to your situation. Let me provide you with detailed guidance...
-
-For your specific case, I recommend:
-1. Understanding your rights under the relevant legislation
-2. Documenting all relevant communications
-3. Following the proper legal procedures
-
-Would you like me to help you generate any specific documents related to this matter?`,
+        content: "Sorry, I'm having trouble connecting to the server. Please check your connection and try again.",
         sender: "ai",
         timestamp: new Date(),
       }
-      setMessages((prev) => [...prev, aiMessage])
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
       setIsTyping(false)
-    }, 2000)
+    }
   }
 
   return (
