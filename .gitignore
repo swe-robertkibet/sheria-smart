@@ -27,3 +27,4 @@ frontend/.vercel
 backend/node_modules/
 backend/dist/
 backend/build/
+backend/package-lock.json
