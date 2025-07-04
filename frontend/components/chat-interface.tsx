@@ -40,9 +40,20 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   }
 
   const scrollToBottom = () => {
-    if (scrollAnchorRef.current && isAtBottom) {
+    if (scrollAnchorRef.current && isAtBottom && !isStreaming) {
+      // Only auto-scroll when not streaming to avoid hiding the pinned message
       scrollAnchorRef.current.scrollIntoView({ behavior: "smooth" })
     }
+  }
+
+  const checkIfUserMessageVisible = () => {
+    if (!lastUserMessageRef.current || !scrollContainerRef.current) return true
+    
+    const messageRect = lastUserMessageRef.current.getBoundingClientRect()
+    const containerRect = scrollContainerRef.current.getBoundingClientRect()
+    
+    // Check if user message is visible in the viewport
+    return messageRect.top >= containerRect.top && messageRect.top <= containerRect.bottom
   }
 
   const scrollUserMessageToTop = () => {
@@ -57,7 +68,18 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
 
   const handleScroll = () => {
     const atBottom = checkIfAtBottom()
-    setIsAtBottom(atBottom)
+    const userMessageVisible = checkIfUserMessageVisible()
+    
+    // Only enable auto-scroll if user manually scrolls to bottom AND user message is not visible
+    // This prevents auto-scroll from hiding the pinned user message
+    if (atBottom && !userMessageVisible && !isStreaming) {
+      setIsAtBottom(true)
+    } else if (isStreaming) {
+      // During streaming, keep auto-scroll disabled to maintain pinned message visibility
+      setIsAtBottom(false)
+    } else {
+      setIsAtBottom(atBottom)
+    }
   }
 
   // Throttled scroll handler for performance
@@ -80,9 +102,11 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     }
   }, [])
 
-  // Auto-scroll during streaming
+  // Auto-scroll during streaming - disabled to keep pinned message visible
   useEffect(() => {
-    if (isStreaming && isAtBottom) {
+    // Disable auto-scroll during streaming to keep the pinned user message visible
+    // The user message should remain as the anchor point at the top
+    if (!isStreaming && isAtBottom) {
       requestAnimationFrame(() => {
         scrollToBottom()
       })
@@ -164,6 +188,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     // Wait for DOM update, then scroll user message to top
     setTimeout(() => {
       scrollUserMessageToTop()
+      // Disable auto-scroll during this conversation to keep message pinned
+      setIsAtBottom(false)
     }, 50)
 
     try {
