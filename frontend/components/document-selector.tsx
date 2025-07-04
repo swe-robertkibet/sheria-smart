@@ -2,12 +2,16 @@
 
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Home, Handshake, Bell, FileText } from "lucide-react"
+import { useScrollToTop } from "@/hooks/use-scroll-to-top"
 
 interface DocumentSelectorProps {
   onBack: () => void
 }
 
 export function DocumentSelector({ onBack }: DocumentSelectorProps) {
+  // Reset scroll position when component mounts
+  useScrollToTop()
+
   const documentTypes = [
     {
       id: "rental",

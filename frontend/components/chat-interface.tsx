@@ -7,6 +7,7 @@ import { ArrowLeft, Send, Mic, Plus } from "lucide-react"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeSanitize from 'rehype-sanitize'
+import { useScrollToTop } from "@/hooks/use-scroll-to-top"
 
 interface Message {
   id: string
@@ -32,6 +33,9 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const lastUserMessageRef = useRef<HTMLDivElement>(null)
   const scrollAnchorRef = useRef<HTMLDivElement>(null)
+
+  // Reset scroll position when component mounts
+  useScrollToTop()
 
   const checkIfAtBottom = () => {
     if (!scrollContainerRef.current) return true

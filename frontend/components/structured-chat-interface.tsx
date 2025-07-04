@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ArrowLeft, Send, Mic, AlertTriangle, CheckCircle, Clock, FileText, Scale, User } from "lucide-react"
 import { StructuredLegalResponse, QuestionClassification, StructuredChatResponse, UrgencyLevel, LegalArea } from "../types/legal"
+import { useScrollToTop } from "@/hooks/use-scroll-to-top"
 
 interface Message {
   id: string
@@ -35,6 +36,9 @@ export function StructuredChatInterface({ onBack }: StructuredChatInterfaceProps
   const [isTyping, setIsTyping] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Reset scroll position when component mounts
+  useScrollToTop()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })

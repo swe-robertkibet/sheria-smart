@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -21,6 +21,11 @@ export default function DashboardPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [userName] = useState("John")
   const router = useRouter()
+
+  // Reset scroll position when switching between dashboard views
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [currentView])
 
   const handleLogout = () => {
     router.push("/")
