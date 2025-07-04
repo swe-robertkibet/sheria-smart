@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, Send, Mic } from "lucide-react"
+import { ArrowLeft, Send, Mic, Plus } from "lucide-react"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeSanitize from 'rehype-sanitize'
@@ -15,40 +15,79 @@ interface Message {
   timestamp: Date
 }
 
-interface ApiMessage {
-  id: string
-  content: string
-  role: "USER" | "ASSISTANT"
-  createdAt: string
-}
-
 interface ChatInterfaceProps {
   onBack: () => void
 }
 
 export function ChatInterface({ onBack }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content: "Hello! I'm your AI legal assistant. How can I help you with your legal question today?",
-      sender: "ai",
-      timestamp: new Date(),
-    },
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState("")
-  const [isTyping, setIsTyping] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [streamingMessage, setStreamingMessage] = useState<string>("")
   const [isStreaming, setIsStreaming] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState(true)
+  const [isAtBottom, setIsAtBottom] = useState(true)
+  
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const lastUserMessageRef = useRef<HTMLDivElement>(null)
+  const scrollAnchorRef = useRef<HTMLDivElement>(null)
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  const checkIfAtBottom = () => {
+    if (!scrollContainerRef.current) return true
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current
+    const threshold = 100 // Larger threshold for auto-scroll
+    return scrollTop + clientHeight >= scrollHeight - threshold
   }
 
+  const scrollToBottom = () => {
+    if (scrollAnchorRef.current && isAtBottom) {
+      scrollAnchorRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }
+
+  const scrollUserMessageToTop = () => {
+    if (lastUserMessageRef.current) {
+      // Scroll the user message to the top of the viewport
+      lastUserMessageRef.current.scrollIntoView({ 
+        behavior: "smooth", 
+        block: "start"
+      })
+    }
+  }
+
+  const handleScroll = () => {
+    const atBottom = checkIfAtBottom()
+    setIsAtBottom(atBottom)
+  }
+
+  // Throttled scroll handler for performance
   useEffect(() => {
-    scrollToBottom()
-  }, [messages, streamingMessage])
+    const container = scrollContainerRef.current
+    if (container) {
+      let ticking = false
+      const throttledScroll = () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            handleScroll()
+            ticking = false
+          })
+          ticking = true
+        }
+      }
+      
+      container.addEventListener('scroll', throttledScroll, { passive: true })
+      return () => container.removeEventListener('scroll', throttledScroll)
+    }
+  }, [])
+
+  // Auto-scroll during streaming
+  useEffect(() => {
+    if (isStreaming && isAtBottom) {
+      requestAnimationFrame(() => {
+        scrollToBottom()
+      })
+    }
+  }, [streamingMessage, isStreaming, isAtBottom])
 
   // Initialize chat session
   useEffect(() => {
@@ -74,6 +113,34 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     initSession()
   }, [])
 
+  const startNewConversation = async () => {
+    // Reset all state
+    setMessages([])
+    setStreamingMessage("")
+    setIsStreaming(false)
+    setShowWelcomeMessage(true)
+    setInputMessage("")
+    setIsAtBottom(true)
+    
+    // Create new session
+    try {
+      const response = await fetch('http://localhost:5000/api/chat/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setSessionId(data.sessionId)
+      }
+    } catch (error) {
+      console.error('Failed to create new session:', error)
+    }
+  }
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !sessionId) return
 
@@ -84,11 +151,20 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       timestamp: new Date(),
     }
 
+    // Add user message to the conversation
     setMessages((prev) => [...prev, userMessage])
     const currentMessage = inputMessage
     setInputMessage("")
+    setShowWelcomeMessage(false)
+    
+    // Start streaming
     setIsStreaming(true)
     setStreamingMessage("")
+
+    // Wait for DOM update, then scroll user message to top
+    setTimeout(() => {
+      scrollUserMessageToTop()
+    }, 50)
 
     try {
       const response = await fetch('http://localhost:5000/api/chat/send-stream', {
@@ -116,7 +192,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
           setStreamingMessage(accumulatedText)
         }
 
-        // Create the final AI message
+        // Create the final AI message and add to conversation
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
           content: accumulatedText,
@@ -153,119 +229,142 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     <div className="min-h-screen bg-white flex flex-col">
       {/* Chat Header */}
       <header className="bg-white border-b border-[#F5F5F5] p-4 sticky top-0 z-50">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" onClick={onBack} className="text-[#7C9885]">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-semibold text-[#2D3748]">Legal Assistant</h1>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-[#718096]">Online</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" size="icon" onClick={onBack} className="text-[#7C9885]">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-xl font-semibold text-[#2D3748]">Legal Assistant</h1>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm text-[#718096]">Online</span>
+              </div>
             </div>
           </div>
+          
+          {/* New Conversation Button - Only show when conversation exists */}
+          {!showWelcomeMessage && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={startNewConversation}
+              className="text-[#7C9885] hover:bg-[#7C9885]/10"
+              disabled={isStreaming}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Chat
+            </Button>
+          )}
         </div>
       </header>
 
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 pb-24">
-        <div className="max-w-4xl mx-auto space-y-6">
-          {messages.map((message) => (
-            <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl ${
-                  message.sender === "user"
-                    ? "bg-[#7C9885] text-white"
-                    : "bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0]"
-                }`}
+      {/* Welcome Message - Only show when no conversation started */}
+      {showWelcomeMessage && (
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="max-w-2xl text-center">
+            <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] px-6 py-4 rounded-3xl">
+              <p className="text-lg">Hello! I'm your AI legal assistant. How can I help you with your legal question today?</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Single Scroll Container for All Messages */}
+      {!showWelcomeMessage && (
+        <div 
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto p-4 response-scroll"
+          style={{ 
+            maxHeight: 'calc(100vh - 160px)',
+            paddingBottom: '80vh' // Extra space at bottom for scrolling up
+          }}
+        >
+          <div className="max-w-4xl mx-auto space-y-6">
+            {messages.map((message, index) => (
+              <div 
+                key={message.id} 
+                ref={message.sender === "user" && index === messages.length - 1 ? lastUserMessageRef : null}
+                className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
               >
-                {message.sender === "user" ? (
-                  <p className="text-base leading-relaxed whitespace-pre-line">{message.content}</p>
-                ) : (
+                <div
+                  className={`max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl ${
+                    message.sender === "user"
+                      ? "bg-[#7C9885] text-white"
+                      : "bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0]"
+                  }`}
+                >
+                  {message.sender === "user" ? (
+                    <p className="text-base leading-relaxed whitespace-pre-line">{message.content}</p>
+                  ) : (
+                    <div className="prose prose-lg max-w-none prose-slate">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeSanitize]}
+                        components={{
+                          ul: ({children}) => <ul className="prose-ul:font-semibold marker:font-bold marker:text-[#2D3748]">{children}</ul>,
+                          ol: ({children}) => <ol className="prose-ol:font-semibold marker:font-bold marker:text-[#2D3748]">{children}</ol>,
+                          blockquote: ({children}) => <blockquote className="border-l-4 border-[#7C9885] pl-4 my-2 italic text-[#718096]">{children}</blockquote>,
+                          a: ({children, href}) => <a href={href} className="text-[#7C9885] hover:text-[#5D7A6B] underline" target="_blank" rel="noopener noreferrer">{children}</a>,
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
+                  )}
+                  <div className="mt-2">
+                    <span className={`text-xs ${message.sender === "user" ? "text-white/70" : "text-[#718096]"}`}>
+                      {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* Streaming Message */}
+            {isStreaming && streamingMessage && (
+              <div className="flex justify-start">
+                <div className="max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] streaming-container">
                   <div className="prose prose-lg max-w-none prose-slate">
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       rehypePlugins={[rehypeSanitize]}
                       components={{
-                        // Essential styling overrides for theme consistency
                         ul: ({children}) => <ul className="prose-ul:font-semibold marker:font-bold marker:text-[#2D3748]">{children}</ul>,
                         ol: ({children}) => <ol className="prose-ol:font-semibold marker:font-bold marker:text-[#2D3748]">{children}</ol>,
                         blockquote: ({children}) => <blockquote className="border-l-4 border-[#7C9885] pl-4 my-2 italic text-[#718096]">{children}</blockquote>,
                         a: ({children, href}) => <a href={href} className="text-[#7C9885] hover:text-[#5D7A6B] underline" target="_blank" rel="noopener noreferrer">{children}</a>,
                       }}
                     >
-                      {message.content}
+                      {streamingMessage}
                     </ReactMarkdown>
                   </div>
-                )}
-                <div className="mt-2">
-                  <span className={`text-xs ${message.sender === "user" ? "text-white/70" : "text-[#718096]"}`}>
-                    {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {isStreaming && streamingMessage && (
-            <div className="flex justify-start">
-              <div className="max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0]">
-                <div className="prose prose-lg max-w-none prose-slate">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeSanitize]}
-                    components={{
-                      // Essential styling overrides for theme consistency
-                      ul: ({children}) => <ul className="prose-ul:font-semibold marker:font-bold marker:text-[#2D3748]">{children}</ul>,
-                      ol: ({children}) => <ol className="prose-ol:font-semibold marker:font-bold marker:text-[#2D3748]">{children}</ol>,
-                      blockquote: ({children}) => <blockquote className="border-l-4 border-[#7C9885] pl-4 my-2 italic text-[#718096]">{children}</blockquote>,
-                      a: ({children, href}) => <a href={href} className="text-[#7C9885] hover:text-[#5D7A6B] underline" target="_blank" rel="noopener noreferrer">{children}</a>,
-                    }}
-                  >
-                    {streamingMessage}
-                  </ReactMarkdown>
-                </div>
-                <div className="flex items-center space-x-2 mt-2">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"></div>
-                    <div
-                      className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
-                      style={{ animationDelay: "0.1s" }}
-                    ></div>
-                    <div
-                      className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
-                      style={{ animationDelay: "0.2s" }}
-                    ></div>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"></div>
+                      <div
+                        className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
+                        style={{ animationDelay: "0.1s" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                    </div>
+                    <span className="text-xs text-[#718096]">Typing...</span>
                   </div>
-                  <span className="text-xs text-[#718096]">Typing...</span>
                 </div>
               </div>
-            </div>
-          )}
-
-          {isTyping && !isStreaming && (
-            <div className="flex justify-start">
-              <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] px-6 py-4 rounded-3xl">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"></div>
-                  <div
-                    className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
-                    style={{ animationDelay: "0.1s" }}
-                  ></div>
-                  <div
-                    className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
-                    style={{ animationDelay: "0.2s" }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
+            )}
+            
+            {/* Scroll anchor for auto-scroll */}
+            <div ref={scrollAnchorRef} id="scroll-anchor" />
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Chat Input - Fixed at Bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#F5F5F5] p-4">
+      {/* Fixed Input Area */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#F5F5F5] p-4 z-50">
         <div className="max-w-4xl mx-auto">
           <div className="flex space-x-3">
             <div className="flex-1 relative">
