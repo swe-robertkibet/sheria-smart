@@ -38,6 +38,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
+  const [streamingMessage, setStreamingMessage] = useState<string>("")
+  const [isStreaming, setIsStreaming] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -46,7 +48,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages])
+  }, [messages, streamingMessage])
 
   // Initialize chat session
   useEffect(() => {
@@ -85,10 +87,11 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     setMessages((prev) => [...prev, userMessage])
     const currentMessage = inputMessage
     setInputMessage("")
-    setIsTyping(true)
+    setIsStreaming(true)
+    setStreamingMessage("")
 
     try {
-      const response = await fetch('http://localhost:5000/api/chat/send', {
+      const response = await fetch('http://localhost:5000/api/chat/send-stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,11 +102,24 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         }),
       })
 
-      if (response.ok) {
-        const data = await response.json()
+      if (response.ok && response.body) {
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let accumulatedText = ""
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          
+          const chunk = decoder.decode(value, { stream: true })
+          accumulatedText += chunk
+          setStreamingMessage(accumulatedText)
+        }
+
+        // Create the final AI message
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: data.response,
+          content: accumulatedText,
           sender: "ai",
           timestamp: new Date(),
         }
@@ -128,7 +144,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       }
       setMessages((prev) => [...prev, errorMessage])
     } finally {
-      setIsTyping(false)
+      setIsStreaming(false)
+      setStreamingMessage("")
     }
   }
 
@@ -199,7 +216,51 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
             </div>
           ))}
 
-          {isTyping && (
+          {isStreaming && streamingMessage && (
+            <div className="flex justify-start">
+              <div className="max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0]">
+                <div className="text-base leading-relaxed prose prose-sm max-w-none">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeSanitize]}
+                    components={{
+                      h1: ({children}) => <h1 className="text-lg font-bold mb-2 text-[#2D3748]">{children}</h1>,
+                      h2: ({children}) => <h2 className="text-base font-bold mb-2 text-[#2D3748]">{children}</h2>,
+                      h3: ({children}) => <h3 className="text-sm font-bold mb-1 text-[#2D3748]">{children}</h3>,
+                      strong: ({children}) => <strong className="font-semibold text-[#2D3748]">{children}</strong>,
+                      em: ({children}) => <em className="italic text-[#2D3748]">{children}</em>,
+                      p: ({children}) => <p className="mb-2 last:mb-0 text-[#2D3748]">{children}</p>,
+                      ul: ({children}) => <ul className="list-disc list-inside mb-2 space-y-1 text-[#2D3748]">{children}</ul>,
+                      ol: ({children}) => <ol className="list-decimal list-inside mb-2 space-y-1 text-[#2D3748]">{children}</ol>,
+                      li: ({children}) => <li className="text-[#2D3748]">{children}</li>,
+                      blockquote: ({children}) => <blockquote className="border-l-4 border-[#7C9885] pl-4 my-2 italic text-[#718096]">{children}</blockquote>,
+                      code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono text-[#2D3748]">{children}</code>,
+                      pre: ({children}) => <pre className="bg-gray-100 p-3 rounded-lg overflow-x-auto mb-2">{children}</pre>,
+                      a: ({children, href}) => <a href={href} className="text-[#7C9885] hover:text-[#5D7A6B] underline" target="_blank" rel="noopener noreferrer">{children}</a>,
+                    }}
+                  >
+                    {streamingMessage}
+                  </ReactMarkdown>
+                </div>
+                <div className="flex items-center space-x-2 mt-2">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"></div>
+                    <div
+                      className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                  </div>
+                  <span className="text-xs text-[#718096]">Typing...</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isTyping && !isStreaming && (
             <div className="flex justify-start">
               <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] px-6 py-4 rounded-3xl">
                 <div className="flex space-x-1">
@@ -230,7 +291,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder="Ask your legal question..."
                 className="h-14 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-2xl text-base"
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                onKeyPress={(e) => e.key === "Enter" && !isStreaming && handleSendMessage()}
               />
               <Button
                 size="sm"
@@ -242,8 +303,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
             </div>
             <Button
               onClick={handleSendMessage}
-              disabled={!inputMessage.trim()}
-              className="h-14 px-6 bg-[#7C9885] hover:bg-[#5D7A6B] text-white rounded-2xl"
+              disabled={!inputMessage.trim() || isStreaming}
+              className="h-14 px-6 bg-[#7C9885] hover:bg-[#5D7A6B] text-white rounded-2xl disabled:opacity-50"
             >
               <Send className="w-5 h-5" />
             </Button>

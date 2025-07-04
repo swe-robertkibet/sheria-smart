@@ -71,4 +71,33 @@ Assistant:`;
       throw new Error('Failed to generate AI response');
     }
   }
+
+  async* generateStreamingResponse(userMessage: string, conversationHistory: Array<{role: string, content: string}> = []): AsyncGenerator<string, void, unknown> {
+    try {
+      // Build conversation context
+      const context = conversationHistory.map(msg => 
+        `${msg.role === 'USER' ? 'User' : 'Assistant'}: ${msg.content}`
+      ).join('\n');
+
+      const prompt = `${LEGAL_SYSTEM_PROMPT}
+
+${context ? `Previous conversation:\n${context}\n` : ''}
+
+User: ${userMessage}
+
+Assistant:`;
+
+      const result = await this.model.generateContentStream(prompt);
+      
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        if (chunkText) {
+          yield chunkText;
+        }
+      }
+    } catch (error) {
+      console.error('Error generating streaming response:', error);
+      throw new Error('Failed to generate streaming AI response');
+    }
+  }
 }
