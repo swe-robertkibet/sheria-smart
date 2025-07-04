@@ -25,6 +25,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [streamingMessage, setStreamingMessage] = useState<string>("")
   const [isStreaming, setIsStreaming] = useState(false)
+  const [isWaitingForStream, setIsWaitingForStream] = useState(false)
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(true)
   const [isAtBottom, setIsAtBottom] = useState(true)
   
@@ -74,8 +75,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     // This prevents auto-scroll from hiding the pinned user message
     if (atBottom && !userMessageVisible && !isStreaming) {
       setIsAtBottom(true)
-    } else if (isStreaming) {
-      // During streaming, keep auto-scroll disabled to maintain pinned message visibility
+    } else if (isStreaming || isWaitingForStream) {
+      // During streaming or waiting, keep auto-scroll disabled to maintain pinned message visibility
       setIsAtBottom(false)
     } else {
       setIsAtBottom(atBottom)
@@ -142,6 +143,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     setMessages([])
     setStreamingMessage("")
     setIsStreaming(false)
+    setIsWaitingForStream(false)
     setShowWelcomeMessage(true)
     setInputMessage("")
     setIsAtBottom(true)
@@ -181,8 +183,8 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     setInputMessage("")
     setShowWelcomeMessage(false)
     
-    // Start streaming
-    setIsStreaming(true)
+    // Start waiting for stream
+    setIsWaitingForStream(true)
     setStreamingMessage("")
 
     // Wait for DOM update, then scroll user message to top
@@ -208,6 +210,10 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         const reader = response.body.getReader()
         const decoder = new TextDecoder()
         let accumulatedText = ""
+
+        // Start streaming - hide waiting animation
+        setIsWaitingForStream(false)
+        setIsStreaming(true)
 
         while (true) {
           const { done, value } = await reader.read()
@@ -246,6 +252,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       }
       setMessages((prev) => [...prev, errorMessage])
     } finally {
+      setIsWaitingForStream(false)
       setIsStreaming(false)
       setStreamingMessage("")
     }
@@ -276,7 +283,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
               size="sm" 
               onClick={startNewConversation}
               className="text-[#7C9885] hover:bg-[#7C9885]/10"
-              disabled={isStreaming}
+              disabled={isStreaming || isWaitingForStream}
             >
               <Plus className="w-4 h-4 mr-2" />
               New Chat
@@ -347,6 +354,28 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
               </div>
             ))}
 
+            {/* Waiting for Stream - 3-dot loading animation */}
+            {isWaitingForStream && (
+              <div className="flex justify-start">
+                <div className="max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0]">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"></div>
+                      <div
+                        className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
+                        style={{ animationDelay: "0.1s" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                    </div>
+                    <span className="text-xs text-[#718096]">Thinking...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Streaming Message */}
             {isStreaming && streamingMessage && (
               <div className="flex justify-start">
@@ -399,7 +428,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder="Ask your legal question..."
                 className="h-14 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-2xl text-base"
-                onKeyPress={(e) => e.key === "Enter" && !isStreaming && handleSendMessage()}
+                onKeyPress={(e) => e.key === "Enter" && !isStreaming && !isWaitingForStream && handleSendMessage()}
               />
               <Button
                 size="sm"
@@ -411,7 +440,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
             </div>
             <Button
               onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isStreaming}
+              disabled={!inputMessage.trim() || isStreaming || isWaitingForStream}
               className="h-14 px-6 bg-[#7C9885] hover:bg-[#5D7A6B] text-white rounded-2xl disabled:opacity-50"
             >
               <Send className="w-5 h-5" />
