@@ -67,14 +67,18 @@ export default function LoginPage() {
         <div className="relative z-10 flex flex-col justify-between p-12 text-white">
           {/* Logo */}
           <div>
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center space-x-4">
               <Image
-                src="/sheria-smart.png"
-                alt="Sheria Smart Logo"
-                width={180}
-                height={45}
-                className="h-10 w-auto brightness-0 invert"
+                src="/sheria-smart-ico.png"
+                alt="Sheria Smart Icon"
+                width={32}
+                height={32}
+                className="h-8 w-8 brightness-0 invert"
               />
+              <div className="text-2xl font-bold">
+                <span className="text-white">Sheria</span>
+                <span className="text-[#F7DC6F]"> Smart</span>
+              </div>
             </Link>
           </div>
 

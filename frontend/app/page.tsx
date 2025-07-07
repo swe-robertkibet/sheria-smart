@@ -48,14 +48,18 @@ export default function HomePage() {
         }`}
       >
         <nav className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center">
+          <div className="flex items-center space-x-3">
             <Image
-              src="/sheria-smart.png"
-              alt="Sheria Smart Logo"
-              width={160}
-              height={40}
-              className="h-8 w-auto"
+              src="/sheria-smart-ico.png"
+              alt="Sheria Smart Icon"
+              width={24}
+              height={24}
+              className="h-6 w-6"
             />
+            <div className="text-xl font-bold">
+              <span className="text-[#7C9885]">Sheria</span>
+              <span className="text-[#C99383]"> Smart</span>
+            </div>
           </div>
           <div className="hidden md:flex items-center space-x-8">
             <a href="#how-it-works" className="text-[#2D3748] hover:text-[#7C9885] transition-colors">
