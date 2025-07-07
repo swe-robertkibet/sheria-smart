@@ -46,6 +46,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const data = await response.json()
         setUser(data.user)
       } else {
+        // 401 is expected when user is not authenticated
+        if (response.status !== 401) {
+          console.error('Unexpected auth error:', response.status, response.statusText)
+        }
         setUser(null)
       }
     } catch (error) {
