@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation"
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [showEmailForm, setShowEmailForm] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -136,102 +137,30 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-[#2D3748] font-medium">
-                Email Address
-              </Label>
+          {!showEmailForm ? (
+            /* Initial Auth Method Selection */
+            <div className="space-y-4">
+              <Button
+                onClick={() => setShowEmailForm(true)}
+                className="w-full h-14 bg-gradient-to-r from-[#7C9885] to-[#5D7A6B] hover:from-[#5D7A6B] hover:to-[#4A6356] text-white font-semibold rounded-lg transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                <Mail className="w-5 h-5 mr-3" />
+                Continue with Email
+              </Button>
+
               <div className="relative">
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  className="h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg"
-                  required
-                />
-                <Mail className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#7C9885]" />
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-[#E2E8F0]"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-[#718096]">OR</span>
+                </div>
               </div>
-            </div>
 
-            {/* Password Field */}
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-[#2D3748] font-medium">
-                Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
-                  className="h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#7C9885] hover:text-[#5D7A6B] transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="remember"
-                  checked={formData.rememberMe}
-                  onCheckedChange={(checked) => handleInputChange("rememberMe", checked as boolean)}
-                  className="border-[#7C9885] data-[state=checked]:bg-[#7C9885]"
-                />
-                <Label htmlFor="remember" className="text-sm text-[#2D3748] cursor-pointer">
-                  Remember me
-                </Label>
-              </div>
-              <Link href="/forgot-password" className="text-sm text-[#7C9885] hover:underline">
-                Forgot password?
-              </Link>
-            </div>
-
-            {/* Sign In Button */}
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-14 bg-gradient-to-r from-[#7C9885] to-[#5D7A6B] hover:from-[#5D7A6B] hover:to-[#4A6356] text-white font-semibold rounded-lg transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-xl"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Signing In...
-                </>
-              ) : (
-                "Continue with Email"
-              )}
-            </Button>
-
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-[#E2E8F0]"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-[#718096]">OR</span>
-              </div>
-            </div>
-
-            {/* Social Login */}
-            <div className="space-y-3">
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-12 border-[#E2E8F0] hover:bg-[#F8FAF9] transition-colors bg-transparent"
+                className="w-full h-14 border-[#E2E8F0] hover:bg-[#F8FAF9] transition-colors bg-transparent"
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                   <path
@@ -254,7 +183,100 @@ export default function LoginPage() {
                 Continue with Google
               </Button>
             </div>
-          </form>
+          ) : (
+            /* Email Login Form */
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Back Button */}
+              <Button
+                type="button"
+                onClick={() => setShowEmailForm(false)}
+                variant="ghost"
+                className="text-[#7C9885] hover:text-[#5D7A6B] p-0 h-auto font-normal"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to login options
+              </Button>
+
+              {/* Email Field */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-[#2D3748] font-medium">
+                  Email Address
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    className="h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg"
+                    required
+                    autoFocus
+                  />
+                  <Mail className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#7C9885]" />
+                </div>
+              </div>
+
+              {/* Password Field */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-[#2D3748] font-medium">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    className="h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#7C9885] hover:text-[#5D7A6B] transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Remember Me & Forgot Password */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="remember"
+                    checked={formData.rememberMe}
+                    onCheckedChange={(checked) => handleInputChange("rememberMe", checked as boolean)}
+                    className="border-[#7C9885] data-[state=checked]:bg-[#7C9885]"
+                  />
+                  <Label htmlFor="remember" className="text-sm text-[#2D3748] cursor-pointer">
+                    Remember me
+                  </Label>
+                </div>
+                <Link href="/forgot-password" className="text-sm text-[#7C9885] hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
+
+              {/* Sign In Button */}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-14 bg-gradient-to-r from-[#7C9885] to-[#5D7A6B] hover:from-[#5D7A6B] hover:to-[#4A6356] text-white font-semibold rounded-lg transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Signing In...
+                  </>
+                ) : (
+                  "Sign In to Sheria Smart"
+                )}
+              </Button>
+            </form>
+          )}
 
           {/* Security Indicators */}
           <div className="space-y-4">

@@ -19,6 +19,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [showEmailForm, setShowEmailForm] = useState(false)
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -193,219 +194,30 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Signup Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name Fields */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName" className="text-[#2D3748] font-medium">
-                  First Name
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="firstName"
-                    type="text"
-                    placeholder="Enter your first name"
-                    value={formData.firstName}
-                    onChange={(e) => handleInputChange("firstName", e.target.value)}
-                    className="h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg"
-                    required
-                  />
-                  <User className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#7C9885]" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="lastName" className="text-[#2D3748] font-medium">
-                  Last Name
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="lastName"
-                    type="text"
-                    placeholder="Enter your last name"
-                    value={formData.lastName}
-                    onChange={(e) => handleInputChange("lastName", e.target.value)}
-                    className="h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg"
-                    required
-                  />
-                  <User className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#7C9885]" />
-                </div>
-              </div>
-            </div>
-
-            {/* Email Field */}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-[#2D3748] font-medium">
-                Email Address
-              </Label>
-              <div className="relative">
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  className={`h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg ${
-                    formData.email && !validateEmail(formData.email) ? "border-red-300" : ""
-                  }`}
-                  required
-                />
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                  {formData.email && validateEmail(formData.email) ? (
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                  ) : formData.email && !validateEmail(formData.email) ? (
-                    <X className="w-5 h-5 text-red-500" />
-                  ) : (
-                    <Mail className="w-5 h-5 text-[#7C9885]" />
-                  )}
-                </div>
-              </div>
-              {formData.email && !validateEmail(formData.email) && (
-                <p className="text-sm text-red-500">Please enter a valid email address</p>
-              )}
-            </div>
-
-
-            {/* Password Field */}
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-[#2D3748] font-medium">
-                Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Create a strong password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
-                  className="h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#7C9885] hover:text-[#5D7A6B] transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-              {formData.password && <PasswordStrengthIndicator password={formData.password} />}
-            </div>
-
-            {/* Confirm Password Field */}
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-[#2D3748] font-medium">
-                Confirm Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                  className={`h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg ${
-                    formData.confirmPassword && !passwordsMatch ? "border-red-300" : ""
-                  }`}
-                  required
-                />
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                  {formData.confirmPassword && passwordsMatch && <CheckCircle className="w-5 h-5 text-green-500" />}
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="text-[#7C9885] hover:text-[#5D7A6B] transition-colors"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-              </div>
-              {formData.confirmPassword && !passwordsMatch && (
-                <p className="text-sm text-red-500">Passwords don't match yet</p>
-              )}
-            </div>
-
-            {/* Legal Checkboxes */}
+          {!showEmailForm ? (
+            /* Initial Auth Method Selection */
             <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <Checkbox
-                  id="terms"
-                  checked={formData.agreeToTerms}
-                  onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked as boolean)}
-                  className="border-[#7C9885] data-[state=checked]:bg-[#7C9885] mt-1"
-                  required
-                />
-                <Label htmlFor="terms" className="text-sm text-[#2D3748] cursor-pointer leading-relaxed">
-                  I agree to the{" "}
-                  <Link href="/terms" className="text-[#7C9885] hover:underline">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link href="/privacy" className="text-[#7C9885] hover:underline">
-                    Privacy Policy
-                  </Link>
-                </Label>
+              <Button
+                onClick={() => setShowEmailForm(true)}
+                className="w-full h-14 bg-gradient-to-r from-[#7C9885] to-[#5D7A6B] hover:from-[#5D7A6B] hover:to-[#4A6356] text-white font-semibold rounded-lg transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                <Mail className="w-5 h-5 mr-3" />
+                Continue with Email
+              </Button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-[#E2E8F0]"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-[#718096]">OR</span>
+                </div>
               </div>
 
-              <div className="flex items-start space-x-3">
-                <Checkbox
-                  id="age"
-                  checked={formData.ageVerification}
-                  onCheckedChange={(checked) => handleInputChange("ageVerification", checked as boolean)}
-                  className="border-[#7C9885] data-[state=checked]:bg-[#7C9885] mt-1"
-                  required
-                />
-                <Label htmlFor="age" className="text-sm text-[#2D3748] cursor-pointer">
-                  I confirm I am 18 years or older
-                </Label>
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <Checkbox
-                  id="marketing"
-                  checked={formData.marketingConsent}
-                  onCheckedChange={(checked) => handleInputChange("marketingConsent", checked as boolean)}
-                  className="border-[#7C9885] data-[state=checked]:bg-[#7C9885] mt-1"
-                />
-                <Label htmlFor="marketing" className="text-sm text-[#718096] cursor-pointer">
-                  Send me legal tips and updates via email <span className="text-xs text-[#718096]">(Optional)</span>
-                </Label>
-              </div>
-            </div>
-
-            {/* Create Account Button */}
-            <Button
-              type="submit"
-              disabled={isLoading || !formData.agreeToTerms || !formData.ageVerification}
-              className="w-full h-14 bg-gradient-to-r from-[#7C9885] to-[#5D7A6B] hover:from-[#5D7A6B] hover:to-[#4A6356] text-white font-semibold rounded-lg transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Creating your account...
-                </>
-              ) : (
-                "Continue with Email"
-              )}
-            </Button>
-
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-[#E2E8F0]"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-[#718096]">OR</span>
-              </div>
-            </div>
-
-            {/* Social Signup */}
-            <div className="space-y-3">
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-12 border-[#E2E8F0] hover:bg-[#F8FAF9] transition-colors bg-transparent"
+                className="w-full h-14 border-[#E2E8F0] hover:bg-[#F8FAF9] transition-colors bg-transparent"
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                   <path
@@ -428,7 +240,216 @@ export default function SignupPage() {
                 Continue with Google
               </Button>
             </div>
-          </form>
+          ) : (
+            /* Email Signup Form */
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Back Button */}
+              <Button
+                type="button"
+                onClick={() => setShowEmailForm(false)}
+                variant="ghost"
+                className="text-[#7C9885] hover:text-[#5D7A6B] p-0 h-auto font-normal"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to signup options
+              </Button>
+
+              {/* Name Fields */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="text-[#2D3748] font-medium">
+                    First Name
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="firstName"
+                      type="text"
+                      placeholder="Enter your first name"
+                      value={formData.firstName}
+                      onChange={(e) => handleInputChange("firstName", e.target.value)}
+                      className="h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg"
+                      required
+                      autoFocus
+                    />
+                    <User className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#7C9885]" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="text-[#2D3748] font-medium">
+                    Last Name
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="lastName"
+                      type="text"
+                      placeholder="Enter your last name"
+                      value={formData.lastName}
+                      onChange={(e) => handleInputChange("lastName", e.target.value)}
+                      className="h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg"
+                      required
+                    />
+                    <User className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#7C9885]" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Email Field */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-[#2D3748] font-medium">
+                  Email Address
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    className={`h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg ${
+                      formData.email && !validateEmail(formData.email) ? "border-red-300" : ""
+                    }`}
+                    required
+                  />
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                    {formData.email && validateEmail(formData.email) ? (
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                    ) : formData.email && !validateEmail(formData.email) ? (
+                      <X className="w-5 h-5 text-red-500" />
+                    ) : (
+                      <Mail className="w-5 h-5 text-[#7C9885]" />
+                    )}
+                  </div>
+                </div>
+                {formData.email && !validateEmail(formData.email) && (
+                  <p className="text-sm text-red-500">Please enter a valid email address</p>
+                )}
+              </div>
+
+              {/* Password Field */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-[#2D3748] font-medium">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Create a strong password"
+                    value={formData.password}
+                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    className="h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#7C9885] hover:text-[#5D7A6B] transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                {formData.password && <PasswordStrengthIndicator password={formData.password} />}
+              </div>
+
+              {/* Confirm Password Field */}
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-[#2D3748] font-medium">
+                  Confirm Password
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                    className={`h-14 pl-4 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg ${
+                      formData.confirmPassword && !passwordsMatch ? "border-red-300" : ""
+                    }`}
+                    required
+                  />
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                    {formData.confirmPassword && passwordsMatch && <CheckCircle className="w-5 h-5 text-green-500" />}
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="text-[#7C9885] hover:text-[#5D7A6B] transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+                {formData.confirmPassword && !passwordsMatch && (
+                  <p className="text-sm text-red-500">Passwords don't match yet</p>
+                )}
+              </div>
+
+              {/* Legal Checkboxes */}
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="terms"
+                    checked={formData.agreeToTerms}
+                    onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked as boolean)}
+                    className="border-[#7C9885] data-[state=checked]:bg-[#7C9885] mt-1"
+                    required
+                  />
+                  <Label htmlFor="terms" className="text-sm text-[#2D3748] cursor-pointer leading-relaxed">
+                    I agree to the{" "}
+                    <Link href="/terms" className="text-[#7C9885] hover:underline">
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link href="/privacy" className="text-[#7C9885] hover:underline">
+                      Privacy Policy
+                    </Link>
+                  </Label>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="age"
+                    checked={formData.ageVerification}
+                    onCheckedChange={(checked) => handleInputChange("ageVerification", checked as boolean)}
+                    className="border-[#7C9885] data-[state=checked]:bg-[#7C9885] mt-1"
+                    required
+                  />
+                  <Label htmlFor="age" className="text-sm text-[#2D3748] cursor-pointer">
+                    I confirm I am 18 years or older
+                  </Label>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="marketing"
+                    checked={formData.marketingConsent}
+                    onCheckedChange={(checked) => handleInputChange("marketingConsent", checked as boolean)}
+                    className="border-[#7C9885] data-[state=checked]:bg-[#7C9885] mt-1"
+                  />
+                  <Label htmlFor="marketing" className="text-sm text-[#718096] cursor-pointer">
+                    Send me legal tips and updates via email <span className="text-xs text-[#718096]">(Optional)</span>
+                  </Label>
+                </div>
+              </div>
+
+              {/* Create Account Button */}
+              <Button
+                type="submit"
+                disabled={isLoading || !formData.agreeToTerms || !formData.ageVerification}
+                className="w-full h-14 bg-gradient-to-r from-[#7C9885] to-[#5D7A6B] hover:from-[#5D7A6B] hover:to-[#4A6356] text-white font-semibold rounded-lg transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Creating your account...
+                  </>
+                ) : (
+                  "Create My Free Account"
+                )}
+              </Button>
+            </form>
+          )}
 
           {/* Security Indicators */}
           <div className="space-y-4">
