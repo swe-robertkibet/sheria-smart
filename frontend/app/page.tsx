@@ -21,6 +21,7 @@ import {
   Globe,
   Wifi,
 } from "lucide-react"
+import Image from "next/image"
 import { TypewriterText } from "@/components/typewriter-text"
 import { CounterAnimation } from "@/components/counter-animation"
 import { ScrollReveal } from "@/components/scroll-reveal"
@@ -47,9 +48,14 @@ export default function HomePage() {
         }`}
       >
         <nav className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="text-2xl font-bold">
-            <span className="text-[#7C9885]">Sheria</span>
-            <span className="text-[#C99383]"> Smart</span>
+          <div className="flex items-center">
+            <Image
+              src="/sheria-smart.png"
+              alt="Sheria Smart Logo"
+              width={160}
+              height={40}
+              className="h-8 w-auto"
+            />
           </div>
           <div className="hidden md:flex items-center space-x-8">
             <a href="#how-it-works" className="text-[#2D3748] hover:text-[#7C9885] transition-colors">

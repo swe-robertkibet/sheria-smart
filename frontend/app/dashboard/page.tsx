@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MessageCircle, FileText, User, LogOut, ChevronDown, Menu, X, Scale } from "lucide-react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { ChatInterface } from "@/components/chat-interface"
 import { StructuredChatInterface } from "@/components/structured-chat-interface"
@@ -65,9 +66,14 @@ export default function DashboardPage() {
       <header className="bg-white border-b border-[#F5F5F5] h-15 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
-          <div className="text-2xl font-bold">
-            <span className="text-[#7C9885]">Sheria</span>
-            <span className="text-[#C99383]"> Smart</span>
+          <div className="flex items-center">
+            <Image
+              src="/sheria-smart.png"
+              alt="Sheria Smart Logo"
+              width={160}
+              height={40}
+              className="h-8 w-auto"
+            />
           </div>
 
           {/* Mobile Menu Button */}

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff, Mail, ArrowLeft, Shield, CheckCircle, Loader2 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { FloatingIcons } from "@/components/floating-icons"
 import { TestimonialCarousel } from "@/components/testimonial-carousel"
@@ -66,9 +67,14 @@ export default function LoginPage() {
         <div className="relative z-10 flex flex-col justify-between p-12 text-white">
           {/* Logo */}
           <div>
-            <Link href="/" className="text-3xl font-bold">
-              <span className="text-white">Sheria</span>
-              <span className="text-[#F7DC6F]"> Smart</span>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/sheria-smart.png"
+                alt="Sheria Smart Logo"
+                width={180}
+                height={45}
+                className="h-10 w-auto brightness-0 invert"
+              />
             </Link>
           </div>
 

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff, Mail, Phone, User, ArrowLeft, Shield, CheckCircle, Loader2, Check, X } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { FloatingIcons } from "@/components/floating-icons"
 import { PasswordStrengthIndicator } from "@/components/password-strength"
@@ -92,9 +93,14 @@ export default function SignupPage() {
         <div className="relative z-10 flex flex-col justify-center p-12 text-white min-h-full">
           {/* Logo */}
           <div className="mb-12">
-            <Link href="/" className="text-3xl font-bold">
-              <span className="text-white">Sheria</span>
-              <span className="text-[#F7DC6F]"> Smart</span>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/sheria-smart.png"
+                alt="Sheria Smart Logo"
+                width={180}
+                height={45}
+                className="h-10 w-auto brightness-0 invert"
+              />
             </Link>
           </div>
 
