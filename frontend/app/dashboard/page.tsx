@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,26 +10,52 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MessageCircle, FileText, User, LogOut, ChevronDown, Menu, X, Scale } from "lucide-react"
+import { MessageCircle, FileText, User, LogOut, ChevronDown, Menu, X, Scale, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { ChatInterface } from "@/components/chat-interface"
 import { StructuredChatInterface } from "@/components/structured-chat-interface"
 import { DocumentSelector } from "@/components/document-selector"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function DashboardPage() {
   const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "structured-chat" | "documents">("dashboard")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [userName] = useState("John")
   const router = useRouter()
+  const { user, logout, isLoading, isAuthenticated } = useAuth()
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login')
+    }
+  }, [isLoading, isAuthenticated, router])
 
   // Reset scroll position when switching between dashboard views
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [currentView])
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logout()
     router.push("/")
+  }
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-[#7C9885]" />
+          <p className="text-[#718096]">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render if not authenticated
+  if (!isAuthenticated || !user) {
+    return null
   }
 
   const handleStartChat = () => {
@@ -96,9 +122,14 @@ export default function DashboardPage() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center space-x-2">
                   <Avatar className="w-8 h-8 bg-[#7C9885]">
-                    <AvatarFallback className="text-white font-semibold">{userName.charAt(0)}</AvatarFallback>
+                    {user.picture ? (
+                      <AvatarImage src={user.picture} alt={user.name} />
+                    ) : null}
+                    <AvatarFallback className="text-white font-semibold">
+                      {user.name?.charAt(0) || user.email.charAt(0)}
+                    </AvatarFallback>
                   </Avatar>
-                  <span className="text-[#2D3748]">{userName}</span>
+                  <span className="text-[#2D3748]">{user.name || user.email}</span>
                   <ChevronDown className="w-4 h-4 text-[#718096]" />
                 </Button>
               </DropdownMenuTrigger>

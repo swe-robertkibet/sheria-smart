@@ -127,6 +127,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify({}),
         })
         
@@ -159,6 +160,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({}),
       })
       
@@ -204,6 +206,7 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           sessionId,
           message: currentMessage,

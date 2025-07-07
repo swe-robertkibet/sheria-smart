@@ -2,18 +2,21 @@ import express from 'express';
 import { GeminiService } from '../services/gemini';
 import { StructuredGeminiService } from '../services/structured-gemini';
 import DatabaseService from '../services/database';
+import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 
 const router = express.Router();
 const structuredGeminiService = new StructuredGeminiService();
 
 // Create a new chat session
-router.post('/session', async (req, res) => {
+router.post('/session', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
-    const { userId } = req.body;
-    const session = await DatabaseService.createChatSession(userId);
+    if (!req.user) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    const session = await DatabaseService.createChatSession(req.user.userId);
     res.json({ 
-      sessionId: session.id,
-      debug: 'BACKEND_UPDATED_WITH_CHANGES' // This will confirm if backend is restarting
+      sessionId: session.id
     });
   } catch (error) {
     console.error('Error creating chat session:', error);
@@ -57,12 +60,22 @@ router.post('/session', async (req, res) => {
 // });
 
 // Send a message and get streaming AI response
-router.post('/send-stream', async (req, res) => {
+router.post('/send-stream', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
     const { sessionId, message } = req.body;
 
     if (!sessionId || !message) {
       return res.status(400).json({ error: 'Missing sessionId or message' });
+    }
+
+    // Verify the session belongs to the authenticated user
+    const session = await DatabaseService.getChatSession(sessionId);
+    if (!session || session.userId !== req.user.userId) {
+      return res.status(403).json({ error: 'Access denied to this chat session' });
     }
 
     // Set headers for streaming response
@@ -110,12 +123,22 @@ router.post('/send-stream', async (req, res) => {
 });
 
 // Send a message and get structured AI response
-router.post('/send-structured', async (req, res) => {
+router.post('/send-structured', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
     const { sessionId, message } = req.body;
 
     if (!sessionId || !message) {
       return res.status(400).json({ error: 'Missing sessionId or message' });
+    }
+
+    // Verify the session belongs to the authenticated user
+    const session = await DatabaseService.getChatSession(sessionId);
+    if (!session || session.userId !== req.user.userId) {
+      return res.status(403).json({ error: 'Access denied to this chat session' });
     }
 
     // Get conversation history
@@ -147,13 +170,22 @@ router.post('/send-structured', async (req, res) => {
 });
 
 // Get chat history
-router.get('/history/:sessionId', async (req, res) => {
+router.get('/history/:sessionId', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
     const { sessionId } = req.params;
     const session = await DatabaseService.getChatSession(sessionId);
     
     if (!session) {
       return res.status(404).json({ error: 'Session not found' });
+    }
+
+    // Verify the session belongs to the authenticated user
+    if (session.userId !== req.user.userId) {
+      return res.status(403).json({ error: 'Access denied to this chat session' });
     }
 
     res.json({

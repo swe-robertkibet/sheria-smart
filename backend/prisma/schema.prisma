@@ -13,12 +13,50 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  name          String?
+  picture       String?
+  googleId      String        @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  // Relations
+  accounts      Account[]
+  chatSessions  ChatSession[]
+  
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
 model ChatSession {
   id        String   @id @default(cuid())
-  userId    String?  // Optional for now, will be used when auth is added
+  userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   messages  Message[]
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@map("chat_sessions")
 }

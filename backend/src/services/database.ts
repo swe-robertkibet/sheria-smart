@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export class DatabaseService {
-  async createChatSession(userId?: string) {
+  async createChatSession(userId: string) {
     return await prisma.chatSession.create({
       data: {
         userId,
