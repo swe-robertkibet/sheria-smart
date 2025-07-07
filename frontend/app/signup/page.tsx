@@ -7,12 +7,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, Mail, User, ArrowLeft, Shield, CheckCircle, Loader2, Check, X } from "lucide-react"
+import { Eye, EyeOff, Mail, User, ArrowLeft, Shield, CheckCircle, Loader2, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { FloatingIcons } from "@/components/floating-icons"
 import { PasswordStrengthIndicator } from "@/components/password-strength"
-import { CounterAnimation } from "@/components/counter-animation"
 import { useRouter } from "next/navigation"
 
 export default function SignupPage() {
@@ -104,75 +103,16 @@ export default function SignupPage() {
           </div>
 
           {/* Main Content */}
-          <div className="space-y-12 flex-1 flex flex-col justify-center">
-            <div className="space-y-6">
+          <div className="flex-1 flex flex-col justify-center space-y-8">
+            <div className="space-y-6 text-center">
               <h1 className="text-5xl font-bold leading-tight">Join Sheria Smart</h1>
-              <p className="text-xl text-white/80">Start your legal journey today</p>
+              <p className="text-xl text-white/90">Get instant legal guidance from Kenya's trusted AI assistant</p>
             </div>
 
-            {/* Benefits */}
-            <div className="space-y-6">
-              {["Free legal guidance", "Document generation", "24/7 AI assistance", "Privacy protected"].map(
-                (benefit, index) => (
-                  <div key={index} className="flex items-center space-x-4">
-                    <div className="w-8 h-8 bg-[#F7DC6F] rounded-full flex items-center justify-center flex-shrink-0">
-                      <Check className="w-5 h-5 text-[#2D3748]" />
-                    </div>
-                    <span className="text-lg text-white/90">{benefit}</span>
-                  </div>
-                ),
-              )}
-            </div>
-
-            {/* Statistics */}
-            <div className="bg-white/15 rounded-3xl p-8 backdrop-blur-sm border border-white/20">
-              <div className="text-center space-y-4">
-                <div className="text-4xl font-bold text-[#F7DC6F]">
-                  <CounterAnimation end={10000} suffix="+" />
-                </div>
-                <p className="text-xl text-white/90">Kenyans getting smart legal help</p>
-                <div className="flex justify-center space-x-6 text-sm text-white/70">
-                  <div className="text-center">
-                    <div className="font-semibold text-white">5,000+</div>
-                    <div>Documents</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-semibold text-white">98%</div>
-                    <div>Satisfaction</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <Shield className="w-6 h-6 text-[#F7DC6F]" />
-                <span className="text-white/90">Bank-level security & encryption</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <CheckCircle className="w-6 h-6 text-[#F7DC6F]" />
-                <span className="text-white/90">Reviewed by Kenyan legal experts</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Shield className="w-6 h-6 text-[#F7DC6F]" />
-                <span className="text-white/90">KDPA 2019 compliant</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Quote */}
-          <div className="mt-12 space-y-6">
-            <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm border border-white/20">
-              <p className="text-white/90 italic text-lg text-center">"Legal help made simple for every Kenyan"</p>
-            </div>
+            {/* Single Trust Signal */}
             <div className="flex items-center justify-center space-x-3">
-              <div className="flex space-x-1">
-                <div className="w-3 h-3 bg-[#FF0000] rounded-full"></div>
-                <div className="w-3 h-3 bg-[#FFFFFF] rounded-full"></div>
-                <div className="w-3 h-3 bg-[#000000] rounded-full"></div>
-              </div>
-              <span className="text-white/70 font-medium">Proudly Kenyan</span>
+              <CheckCircle className="w-6 h-6 text-[#F7DC6F]" />
+              <span className="text-lg text-white/90">Trusted by 10,000+ Kenyans</span>
             </div>
           </div>
         </div>
