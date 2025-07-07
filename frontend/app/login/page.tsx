@@ -212,7 +212,7 @@ export default function LoginPage() {
                   Signing In...
                 </>
               ) : (
-                "Sign In to Sheria Smart"
+                "Continue with Email"
               )}
             </Button>
 
@@ -252,15 +252,6 @@ export default function LoginPage() {
                   />
                 </svg>
                 Continue with Google
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-12 border-[#E2E8F0] hover:bg-[#F8FAF9] transition-colors bg-transparent"
-              >
-                <span className="text-lg mr-3">📱</span>
-                Continue with Phone
               </Button>
             </div>
           </form>

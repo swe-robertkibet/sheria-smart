@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, Mail, Phone, User, ArrowLeft, Shield, CheckCircle, Loader2, Check, X } from "lucide-react"
+import { Eye, EyeOff, Mail, User, ArrowLeft, Shield, CheckCircle, Loader2, Check, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { FloatingIcons } from "@/components/floating-icons"
@@ -23,7 +23,6 @@ export default function SignupPage() {
     firstName: "",
     lastName: "",
     email: "",
-    phone: "",
     password: "",
     confirmPassword: "",
     agreeToTerms: false,
@@ -64,11 +63,6 @@ export default function SignupPage() {
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email)
-  }
-
-  const validatePhone = (phone: string) => {
-    const phoneRegex = /^[0-9]{9}$/
-    return phoneRegex.test(phone.replace(/\s/g, ""))
   }
 
   const passwordsMatch = formData.password === formData.confirmPassword && formData.confirmPassword !== ""
@@ -272,26 +266,6 @@ export default function SignupPage() {
               )}
             </div>
 
-            {/* Phone Field */}
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="text-[#2D3748] font-medium">
-                Phone Number
-              </Label>
-              <div className="relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#718096] text-sm">+254</div>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="712 345 678"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
-                  className="h-14 pl-16 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-lg"
-                  required
-                />
-                <Phone className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#7C9885]" />
-              </div>
-              <p className="text-xs text-[#718096]">Format: 712 345 678</p>
-            </div>
 
             {/* Password Field */}
             <div className="space-y-2">
@@ -412,7 +386,7 @@ export default function SignupPage() {
                   Creating your account...
                 </>
               ) : (
-                "Create My Free Account"
+                "Continue with Email"
               )}
             </Button>
 
@@ -451,16 +425,7 @@ export default function SignupPage() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Sign up with Google
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-12 border-[#E2E8F0] hover:bg-[#F8FAF9] transition-colors bg-transparent"
-              >
-                <span className="text-lg mr-3">📱</span>
-                Sign up with Phone
+                Continue with Google
               </Button>
             </div>
           </form>
