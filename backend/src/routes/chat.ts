@@ -79,13 +79,9 @@ router.post('/send-stream', authenticateToken, async (req: AuthenticatedRequest,
     }
 
     // Set headers for streaming response
-    res.writeHead(200, {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Cache-Control'
-    });
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
 
     // Get conversation history
     const history = await DatabaseService.getMessageHistory(sessionId, 5);

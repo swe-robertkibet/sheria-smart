@@ -87,13 +87,9 @@ router.post('/send-stream', auth_1.authenticateToken, (req, res) => __awaiter(vo
             return res.status(403).json({ error: 'Access denied to this chat session' });
         }
         // Set headers for streaming response
-        res.writeHead(200, {
-            'Content-Type': 'text/plain; charset=utf-8',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Cache-Control'
-        });
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
         // Get conversation history
         const history = yield database_1.default.getMessageHistory(sessionId, 5);
         const conversationHistory = history.reverse().map(msg => ({

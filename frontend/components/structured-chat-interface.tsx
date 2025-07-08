@@ -57,6 +57,7 @@ export function StructuredChatInterface({ onBack }: StructuredChatInterfaceProps
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify({}),
         })
         
@@ -120,6 +121,7 @@ export function StructuredChatInterface({ onBack }: StructuredChatInterfaceProps
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           sessionId,
           message: currentMessage,
