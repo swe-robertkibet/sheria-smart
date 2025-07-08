@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Send, Mic, AlertTriangle, CheckCircle, Clock, FileText, Scale, User } from "lucide-react"
+import { ArrowLeft, Send, Mic, AlertTriangle, CheckCircle, Clock, FileText, Scale, User, Menu } from "lucide-react"
 import { StructuredLegalResponse, QuestionClassification, StructuredChatResponse, UrgencyLevel, LegalArea } from "../types/legal"
 import { useScrollToTop } from "@/hooks/use-scroll-to-top"
 
@@ -21,13 +21,15 @@ interface Message {
 
 interface StructuredChatInterfaceProps {
   onBack: () => void
+  sessionId?: string | null
+  onToggleSidebar?: () => void
 }
 
-export function StructuredChatInterface({ onBack }: StructuredChatInterfaceProps) {
+export function StructuredChatInterface({ onBack, sessionId: propSessionId, onToggleSidebar }: StructuredChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
-  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [sessionId, setSessionId] = useState<string | null>(propSessionId || null)
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(true)
   const [isAtBottom, setIsAtBottom] = useState(true)
   
@@ -119,30 +121,61 @@ export function StructuredChatInterface({ onBack }: StructuredChatInterfaceProps
     }
   }, [messages, isTyping, isAtBottom])
 
-  // Initialize chat session
+  // Initialize chat session or load existing one
   useEffect(() => {
     const initSession = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/chat/session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({}),
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          setSessionId(data.sessionId)
+      if (propSessionId) {
+        // Load existing session
+        setSessionId(propSessionId)
+        setShowWelcomeMessage(false)
+        await loadChatHistory(propSessionId)
+      } else {
+        // Create new session
+        try {
+          const response = await fetch('http://localhost:5000/api/chat/session', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ chatType: 'STRUCTURED_ANALYSIS' }),
+          })
+          
+          if (response.ok) {
+            const data = await response.json()
+            setSessionId(data.sessionId)
+          }
+        } catch (error) {
+          console.error('Failed to initialize chat session:', error)
         }
-      } catch (error) {
-        console.error('Failed to initialize chat session:', error)
       }
     }
     
     initSession()
-  }, [])
+  }, [propSessionId])
+
+  // Load chat history for existing session
+  const loadChatHistory = async (sessionId: string) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/chat/history/${sessionId}`, {
+        credentials: 'include',
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        const chatMessages = data.messages.map((msg: any) => ({
+          id: msg.id,
+          content: msg.role === 'USER' ? msg.content : JSON.parse(msg.content),
+          sender: msg.role === 'USER' ? 'user' : 'ai',
+          timestamp: new Date(msg.createdAt),
+          isStructured: msg.role === 'ASSISTANT',
+        }))
+        setMessages(chatMessages)
+      }
+    } catch (error) {
+      console.error('Failed to load chat history:', error)
+    }
+  }
 
   const getUrgencyColor = (urgency: UrgencyLevel) => {
     switch (urgency) {
@@ -464,6 +497,11 @@ export function StructuredChatInterface({ onBack }: StructuredChatInterfaceProps
       {/* Chat Header */}
       <header className="bg-white border-b border-[#F5F5F5] p-4 sticky top-0 z-50">
         <div className="flex items-center space-x-4">
+          {onToggleSidebar && (
+            <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-[#7C9885] lg:hidden">
+              <Menu className="w-5 h-5" />
+            </Button>
+          )}
           <Button variant="ghost" size="icon" onClick={onBack} className="text-[#7C9885]">
             <ArrowLeft className="w-5 h-5" />
           </Button>

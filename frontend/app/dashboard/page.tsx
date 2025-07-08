@@ -16,11 +16,14 @@ import { useRouter } from "next/navigation"
 import { ChatInterface } from "@/components/chat-interface"
 import { StructuredChatInterface } from "@/components/structured-chat-interface"
 import { DocumentSelector } from "@/components/document-selector"
+import { ChatSidebar } from "@/components/chat-sidebar"
 import { useAuth } from "@/contexts/auth-context"
 
 export default function DashboardPage() {
   const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "structured-chat" | "documents">("dashboard")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const router = useRouter()
   const { user, logout, isLoading, isAuthenticated } = useAuth()
 
@@ -59,10 +62,12 @@ export default function DashboardPage() {
   }
 
   const handleStartChat = () => {
+    setCurrentSessionId(null)
     setCurrentView("chat")
   }
 
   const handleStartStructuredChat = () => {
+    setCurrentSessionId(null)
     setCurrentView("structured-chat")
   }
 
@@ -72,14 +77,65 @@ export default function DashboardPage() {
 
   const handleBackToDashboard = () => {
     setCurrentView("dashboard")
+    setCurrentSessionId(null)
+  }
+
+  const handleSessionSelect = (sessionId: string) => {
+    setCurrentSessionId(sessionId)
+    setCurrentView("chat")
+    setIsSidebarOpen(false) // Close sidebar on mobile
+  }
+
+  const handleNewChat = () => {
+    setCurrentSessionId(null)
+    setCurrentView("chat")
+    setIsSidebarOpen(false) // Close sidebar on mobile
+  }
+
+  const handleToggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen)
   }
 
   if (currentView === "chat") {
-    return <ChatInterface onBack={handleBackToDashboard} />
+    return (
+      <div className="flex h-screen">
+        <ChatSidebar 
+          isOpen={isSidebarOpen}
+          onToggle={handleToggleSidebar}
+          currentSessionId={currentSessionId}
+          onSessionSelect={handleSessionSelect}
+          onNewChat={handleNewChat}
+        />
+        <div className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64 xl:ml-80' : 'ml-0'}`}>
+          <ChatInterface 
+            onBack={handleBackToDashboard}
+            sessionId={currentSessionId}
+            onToggleSidebar={handleToggleSidebar}
+          />
+        </div>
+      </div>
+    )
   }
 
   if (currentView === "structured-chat") {
-    return <StructuredChatInterface onBack={handleBackToDashboard} />
+    return (
+      <div className="flex h-screen">
+        <ChatSidebar 
+          isOpen={isSidebarOpen}
+          onToggle={handleToggleSidebar}
+          currentSessionId={currentSessionId}
+          onSessionSelect={handleSessionSelect}
+          onNewChat={handleNewChat}
+        />
+        <div className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64 xl:ml-80' : 'ml-0'}`}>
+          <StructuredChatInterface 
+            onBack={handleBackToDashboard}
+            sessionId={currentSessionId}
+            onToggleSidebar={handleToggleSidebar}
+          />
+        </div>
+      </div>
+    )
   }
 
   if (currentView === "documents") {
@@ -106,15 +162,25 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
+          {/* Mobile Menu Button and Sidebar Toggle */}
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleToggleSidebar}
+              className="text-[#7C9885] hover:text-[#5D7A6B]"
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
 
           {/* User Menu - Desktop */}
           <div className="hidden md:block">

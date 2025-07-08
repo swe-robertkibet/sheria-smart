@@ -50,14 +50,21 @@ model Account {
 }
 
 model ChatSession {
-  id        String   @id @default(cuid())
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  messages  Message[]
+  id              String      @id @default(cuid())
+  userId          String
+  title           String?
+  lastMessageAt   DateTime    @default(now()) @updatedAt
+  messageCount    Int         @default(0)
+  chatType        ChatType    @default(QUICK_CHAT)
+  isArchived      Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  messages        Message[]
   
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   
+  @@index([userId, updatedAt(sort: Desc)])
+  @@index([userId, isArchived, lastMessageAt(sort: Desc)])
   @@map("chat_sessions")
 }
 
@@ -66,14 +73,23 @@ model Message {
   content     String      @db.Text
   role        MessageRole
   sessionId   String
+  msgCursor   Int         @default(autoincrement())
   createdAt   DateTime    @default(now())
   
   session     ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   
+  @@index([sessionId, createdAt(sort: Desc)])
+  @@index([sessionId, role, createdAt(sort: Desc)])
+  @@index([sessionId, msgCursor(sort: Desc)])
   @@map("messages")
 }
 
 enum MessageRole {
   USER
   ASSISTANT
+}
+
+enum ChatType {
+  QUICK_CHAT
+  STRUCTURED_ANALYSIS
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, Send, Mic, Plus } from "lucide-react"
+import { ArrowLeft, Send, Mic, Plus, Menu } from "lucide-react"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeSanitize from 'rehype-sanitize'
@@ -18,12 +18,14 @@ interface Message {
 
 interface ChatInterfaceProps {
   onBack: () => void
+  sessionId?: string | null
+  onToggleSidebar?: () => void
 }
 
-export function ChatInterface({ onBack }: ChatInterfaceProps) {
+export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSidebar }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState("")
-  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [sessionId, setSessionId] = useState<string | null>(propSessionId || null)
   const [streamingMessage, setStreamingMessage] = useState<string>("")
   const [isStreaming, setIsStreaming] = useState(false)
   const [isWaitingForStream, setIsWaitingForStream] = useState(false)
@@ -118,30 +120,60 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
     }
   }, [streamingMessage, isStreaming, isAtBottom])
 
-  // Initialize chat session
+  // Initialize chat session or load existing one
   useEffect(() => {
     const initSession = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/chat/session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({}),
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          setSessionId(data.sessionId)
+      if (propSessionId) {
+        // Load existing session
+        setSessionId(propSessionId)
+        setShowWelcomeMessage(false)
+        await loadChatHistory(propSessionId)
+      } else {
+        // Create new session
+        try {
+          const response = await fetch('http://localhost:5000/api/chat/session', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ chatType: 'QUICK_CHAT' }),
+          })
+          
+          if (response.ok) {
+            const data = await response.json()
+            setSessionId(data.sessionId)
+          }
+        } catch (error) {
+          console.error('Failed to initialize chat session:', error)
         }
-      } catch (error) {
-        console.error('Failed to initialize chat session:', error)
       }
     }
     
     initSession()
-  }, [])
+  }, [propSessionId])
+
+  // Load chat history for existing session
+  const loadChatHistory = async (sessionId: string) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/chat/history/${sessionId}`, {
+        credentials: 'include',
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        const chatMessages = data.messages.map((msg: any) => ({
+          id: msg.id,
+          content: msg.content,
+          sender: msg.role === 'USER' ? 'user' : 'ai',
+          timestamp: new Date(msg.createdAt),
+        }))
+        setMessages(chatMessages)
+      }
+    } catch (error) {
+      console.error('Failed to load chat history:', error)
+    }
+  }
 
   const startNewConversation = async () => {
     // Reset all state
@@ -271,6 +303,11 @@ export function ChatInterface({ onBack }: ChatInterfaceProps) {
       <header className="bg-white border-b border-[#F5F5F5] p-4 sticky top-0 z-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
+            {onToggleSidebar && (
+              <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-[#7C9885] lg:hidden">
+                <Menu className="w-5 h-5" />
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={onBack} className="text-[#7C9885]">
               <ArrowLeft className="w-5 h-5" />
             </Button>
