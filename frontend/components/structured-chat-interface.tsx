@@ -24,29 +24,100 @@ interface StructuredChatInterfaceProps {
 }
 
 export function StructuredChatInterface({ onBack }: StructuredChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content: "Hello! I'm your AI legal assistant with enhanced structured responses. I can provide detailed, organized legal guidance specific to Kenyan law. How can I help you today?",
-      sender: "ai",
-      timestamp: new Date(),
-    },
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState(true)
+  const [isAtBottom, setIsAtBottom] = useState(true)
+  
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const lastUserMessageRef = useRef<HTMLDivElement>(null)
+  const scrollAnchorRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Reset scroll position when component mounts
   useScrollToTop()
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  const checkIfAtBottom = () => {
+    if (!scrollContainerRef.current) return true
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current
+    const threshold = 100 // Larger threshold for auto-scroll
+    return scrollTop + clientHeight >= scrollHeight - threshold
   }
 
+  const scrollToBottom = () => {
+    if (scrollAnchorRef.current && isAtBottom && !isTyping) {
+      // Only auto-scroll when not typing to avoid hiding the pinned message
+      scrollAnchorRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }
+
+  const checkIfUserMessageVisible = () => {
+    if (!lastUserMessageRef.current || !scrollContainerRef.current) return true
+    
+    const messageRect = lastUserMessageRef.current.getBoundingClientRect()
+    const containerRect = scrollContainerRef.current.getBoundingClientRect()
+    
+    // Check if user message is visible in the viewport
+    return messageRect.top >= containerRect.top && messageRect.top <= containerRect.bottom
+  }
+
+  const scrollUserMessageToTop = () => {
+    if (lastUserMessageRef.current) {
+      // Scroll the user message to the top of the viewport
+      lastUserMessageRef.current.scrollIntoView({ 
+        behavior: "smooth", 
+        block: "start"
+      })
+    }
+  }
+
+  const handleScroll = () => {
+    const atBottom = checkIfAtBottom()
+    const userMessageVisible = checkIfUserMessageVisible()
+    
+    // Only enable auto-scroll if user manually scrolls to bottom AND user message is not visible
+    // This prevents auto-scroll from hiding the pinned user message
+    if (atBottom && !userMessageVisible && !isTyping) {
+      setIsAtBottom(true)
+    } else if (isTyping) {
+      // During typing, keep auto-scroll disabled to maintain pinned message visibility
+      setIsAtBottom(false)
+    } else {
+      setIsAtBottom(atBottom)
+    }
+  }
+
+  // Throttled scroll handler for performance
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    const container = scrollContainerRef.current
+    if (container) {
+      let ticking = false
+      const throttledScroll = () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            handleScroll()
+            ticking = false
+          })
+          ticking = true
+        }
+      }
+      
+      container.addEventListener('scroll', throttledScroll, { passive: true })
+      return () => container.removeEventListener('scroll', throttledScroll)
+    }
+  }, [])
+
+  // Auto-scroll during responses - disabled to keep pinned message visible
+  useEffect(() => {
+    // Disable auto-scroll during typing to keep the pinned user message visible
+    if (!isTyping && isAtBottom) {
+      requestAnimationFrame(() => {
+        scrollToBottom()
+      })
+    }
+  }, [messages, isTyping, isAtBottom])
 
   // Initialize chat session
   useEffect(() => {
@@ -113,7 +184,15 @@ export function StructuredChatInterface({ onBack }: StructuredChatInterfaceProps
     setMessages((prev) => [...prev, userMessage])
     const currentMessage = inputMessage
     setInputMessage("")
+    setShowWelcomeMessage(false)
     setIsTyping(true)
+
+    // Wait for DOM update, then scroll user message to top
+    setTimeout(() => {
+      scrollUserMessageToTop()
+      // Disable auto-scroll during this conversation to keep message pinned
+      setIsAtBottom(false)
+    }, 50)
 
     try {
       const response = await fetch('http://localhost:5000/api/chat/send-structured', {
@@ -398,11 +477,34 @@ export function StructuredChatInterface({ onBack }: StructuredChatInterfaceProps
         </div>
       </header>
 
+      {/* Welcome Message - Only show when no conversation started */}
+      {showWelcomeMessage && (
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="max-w-2xl text-center">
+            <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] px-6 py-4 rounded-3xl">
+              <p className="text-lg">Hello! I'm your AI legal assistant with enhanced structured responses. I can provide detailed, organized legal guidance specific to Kenyan law. How can I help you today?</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 pb-24">
+      {!showWelcomeMessage && (
+        <div 
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto p-4 response-scroll"
+          style={{ 
+            maxHeight: 'calc(100vh - 160px)',
+            paddingBottom: '80vh' // Extra space at bottom for scrolling up
+          }}
+        >
         <div className="max-w-6xl mx-auto space-y-6">
-          {messages.map((message) => (
-            <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
+          {messages.map((message, index) => (
+            <div 
+              key={message.id} 
+              ref={message.sender === "user" && index === messages.length - 1 ? lastUserMessageRef : null}
+              className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+            >
               <div
                 className={`max-w-xs md:max-w-4xl ${
                   message.sender === "user"
@@ -454,9 +556,11 @@ export function StructuredChatInterface({ onBack }: StructuredChatInterfaceProps
               </div>
             </div>
           )}
+          <div ref={scrollAnchorRef} />
           <div ref={messagesEndRef} />
         </div>
-      </div>
+        </div>
+      )}
 
       {/* Chat Input - Fixed at Bottom */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#F5F5F5] p-4">
