@@ -9,13 +9,13 @@ const prisma = new PrismaClient({
   },
   log: process.env.NODE_ENV === 'development' ? ['query', 'error'] : ['error'],
   // Configure connection pool for shared hosting limits
-  __internal: {
-    engine: {
-      connectTimeout: 60000,
-      queryTimeout: 60000,
-      maxConnections: 10, // Keep well below cPanel's 25 connection limit
-    },
-  },
+  // __internal: {
+  //   engine: {
+  //     connectTimeout: 60000,
+  //     queryTimeout: 60000,
+  //     maxConnections: 10, // Keep well below cPanel's 25 connection limit
+  //   },
+  // },
 });
 
 // Handle connection management for shared hosting
@@ -243,7 +243,6 @@ export class DatabaseService {
         isArchived: false,
         title: {
           contains: query,
-          mode: 'insensitive',
         },
       },
       orderBy: { updatedAt: 'desc' },

@@ -44,13 +44,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       if (response.ok) {
         const data = await response.json()
+        console.log('Auth success: User authenticated', data.user.email)
         setUser(data.user)
       } else {
-        // 401 is expected when user is not authenticated
-        if (response.status !== 401) {
+        // Backend handles all cookie clearing - we just clear local state
+        console.log('Auth failed: Clearing user state', response.status)
+        setUser(null)
+        
+        if (response.status !== 401 && response.status !== 403) {
           console.error('Unexpected auth error:', response.status, response.statusText)
         }
-        setUser(null)
       }
     } catch (error) {
       console.error('Error fetching user:', error)
@@ -61,12 +64,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async () => {
     try {
       setIsLoading(true)
+      
+      // Clear any stale authentication state first - backend handles cookies
+      setUser(null)
+      
       const response = await fetch('http://localhost:5000/api/auth/google', {
         credentials: 'include'
       })
       
       if (response.ok) {
         const data = await response.json()
+        console.log('Redirecting to Google OAuth')
         window.location.href = data.url
       } else {
         throw new Error('Failed to get auth URL')
@@ -98,11 +106,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkAuth()
   }, [])
 
-  // Handle OAuth callback
+  // Handle OAuth callback with proper error handling
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
-    if (urlParams.get('auth') === 'success') {
-      refreshUser()
+    const authStatus = urlParams.get('auth')
+    const errorParam = urlParams.get('error')
+    
+    if (authStatus === 'success') {
+      console.log('OAuth callback success - refreshing user')
+      refreshUser().then(() => {
+        // Clean up URL after successful auth
+        window.history.replaceState({}, document.title, window.location.pathname)
+      })
+    } else if (errorParam) {
+      console.error('OAuth callback error:', errorParam, urlParams.get('details'))
+      setUser(null)
+      setIsLoading(false)
       // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname)
     }

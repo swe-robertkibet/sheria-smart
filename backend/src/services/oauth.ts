@@ -215,6 +215,25 @@ export class OAuthService {
     }
   }
 
+  async verifyJWTWithUserCheck(token: string): Promise<User | null> {
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET not found in environment variables');
+    }
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
+      
+      // Check if user actually exists in database
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId }
+      });
+      
+      return user;
+    } catch (error) {
+      throw new Error('Invalid or expired token');
+    }
+  }
+
   async refreshAccessToken(refreshToken: string): Promise<TokenData | null> {
     try {
       this.oauth2Client.setCredentials({ refresh_token: refreshToken });

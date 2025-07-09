@@ -143,6 +143,12 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
           if (response.ok) {
             const data = await response.json()
             setSessionId(data.sessionId)
+          } else if (response.status === 401) {
+            // User not authenticated, redirect to login
+            console.error('User not authenticated')
+            window.location.href = '/login?error=authentication_required'
+          } else {
+            console.error('Failed to create session:', response.status, response.statusText)
           }
         } catch (error) {
           console.error('Failed to initialize chat session:', error)

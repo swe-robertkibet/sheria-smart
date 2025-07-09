@@ -88,6 +88,12 @@ export function ChatSidebar({
         }
         setHasMore(data.hasMore)
         setCursor(data.nextCursor)
+      } else if (response.status === 401) {
+        // User not authenticated
+        console.error('User not authenticated')
+        window.location.href = '/login?error=authentication_required'
+      } else {
+        console.error('Failed to load sessions:', response.status, response.statusText)
       }
     } catch (error) {
       console.error('Error loading sessions:', error)

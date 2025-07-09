@@ -73,7 +73,7 @@ model Message {
   content     String      @db.Text
   role        MessageRole
   sessionId   String
-  msgCursor   Int         @default(autoincrement())
+  msgCursor   Int         @default(autoincrement()) @unique
   createdAt   DateTime    @default(now())
   
   session     ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)

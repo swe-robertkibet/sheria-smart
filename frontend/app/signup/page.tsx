@@ -36,12 +36,28 @@ export default function SignupPage() {
   const router = useRouter()
   const { login, isAuthenticated, isLoading: authLoading } = useAuth()
 
-  // Redirect if already authenticated
+  // Handle auth errors from OAuth callback
   useEffect(() => {
-    if (isAuthenticated) {
+    const urlParams = new URLSearchParams(window.location.search)
+    const error = urlParams.get('error')
+    
+    if (error) {
+      console.error('Authentication error:', error, urlParams.get('details'))
+      // Clear any stale auth state
+      if (isAuthenticated) {
+        console.log('Clearing stale auth state due to error')
+      }
+    }
+  }, [])
+  
+  // Redirect if already authenticated, but not during error handling
+  useEffect(() => {
+    const hasError = window.location.search.includes('error=')
+    if (isAuthenticated && !hasError && !authLoading) {
+      console.log('Already authenticated, redirecting to dashboard')
       router.push('/dashboard')
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, router, authLoading])
 
   const handleGoogleLogin = async () => {
     setIsLoading(true)

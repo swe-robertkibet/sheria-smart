@@ -1,11 +1,20 @@
 import express from 'express';
 import OAuthService from '../services/oauth';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 const router = express.Router();
 
-router.get('/google', (req, res) => {
+router.get('/google', async (req, res) => {
   try {
+    // Check database connectivity before starting OAuth flow
+    await prisma.$connect();
+    
+    // Test database access
+    await prisma.$queryRaw`SELECT 1`;
+    
     const { url, state } = OAuthService.generateAuthUrl();
     
     res.cookie('oauth_state', state, {
@@ -15,33 +24,57 @@ router.get('/google', (req, res) => {
       maxAge: 10 * 60 * 1000 // 10 minutes
     });
 
+    console.log('OAuth flow initiated - database connectivity verified');
     res.json({ url });
   } catch (error) {
-    console.error('Error generating auth URL:', error);
-    res.status(500).json({ error: 'Failed to generate authentication URL' });
+    console.error('Error generating auth URL or database connectivity issue:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate authentication URL', 
+      details: 'Database connectivity issue' 
+    });
   }
 });
 
 router.get('/google/callback', async (req, res) => {
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  
   try {
     const { code, state } = req.query;
     const storedState = req.cookies?.oauth_state;
 
     if (!code || !state) {
-      return res.status(400).json({ error: 'Missing authorization code or state' });
+      console.error('OAuth callback: Missing authorization code or state');
+      return res.redirect(`${frontendUrl}/login?error=missing_auth_params`);
     }
 
     if (!storedState || state !== storedState) {
-      return res.status(400).json({ error: 'Invalid state parameter - possible CSRF attack' });
+      console.error('OAuth callback: Invalid state parameter');
+      return res.redirect(`${frontendUrl}/login?error=invalid_state`);
     }
 
     res.clearCookie('oauth_state');
 
+    // Exchange code for tokens
     const tokenData = await OAuthService.exchangeCodeForTokens(code as string);
     const userInfo = await OAuthService.getUserInfo(tokenData.access_token);
+    
+    // Attempt to find or create user
     const user = await OAuthService.findOrCreateUser(userInfo, tokenData);
+    
+    // Verify user was actually created/found in database
+    if (!user || !user.id) {
+      console.error('OAuth callback: Failed to create or find user in database');
+      return res.redirect(`${frontendUrl}/login?error=user_creation_failed`);
+    }
+    
+    // Generate JWT and verify it's valid
     const jwtToken = OAuthService.generateJWT(user);
+    if (!jwtToken) {
+      console.error('OAuth callback: Failed to generate JWT');
+      return res.redirect(`${frontendUrl}/login?error=token_generation_failed`);
+    }
 
+    // Set auth cookie
     res.cookie('auth_token', jwtToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -49,21 +82,37 @@ router.get('/google/callback', async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    console.log(`OAuth callback success: User ${user.email} authenticated`);
     res.redirect(`${frontendUrl}/dashboard?auth=success`);
 
   } catch (error) {
     console.error('OAuth callback error:', error);
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    res.redirect(`${frontendUrl}/login?error=oauth_failed`);
+    
+    // Clear any potentially set cookies on error
+    res.clearCookie('auth_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    });
+    res.clearCookie('oauth_state');
+    
+    res.redirect(`${frontendUrl}/login?error=oauth_failed&details=${encodeURIComponent(error.message)}`);
   }
 });
 
-router.get('/me', authenticateToken, (req: AuthenticatedRequest, res) => {
+router.get('/me', (req, res, next) => {
+  console.log('🎆 /api/auth/me called - BEFORE middleware');
+  console.log('🎆 Request cookies:', Object.keys(req.cookies || {}));
+  authenticateToken(req as AuthenticatedRequest, res, next);
+}, (req: AuthenticatedRequest, res) => {
+  console.log('📍 AUTH /me: Route handler called, user:', req.user ? req.user.email : 'NONE');
+  
   if (!req.user) {
+    console.log('📍 AUTH /me: No user in request, returning 401');
     return res.status(401).json({ error: 'User not authenticated' });
   }
 
+  console.log('📍 AUTH /me: Returning user data for', req.user.email);
   res.json({
     user: {
       id: req.user.userId,
@@ -75,8 +124,47 @@ router.get('/me', authenticateToken, (req: AuthenticatedRequest, res) => {
 });
 
 router.post('/logout', (req, res) => {
-  res.clearCookie('auth_token');
+  console.log('💪 LOGOUT: Forcing complete auth state cleanup');
+  
+  // Clear auth token with multiple variations to ensure it's gone
+  res.clearCookie('auth_token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/'
+  });
+  
+  // Clear oauth state too
+  res.clearCookie('oauth_state', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/'
+  });
+  
+  console.log('💪 LOGOUT: All cookies cleared');
   res.json({ message: 'Logged out successfully' });
+});
+
+// Force logout endpoint for debugging
+router.post('/force-logout', (req, res) => {
+  console.log('💪 FORCE LOGOUT: Nuclear option - clearing everything');
+  
+  // Clear all possible cookie variations
+  const cookieOptions = [
+    { httpOnly: true, secure: false, sameSite: 'lax', path: '/' },
+    { httpOnly: true, secure: true, sameSite: 'lax', path: '/' },
+    { httpOnly: false, secure: false, sameSite: 'lax', path: '/' },
+    { path: '/' },
+    {}
+  ];
+  
+  cookieOptions.forEach(options => {
+    res.clearCookie('auth_token', options);
+    res.clearCookie('oauth_state', options);
+  });
+  
+  res.json({ message: 'Force logout completed - all authentication state cleared' });
 });
 
 router.get('/status', authenticateToken, (req: AuthenticatedRequest, res) => {
