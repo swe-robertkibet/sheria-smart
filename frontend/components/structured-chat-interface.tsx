@@ -523,12 +523,13 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
   )
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="h-screen bg-white flex flex-col">
       {/* Chat Header */}
       <header className="bg-white border-b border-[#F5F5F5] p-4 sticky top-0 z-50">
         <div className="flex items-center space-x-4">
+          {/* Hamburger menu for all screen sizes */}
           {onToggleSidebar && (
-            <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-[#7C9885] lg:hidden">
+            <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-[#7C9885]">
               <Menu className="w-5 h-5" />
             </Button>
           )}
@@ -545,118 +546,120 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
         </div>
       </header>
 
-      {/* Welcome Message - Only show when no conversation started */}
-      {showWelcomeMessage && (
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="max-w-2xl text-center">
-            <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] px-6 py-4 rounded-3xl">
-              <p className="text-lg">Hello! I'm your AI legal assistant with enhanced structured responses. I can provide detailed, organized legal guidance specific to Kenyan law. How can I help you today?</p>
+      {/* Main Chat Container - Unified with input */}
+      <div className="flex-1 flex flex-col min-h-0">
+        {/* Welcome Message - Only show when no conversation started */}
+        {showWelcomeMessage && (
+          <div className="flex-1 flex items-center justify-center p-4">
+            <div className="max-w-2xl text-center">
+              <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] px-6 py-4 rounded-3xl">
+                <p className="text-lg">Hello! I'm your AI legal assistant with enhanced structured responses. I can provide detailed, organized legal guidance specific to Kenyan law. How can I help you today?</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Chat Messages */}
-      {!showWelcomeMessage && (
-        <div 
-          ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto p-4 response-scroll"
-          style={{ 
-            maxHeight: 'calc(100vh - 160px)',
-            paddingBottom: '80vh'
-          }}
-        >
-        <div className="max-w-6xl mx-auto space-y-6">
-          {messages.map((message, index) => (
-            <div 
-              key={message.id} 
-              ref={message.sender === "user" && index === messages.length - 1 ? lastUserMessageRef : null}
-              className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-xs md:max-w-4xl ${
-                  message.sender === "user"
-                    ? "bg-[#7C9885] text-white px-6 py-4 rounded-3xl"
-                    : "w-full"
-                }`}
+        {/* Messages Container - Scrollable */}
+        {!showWelcomeMessage && (
+          <div 
+            ref={scrollContainerRef}
+            className="flex-1 overflow-y-auto p-4 response-scroll"
+            style={{ 
+              paddingBottom: '20px'
+            }}
+          >
+          <div className="max-w-6xl mx-auto space-y-6">
+            {messages.map((message, index) => (
+              <div 
+                key={message.id} 
+                ref={message.sender === "user" && index === messages.length - 1 ? lastUserMessageRef : null}
+                className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
               >
-                {message.sender === "user" ? (
-                  <>
-                    <p className="text-base leading-relaxed">{message.content as string}</p>
-                    <div className="mt-2">
-                      <span className="text-xs text-white/70">
-                        {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] p-6 rounded-3xl">
-                    {message.isStructured ? (
-                      renderStructuredResponse(message.content as StructuredLegalResponse, message.classification)
-                    ) : (
+                <div
+                  className={`max-w-xs md:max-w-4xl ${
+                    message.sender === "user"
+                      ? "bg-[#7C9885] text-white px-6 py-4 rounded-3xl"
+                      : "w-full"
+                  }`}
+                >
+                  {message.sender === "user" ? (
+                    <>
                       <p className="text-base leading-relaxed">{message.content as string}</p>
-                    )}
-                    <div className="mt-4 pt-4 border-t border-[#E2E8F0]">
-                      <span className="text-xs text-[#718096]">
-                        {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                      </span>
+                      <div className="mt-2">
+                        <span className="text-xs text-white/70">
+                          {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] p-6 rounded-3xl">
+                      {message.isStructured ? (
+                        renderStructuredResponse(message.content as StructuredLegalResponse, message.classification)
+                      ) : (
+                        <p className="text-base leading-relaxed">{message.content as string}</p>
+                      )}
+                      <div className="mt-4 pt-4 border-t border-[#E2E8F0]">
+                        <span className="text-xs text-[#718096]">
+                          {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] px-6 py-4 rounded-3xl">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"></div>
-                  <div
-                    className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
-                    style={{ animationDelay: "0.1s" }}
-                  ></div>
-                  <div
-                    className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
-                    style={{ animationDelay: "0.2s" }}
-                  ></div>
+                  )}
                 </div>
               </div>
-            </div>
-          )}
-          <div ref={scrollAnchorRef} />
-          <div ref={messagesEndRef} />
-        </div>
-        </div>
-      )}
+            ))}
 
-      {/* Chat Input - Fixed at Bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#F5F5F5] p-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex space-x-3">
-            <div className="flex-1 relative">
-              <Input
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Ask your legal question for structured analysis..."
-                className="h-14 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-2xl text-base"
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-              />
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] px-6 py-4 rounded-3xl">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"></div>
+                    <div
+                      className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={scrollAnchorRef} />
+            <div ref={messagesEndRef} />
+          </div>
+          </div>
+        )}
+
+        {/* Input Area - Part of main container */}
+        <div className="bg-white border-t border-[#F5F5F5] p-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex space-x-3">
+              <div className="flex-1 relative">
+                <Input
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  placeholder="Ask your legal question for structured analysis..."
+                  className="h-14 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-2xl text-base"
+                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#718096] hover:text-[#7C9885]"
+                >
+                  <Mic className="w-5 h-5" />
+                </Button>
+              </div>
               <Button
-                size="sm"
-                variant="ghost"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#718096] hover:text-[#7C9885]"
+                onClick={handleSendMessage}
+                disabled={!inputMessage.trim() || isTyping}
+                className="h-14 px-6 bg-[#7C9885] hover:bg-[#5D7A6B] text-white rounded-2xl disabled:opacity-50"
               >
-                <Mic className="w-5 h-5" />
+                <Send className="w-5 h-5" />
               </Button>
             </div>
-            <Button
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim()}
-              className="h-14 px-6 bg-[#7C9885] hover:bg-[#5D7A6B] text-white rounded-2xl"
-            >
-              <Send className="w-5 h-5" />
-            </Button>
           </div>
         </div>
       </div>

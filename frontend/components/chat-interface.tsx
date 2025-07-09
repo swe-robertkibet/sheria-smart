@@ -321,13 +321,14 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="h-screen bg-white flex flex-col">
       {/* Chat Header */}
       <header className="bg-white border-b border-[#F5F5F5] p-4 sticky top-0 z-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
+            {/* Hamburger menu for all screen sizes */}
             {onToggleSidebar && (
-              <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-[#7C9885] lg:hidden">
+              <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-[#7C9885]">
                 <Menu className="w-5 h-5" />
               </Button>
             )}
@@ -359,44 +360,95 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
         </div>
       </header>
 
-      {/* Welcome Message - Only show when no conversation started */}
-      {showWelcomeMessage && (
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="max-w-2xl text-center">
-            <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] px-6 py-4 rounded-3xl">
-              <p className="text-lg">Hello! I'm your AI legal assistant. How can I help you with your legal question today?</p>
+      {/* Main Chat Container - Unified with input */}
+      <div className="flex-1 flex flex-col min-h-0">
+        {/* Welcome Message - Only show when no conversation started */}
+        {showWelcomeMessage && (
+          <div className="flex-1 flex items-center justify-center p-4">
+            <div className="max-w-2xl text-center">
+              <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] px-6 py-4 rounded-3xl">
+                <p className="text-lg">Hello! I'm your AI legal assistant. How can I help you with your legal question today?</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Single Scroll Container for All Messages */}
-      {!showWelcomeMessage && (
-        <div 
-          ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto p-4 response-scroll"
-          style={{ 
-            maxHeight: 'calc(100vh - 160px)',
-            paddingBottom: '80vh'
-          }}
-        >
-          <div className="max-w-4xl mx-auto space-y-6">
-            {messages.map((message, index) => (
-              <div 
-                key={message.id} 
-                ref={message.sender === "user" && index === messages.length - 1 ? lastUserMessageRef : null}
-                className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl ${
-                    message.sender === "user"
-                      ? "bg-[#7C9885] text-white"
-                      : "bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0]"
-                  }`}
+        {/* Messages Container - Scrollable */}
+        {!showWelcomeMessage && (
+          <div 
+            ref={scrollContainerRef}
+            className="flex-1 overflow-y-auto p-4 response-scroll"
+            style={{ 
+              paddingBottom: '20px'
+            }}
+          >
+            <div className="max-w-4xl mx-auto space-y-6">
+              {messages.map((message, index) => (
+                <div 
+                  key={message.id} 
+                  ref={message.sender === "user" && index === messages.length - 1 ? lastUserMessageRef : null}
+                  className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  {message.sender === "user" ? (
-                    <p className="text-base leading-relaxed whitespace-pre-line">{message.content}</p>
-                  ) : (
+                  <div
+                    className={`max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl ${
+                      message.sender === "user"
+                        ? "bg-[#7C9885] text-white"
+                        : "bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0]"
+                    }`}
+                  >
+                    {message.sender === "user" ? (
+                      <p className="text-base leading-relaxed whitespace-pre-line">{message.content}</p>
+                    ) : (
+                      <div className="prose prose-lg max-w-none prose-slate">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          rehypePlugins={[rehypeSanitize]}
+                          components={{
+                            ul: ({children}) => <ul className="prose-ul:font-semibold marker:font-bold marker:text-[#2D3748]">{children}</ul>,
+                            ol: ({children}) => <ol className="prose-ol:font-semibold marker:font-bold marker:text-[#2D3748]">{children}</ol>,
+                            blockquote: ({children}) => <blockquote className="border-l-4 border-[#7C9885] pl-4 my-2 italic text-[#718096]">{children}</blockquote>,
+                            a: ({children, href}) => <a href={href} className="text-[#7C9885] hover:text-[#5D7A6B] underline" target="_blank" rel="noopener noreferrer">{children}</a>,
+                          }}
+                        >
+                          {message.content}
+                        </ReactMarkdown>
+                      </div>
+                    )}
+                    <div className="mt-2">
+                      <span className={`text-xs ${message.sender === "user" ? "text-white/70" : "text-[#718096]"}`}>
+                        {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Waiting for Stream */}
+              {isWaitingForStream && (
+                <div className="flex justify-start">
+                  <div className="max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0]">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"></div>
+                        <div
+                          className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
+                          style={{ animationDelay: "0.1s" }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
+                          style={{ animationDelay: "0.2s" }}
+                        ></div>
+                      </div>
+                      <span className="text-xs text-[#718096]">Thinking...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Streaming Message */}
+              {isStreaming && streamingMessage && (
+                <div className="flex justify-start">
+                  <div className="max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] streaming-container">
                     <div className="prose prose-lg max-w-none prose-slate">
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
@@ -408,110 +460,61 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
                           a: ({children, href}) => <a href={href} className="text-[#7C9885] hover:text-[#5D7A6B] underline" target="_blank" rel="noopener noreferrer">{children}</a>,
                         }}
                       >
-                        {message.content}
+                        {streamingMessage}
                       </ReactMarkdown>
                     </div>
-                  )}
-                  <div className="mt-2">
-                    <span className={`text-xs ${message.sender === "user" ? "text-white/70" : "text-[#718096]"}`}>
-                      {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {/* Waiting for Stream */}
-            {isWaitingForStream && (
-              <div className="flex justify-start">
-                <div className="max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0]">
-                  <div className="flex items-center space-x-2">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"></div>
-                      <div
-                        className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
-                        style={{ animationDelay: "0.1s" }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
-                        style={{ animationDelay: "0.2s" }}
-                      ></div>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"></div>
+                        <div
+                          className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
+                          style={{ animationDelay: "0.1s" }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
+                          style={{ animationDelay: "0.2s" }}
+                        ></div>
+                      </div>
+                      <span className="text-xs text-[#718096]">Typing...</span>
                     </div>
-                    <span className="text-xs text-[#718096]">Thinking...</span>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Streaming Message */}
-            {isStreaming && streamingMessage && (
-              <div className="flex justify-start">
-                <div className="max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] streaming-container">
-                  <div className="prose prose-lg max-w-none prose-slate">
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      rehypePlugins={[rehypeSanitize]}
-                      components={{
-                        ul: ({children}) => <ul className="prose-ul:font-semibold marker:font-bold marker:text-[#2D3748]">{children}</ul>,
-                        ol: ({children}) => <ol className="prose-ol:font-semibold marker:font-bold marker:text-[#2D3748]">{children}</ol>,
-                        blockquote: ({children}) => <blockquote className="border-l-4 border-[#7C9885] pl-4 my-2 italic text-[#718096]">{children}</blockquote>,
-                        a: ({children, href}) => <a href={href} className="text-[#7C9885] hover:text-[#5D7A6B] underline" target="_blank" rel="noopener noreferrer">{children}</a>,
-                      }}
-                    >
-                      {streamingMessage}
-                    </ReactMarkdown>
-                  </div>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"></div>
-                      <div
-                        className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
-                        style={{ animationDelay: "0.1s" }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"
-                        style={{ animationDelay: "0.2s" }}
-                      ></div>
-                    </div>
-                    <span className="text-xs text-[#718096]">Typing...</span>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* Scroll anchor for auto-scroll */}
-            <div ref={scrollAnchorRef} id="scroll-anchor" />
+              )}
+              
+              {/* Scroll anchor for auto-scroll */}
+              <div ref={scrollAnchorRef} id="scroll-anchor" />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Fixed Input Area */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#F5F5F5] p-4 z-50">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex space-x-3">
-            <div className="flex-1 relative">
-              <Input
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Ask your legal question..."
-                className="h-14 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-2xl text-base"
-                onKeyPress={(e) => e.key === "Enter" && !isStreaming && !isWaitingForStream && handleSendMessage()}
-              />
+        {/* Input Area - Part of main container */}
+        <div className="bg-white border-t border-[#F5F5F5] p-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex space-x-3">
+              <div className="flex-1 relative">
+                <Input
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  placeholder="Ask your legal question..."
+                  className="h-14 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-2xl text-base"
+                  onKeyPress={(e) => e.key === "Enter" && !isStreaming && !isWaitingForStream && handleSendMessage()}
+                />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#718096] hover:text-[#7C9885]"
+                >
+                  <Mic className="w-5 h-5" />
+                </Button>
+              </div>
               <Button
-                size="sm"
-                variant="ghost"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#718096] hover:text-[#7C9885]"
+                onClick={handleSendMessage}
+                disabled={!inputMessage.trim() || isStreaming || isWaitingForStream}
+                className="h-14 px-6 bg-[#7C9885] hover:bg-[#5D7A6B] text-white rounded-2xl disabled:opacity-50"
               >
-                <Mic className="w-5 h-5" />
+                <Send className="w-5 h-5" />
               </Button>
             </div>
-            <Button
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isStreaming || isWaitingForStream}
-              className="h-14 px-6 bg-[#7C9885] hover:bg-[#5D7A6B] text-white rounded-2xl disabled:opacity-50"
-            >
-              <Send className="w-5 h-5" />
-            </Button>
           </div>
         </div>
       </div>

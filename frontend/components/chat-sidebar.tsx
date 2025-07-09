@@ -43,6 +43,7 @@ interface ChatSidebarProps {
   currentSessionId?: string
   onSessionSelect: (sessionId: string) => void
   onNewChat: () => void
+  chatType?: 'QUICK_CHAT' | 'STRUCTURED_ANALYSIS'
 }
 
 export function ChatSidebar({ 
@@ -50,7 +51,8 @@ export function ChatSidebar({
   onToggle, 
   currentSessionId, 
   onSessionSelect, 
-  onNewChat 
+  onNewChat,
+  chatType 
 }: ChatSidebarProps) {
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -74,6 +76,9 @@ export function ChatSidebar({
       if (showArchived) {
         url.pathname = '/api/chat/sessions/archived'
       }
+      if (chatType) {
+        url.searchParams.set('chatType', chatType)
+      }
 
       const response = await fetch(url.toString(), {
         credentials: 'include',
@@ -81,10 +86,16 @@ export function ChatSidebar({
 
       if (response.ok) {
         const data = await response.json()
+        // Filter sessions by chat type if specified
+        let filteredSessions = data.sessions
+        if (chatType) {
+          filteredSessions = data.sessions.filter((session: ChatSession) => session.chatType === chatType)
+        }
+        
         if (reset) {
-          setSessions(data.sessions)
+          setSessions(filteredSessions)
         } else {
-          setSessions(prev => [...prev, ...data.sessions])
+          setSessions(prev => [...prev, ...filteredSessions])
         }
         setHasMore(data.hasMore)
         setCursor(data.nextCursor)
@@ -113,6 +124,9 @@ export function ChatSidebar({
     try {
       const url = new URL('/api/chat/sessions/search', process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000')
       url.searchParams.set('q', query)
+      if (chatType) {
+        url.searchParams.set('chatType', chatType)
+      }
 
       const response = await fetch(url.toString(), {
         credentials: 'include',
@@ -120,7 +134,12 @@ export function ChatSidebar({
 
       if (response.ok) {
         const data = await response.json()
-        setSessions(data.sessions)
+        // Filter search results by chat type if specified
+        let filteredSessions = data.sessions
+        if (chatType) {
+          filteredSessions = data.sessions.filter((session: ChatSession) => session.chatType === chatType)
+        }
+        setSessions(filteredSessions)
         setHasMore(false)
       }
     } catch (error) {
@@ -226,7 +245,7 @@ export function ChatSidebar({
   // Load initial sessions
   useEffect(() => {
     loadSessions(true)
-  }, [showArchived])
+  }, [showArchived, chatType])
 
   // Handle search
   useEffect(() => {
@@ -274,10 +293,10 @@ export function ChatSidebar({
           {/* New Chat Button */}
           <Button
             onClick={onNewChat}
-            className="w-full mb-4 bg-[#7C9885] hover:bg-[#5D7A6B] text-white"
+            className="w-full mb-4 bg-[#7C9885] hover:bg-[#5D7A6B] text-white flex items-center justify-center min-h-[40px] text-sm"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            New Chat
+            <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
+            <span className="truncate">New Chat</span>
           </Button>
 
           {/* Search */}

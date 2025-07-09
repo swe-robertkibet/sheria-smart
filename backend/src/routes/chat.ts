@@ -20,7 +20,7 @@ router.get('/sessions/search', authenticateToken, async (req: AuthenticatedReque
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const { q: query, limit = '10' } = req.query;
+    const { q: query, limit = '10', chatType } = req.query;
     
     if (!query || typeof query !== 'string') {
       return res.status(400).json({ error: 'Search query is required' });
@@ -29,7 +29,8 @@ router.get('/sessions/search', authenticateToken, async (req: AuthenticatedReque
     const sessions = await DatabaseService.searchChatSessions(
       req.user.userId,
       query,
-      parseInt(limit as string)
+      parseInt(limit as string),
+      chatType as 'QUICK_CHAT' | 'STRUCTURED_ANALYSIS'
     );
 
     res.json({ sessions });
@@ -46,11 +47,12 @@ router.get('/sessions/archived', authenticateToken, async (req: AuthenticatedReq
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const { limit = '20', cursor } = req.query;
+    const { limit = '20', cursor, chatType } = req.query;
     const sessions = await DatabaseService.getArchivedChats(
       req.user.userId,
       parseInt(limit as string),
-      cursor as string
+      cursor as string,
+      chatType as 'QUICK_CHAT' | 'STRUCTURED_ANALYSIS'
     );
 
     res.json({
@@ -71,11 +73,12 @@ router.get('/sessions', authenticateToken, async (req: AuthenticatedRequest, res
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const { limit = '20', cursor } = req.query;
+    const { limit = '20', cursor, chatType } = req.query;
     const sessions = await DatabaseService.getUserChatSessions(
       req.user.userId,
       parseInt(limit as string),
-      cursor as string
+      cursor as string,
+      chatType as 'QUICK_CHAT' | 'STRUCTURED_ANALYSIS'
     );
 
     res.json({

@@ -151,7 +151,7 @@ export class DatabaseService {
   /**
    * UPDATED: Only return sessions that have titles (and thus messages)
    */
-  async getUserChatSessions(userId: string, limit: number = 20, lastCursor?: string) {
+  async getUserChatSessions(userId: string, limit: number = 20, lastCursor?: string, chatType?: 'QUICK_CHAT' | 'STRUCTURED_ANALYSIS') {
     return await this.withTimeout(async () => {
       const where = {
         userId,
@@ -162,6 +162,7 @@ export class DatabaseService {
         messageCount: {
           gt: 0, // Only sessions with messages
         },
+        ...(chatType && { chatType }),
         ...(lastCursor && {
           updatedAt: {
             lt: new Date(lastCursor),
@@ -269,7 +270,7 @@ export class DatabaseService {
   /**
    * UPDATED: Only search sessions with titles
    */
-  async searchChatSessions(userId: string, query: string, limit: number = 10) {
+  async searchChatSessions(userId: string, query: string, limit: number = 10, chatType?: 'QUICK_CHAT' | 'STRUCTURED_ANALYSIS') {
     return await this.withTimeout(async () => {
       return await prisma.chatSession.findMany({
         where: {
@@ -279,6 +280,7 @@ export class DatabaseService {
             contains: query,
             not: null, // Only sessions with titles
           },
+          ...(chatType && { chatType }),
         },
         orderBy: { updatedAt: 'desc' },
         take: limit,
@@ -297,7 +299,7 @@ export class DatabaseService {
   /**
    * UPDATED: Only return archived sessions with titles
    */
-  async getArchivedChats(userId: string, limit: number = 20, lastCursor?: string) {
+  async getArchivedChats(userId: string, limit: number = 20, lastCursor?: string, chatType?: 'QUICK_CHAT' | 'STRUCTURED_ANALYSIS') {
     return await this.withTimeout(async () => {
       const where = {
         userId,
@@ -305,6 +307,7 @@ export class DatabaseService {
         title: {
           not: null, // Only sessions with titles
         },
+        ...(chatType && { chatType }),
         ...(lastCursor && {
           updatedAt: {
             lt: new Date(lastCursor),

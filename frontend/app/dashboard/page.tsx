@@ -82,13 +82,13 @@ export default function DashboardPage() {
 
   const handleSessionSelect = (sessionId: string) => {
     setCurrentSessionId(sessionId)
-    setCurrentView("chat")
+    // Keep the current view - don't change it when selecting a session
     setIsSidebarOpen(false) // Close sidebar on mobile
   }
 
   const handleNewChat = () => {
     setCurrentSessionId(null)
-    setCurrentView("chat")
+    // Keep the current view - don't change it when starting a new chat
     setIsSidebarOpen(false) // Close sidebar on mobile
   }
 
@@ -112,6 +112,7 @@ export default function DashboardPage() {
           currentSessionId={currentSessionId}
           onSessionSelect={handleSessionSelect}
           onNewChat={handleNewChat}
+          chatType="QUICK_CHAT"
         />
         <div className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64 xl:ml-80' : 'ml-0'}`}>
           <ChatInterface 
@@ -134,6 +135,7 @@ export default function DashboardPage() {
           currentSessionId={currentSessionId}
           onSessionSelect={handleSessionSelect}
           onNewChat={handleNewChat}
+          chatType="STRUCTURED_ANALYSIS"
         />
         <div className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64 xl:ml-80' : 'ml-0'}`}>
           <StructuredChatInterface 
@@ -173,14 +175,6 @@ export default function DashboardPage() {
 
           {/* Mobile Menu Button and Sidebar Toggle */}
           <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleToggleSidebar}
-              className="text-[#7C9885] hover:text-[#5D7A6B]"
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
             <Button
               variant="ghost"
               size="icon"
