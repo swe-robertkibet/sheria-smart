@@ -23,9 +23,10 @@ interface StructuredChatInterfaceProps {
   onBack: () => void
   sessionId?: string | null
   onToggleSidebar?: () => void
+  onSessionCreated?: (sessionId: string) => void
 }
 
-export function StructuredChatInterface({ onBack, sessionId: propSessionId, onToggleSidebar }: StructuredChatInterfaceProps) {
+export function StructuredChatInterface({ onBack, sessionId: propSessionId, onToggleSidebar, onSessionCreated }: StructuredChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
@@ -44,13 +45,12 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
   const checkIfAtBottom = () => {
     if (!scrollContainerRef.current) return true
     const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current
-    const threshold = 100 // Larger threshold for auto-scroll
+    const threshold = 100
     return scrollTop + clientHeight >= scrollHeight - threshold
   }
 
   const scrollToBottom = () => {
     if (scrollAnchorRef.current && isAtBottom && !isTyping) {
-      // Only auto-scroll when not typing to avoid hiding the pinned message
       scrollAnchorRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }
@@ -61,13 +61,11 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
     const messageRect = lastUserMessageRef.current.getBoundingClientRect()
     const containerRect = scrollContainerRef.current.getBoundingClientRect()
     
-    // Check if user message is visible in the viewport
     return messageRect.top >= containerRect.top && messageRect.top <= containerRect.bottom
   }
 
   const scrollUserMessageToTop = () => {
     if (lastUserMessageRef.current) {
-      // Scroll the user message to the top of the viewport
       lastUserMessageRef.current.scrollIntoView({ 
         behavior: "smooth", 
         block: "start"
@@ -79,12 +77,9 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
     const atBottom = checkIfAtBottom()
     const userMessageVisible = checkIfUserMessageVisible()
     
-    // Only enable auto-scroll if user manually scrolls to bottom AND user message is not visible
-    // This prevents auto-scroll from hiding the pinned user message
     if (atBottom && !userMessageVisible && !isTyping) {
       setIsAtBottom(true)
     } else if (isTyping) {
-      // During typing, keep auto-scroll disabled to maintain pinned message visibility
       setIsAtBottom(false)
     } else {
       setIsAtBottom(atBottom)
@@ -111,9 +106,8 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
     }
   }, [])
 
-  // Auto-scroll during responses - disabled to keep pinned message visible
+  // Auto-scroll during responses
   useEffect(() => {
-    // Disable auto-scroll during typing to keep the pinned user message visible
     if (!isTyping && isAtBottom) {
       requestAnimationFrame(() => {
         scrollToBottom()
@@ -121,7 +115,7 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
     }
   }, [messages, isTyping, isAtBottom])
 
-  // Initialize chat session or load existing one
+  // NEW ARCHITECTURE: Initialize chat session loading if sessionId provided
   useEffect(() => {
     const initSession = async () => {
       if (propSessionId) {
@@ -130,24 +124,9 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
         setShowWelcomeMessage(false)
         await loadChatHistory(propSessionId)
       } else {
-        // Create new session
-        try {
-          const response = await fetch('http://localhost:5000/api/chat/session', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({ chatType: 'STRUCTURED_ANALYSIS' }),
-          })
-          
-          if (response.ok) {
-            const data = await response.json()
-            setSessionId(data.sessionId)
-          }
-        } catch (error) {
-          console.error('Failed to initialize chat session:', error)
-        }
+        // NEW: No session creation on mount - wait for first message
+        setSessionId(null)
+        setShowWelcomeMessage(true)
       }
     }
     
@@ -205,7 +184,7 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
   }
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !sessionId) return
+    if (!inputMessage.trim()) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -223,25 +202,55 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
     // Wait for DOM update, then scroll user message to top
     setTimeout(() => {
       scrollUserMessageToTop()
-      // Disable auto-scroll during this conversation to keep message pinned
       setIsAtBottom(false)
     }, 50)
 
     try {
+      const requestBody = {
+        sessionId: sessionId, // NEW: Can be null for first message
+        message: currentMessage,
+      }
+      
+      console.log('🔍 [DEBUG] Sending structured chat request:', {
+        url: 'http://localhost:5000/api/chat/send-structured',
+        method: 'POST',
+        sessionId,
+        messageLength: currentMessage.length,
+        messagePreview: currentMessage.substring(0, 100) + (currentMessage.length > 100 ? '...' : ''),
+        timestamp: new Date().toISOString()
+      })
+      
       const response = await fetch('http://localhost:5000/api/chat/send-structured', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({
-          sessionId,
-          message: currentMessage,
-        }),
+        body: JSON.stringify(requestBody),
+      })
+      
+      console.log('🔍 [DEBUG] Structured response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        url: response.url,
+        timestamp: new Date().toISOString()
       })
 
       if (response.ok) {
         const data: StructuredChatResponse = await response.json()
+        
+        // NEW ARCHITECTURE: Update sessionId if this was the first message
+        if (!sessionId && data.sessionId) {
+          console.log('Received new structured session ID:', data.sessionId)
+          setSessionId(data.sessionId)
+          
+          // Notify parent component about session creation
+          if (onSessionCreated) {
+            onSessionCreated(data.sessionId)
+          }
+        }
+        
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
           content: data.advice,
@@ -253,6 +262,21 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
         setMessages((prev) => [...prev, aiMessage])
       } else {
         // Handle error
+        console.error('🚨 [ERROR] Non-OK structured response:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url,
+          timestamp: new Date().toISOString()
+        })
+        
+        // Try to get error details from response
+        try {
+          const errorText = await response.text()
+          console.error('🚨 [ERROR] Structured response body:', errorText)
+        } catch (e) {
+          console.error('🚨 [ERROR] Could not read structured response body:', e)
+        }
+        
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
           content: "Sorry, I'm having trouble processing your request right now. Please try again later.",
@@ -262,7 +286,13 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
         setMessages((prev) => [...prev, errorMessage])
       }
     } catch (error) {
-      console.error('Error sending message:', error)
+      console.error('🚨 [ERROR] Exception during structured fetch:', {
+        error: error.message,
+        stack: error.stack,
+        name: error.name,
+        timestamp: new Date().toISOString()
+      })
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: "Sorry, I'm having trouble connecting to the server. Please check your connection and try again.",
@@ -533,7 +563,7 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
           className="flex-1 overflow-y-auto p-4 response-scroll"
           style={{ 
             maxHeight: 'calc(100vh - 160px)',
-            paddingBottom: '80vh' // Extra space at bottom for scrolling up
+            paddingBottom: '80vh'
           }}
         >
         <div className="max-w-6xl mx-auto space-y-6">

@@ -96,7 +96,7 @@ router.get('/google/callback', async (req, res) => {
     });
     res.clearCookie('oauth_state');
     
-    res.redirect(`${frontendUrl}/login?error=oauth_failed&details=${encodeURIComponent(error.message)}`);
+    res.redirect(`${frontendUrl}/login?error=oauth_failed&details=${encodeURIComponent(error instanceof Error ? error.message : String(error))}`);
   }
 });
 
@@ -152,9 +152,9 @@ router.post('/force-logout', (req, res) => {
   
   // Clear all possible cookie variations
   const cookieOptions = [
-    { httpOnly: true, secure: false, sameSite: 'lax', path: '/' },
-    { httpOnly: true, secure: true, sameSite: 'lax', path: '/' },
-    { httpOnly: false, secure: false, sameSite: 'lax', path: '/' },
+    { httpOnly: true, secure: false, sameSite: 'lax' as const, path: '/' },
+    { httpOnly: true, secure: true, sameSite: 'lax' as const, path: '/' },
+    { httpOnly: false, secure: false, sameSite: 'lax' as const, path: '/' },
     { path: '/' },
     {}
   ];

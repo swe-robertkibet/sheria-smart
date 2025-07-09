@@ -20,9 +20,10 @@ interface ChatInterfaceProps {
   onBack: () => void
   sessionId?: string | null
   onToggleSidebar?: () => void
+  onSessionCreated?: (sessionId: string) => void
 }
 
-export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSidebar }: ChatInterfaceProps) {
+export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSidebar, onSessionCreated }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState("")
   const [sessionId, setSessionId] = useState<string | null>(propSessionId || null)
@@ -42,13 +43,12 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
   const checkIfAtBottom = () => {
     if (!scrollContainerRef.current) return true
     const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current
-    const threshold = 100 // Larger threshold for auto-scroll
+    const threshold = 100
     return scrollTop + clientHeight >= scrollHeight - threshold
   }
 
   const scrollToBottom = () => {
     if (scrollAnchorRef.current && isAtBottom && !isStreaming) {
-      // Only auto-scroll when not streaming to avoid hiding the pinned message
       scrollAnchorRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }
@@ -59,13 +59,11 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
     const messageRect = lastUserMessageRef.current.getBoundingClientRect()
     const containerRect = scrollContainerRef.current.getBoundingClientRect()
     
-    // Check if user message is visible in the viewport
     return messageRect.top >= containerRect.top && messageRect.top <= containerRect.bottom
   }
 
   const scrollUserMessageToTop = () => {
     if (lastUserMessageRef.current) {
-      // Scroll the user message to the top of the viewport
       lastUserMessageRef.current.scrollIntoView({ 
         behavior: "smooth", 
         block: "start"
@@ -77,12 +75,9 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
     const atBottom = checkIfAtBottom()
     const userMessageVisible = checkIfUserMessageVisible()
     
-    // Only enable auto-scroll if user manually scrolls to bottom AND user message is not visible
-    // This prevents auto-scroll from hiding the pinned user message
     if (atBottom && !userMessageVisible && !isStreaming) {
       setIsAtBottom(true)
     } else if (isStreaming || isWaitingForStream) {
-      // During streaming or waiting, keep auto-scroll disabled to maintain pinned message visibility
       setIsAtBottom(false)
     } else {
       setIsAtBottom(atBottom)
@@ -109,10 +104,8 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
     }
   }, [])
 
-  // Auto-scroll during streaming - disabled to keep pinned message visible
+  // Auto-scroll during streaming
   useEffect(() => {
-    // Disable auto-scroll during streaming to keep the pinned user message visible
-    // The user message should remain as the anchor point at the top
     if (!isStreaming && isAtBottom) {
       requestAnimationFrame(() => {
         scrollToBottom()
@@ -120,7 +113,7 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
     }
   }, [streamingMessage, isStreaming, isAtBottom])
 
-  // Initialize chat session or load existing one
+  // NEW ARCHITECTURE: Initialize chat session loading if sessionId provided
   useEffect(() => {
     const initSession = async () => {
       if (propSessionId) {
@@ -129,30 +122,9 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
         setShowWelcomeMessage(false)
         await loadChatHistory(propSessionId)
       } else {
-        // Create new session
-        try {
-          const response = await fetch('http://localhost:5000/api/chat/session', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({ chatType: 'QUICK_CHAT' }),
-          })
-          
-          if (response.ok) {
-            const data = await response.json()
-            setSessionId(data.sessionId)
-          } else if (response.status === 401) {
-            // User not authenticated, redirect to login
-            console.error('User not authenticated')
-            window.location.href = '/login?error=authentication_required'
-          } else {
-            console.error('Failed to create session:', response.status, response.statusText)
-          }
-        } catch (error) {
-          console.error('Failed to initialize chat session:', error)
-        }
+        // NEW: No session creation on mount - wait for first message
+        setSessionId(null)
+        setShowWelcomeMessage(true)
       }
     }
     
@@ -182,7 +154,7 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
   }
 
   const startNewConversation = async () => {
-    // Reset all state
+    // NEW ARCHITECTURE: Reset to sessionless state
     setMessages([])
     setStreamingMessage("")
     setIsStreaming(false)
@@ -190,29 +162,11 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
     setShowWelcomeMessage(true)
     setInputMessage("")
     setIsAtBottom(true)
-    
-    // Create new session
-    try {
-      const response = await fetch('http://localhost:5000/api/chat/session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({}),
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        setSessionId(data.sessionId)
-      }
-    } catch (error) {
-      console.error('Failed to create new session:', error)
-    }
+    setSessionId(null) // NEW: No session until first message
   }
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !sessionId) return
+    if (!inputMessage.trim()) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -234,21 +188,39 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
     // Wait for DOM update, then scroll user message to top
     setTimeout(() => {
       scrollUserMessageToTop()
-      // Disable auto-scroll during this conversation to keep message pinned
       setIsAtBottom(false)
     }, 50)
 
     try {
+      const requestBody = {
+        sessionId: sessionId, // NEW: Can be null for first message
+        message: currentMessage,
+      }
+      
+      console.log('🔍 [DEBUG] Sending chat request:', {
+        url: 'http://localhost:5000/api/chat/send-stream',
+        method: 'POST',
+        sessionId,
+        messageLength: currentMessage.length,
+        messagePreview: currentMessage.substring(0, 100) + (currentMessage.length > 100 ? '...' : ''),
+        timestamp: new Date().toISOString()
+      })
+      
       const response = await fetch('http://localhost:5000/api/chat/send-stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({
-          sessionId,
-          message: currentMessage,
-        }),
+        body: JSON.stringify(requestBody),
+      })
+      
+      console.log('🔍 [DEBUG] Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        url: response.url,
+        timestamp: new Date().toISOString()
       })
 
       if (response.ok && response.body) {
@@ -256,7 +228,7 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
         const decoder = new TextDecoder()
         let accumulatedText = ""
 
-        // Start streaming - hide waiting animation
+        // Start streaming
         setIsWaitingForStream(false)
         setIsStreaming(true)
 
@@ -265,6 +237,30 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
           if (done) break
           
           const chunk = decoder.decode(value, { stream: true })
+          
+          // NEW ARCHITECTURE: Check for session ID in stream
+          if (chunk.includes('__SESSION_ID__:')) {
+            const sessionIdMatch = chunk.match(/__SESSION_ID__:([a-zA-Z0-9\-]+)/)
+            if (sessionIdMatch) {
+              const newSessionId = sessionIdMatch[1]
+              console.log('Received new session ID:', newSessionId)
+              setSessionId(newSessionId)
+              
+              // Notify parent component about session creation
+              if (onSessionCreated) {
+                onSessionCreated(newSessionId)
+              }
+              
+              // Remove session ID from display text
+              const cleanChunk = chunk.replace(/__SESSION_ID__:[a-zA-Z0-9\-]+\n?/g, '')
+              if (cleanChunk) {
+                accumulatedText += cleanChunk
+                setStreamingMessage(accumulatedText)
+              }
+              continue
+            }
+          }
+          
           accumulatedText += chunk
           setStreamingMessage(accumulatedText)
         }
@@ -279,6 +275,21 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
         setMessages((prev) => [...prev, aiMessage])
       } else {
         // Handle error
+        console.error('🚨 [ERROR] Non-OK response:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url,
+          timestamp: new Date().toISOString()
+        })
+        
+        // Try to get error details from response
+        try {
+          const errorText = await response.text()
+          console.error('🚨 [ERROR] Response body:', errorText)
+        } catch (e) {
+          console.error('🚨 [ERROR] Could not read response body:', e)
+        }
+        
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
           content: "Sorry, I'm having trouble processing your request right now. Please try again later.",
@@ -288,7 +299,13 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
         setMessages((prev) => [...prev, errorMessage])
       }
     } catch (error) {
-      console.error('Error sending message:', error)
+      console.error('🚨 [ERROR] Exception during fetch:', {
+        error: error.message,
+        stack: error.stack,
+        name: error.name,
+        timestamp: new Date().toISOString()
+      })
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: "Sorry, I'm having trouble connecting to the server. Please check your connection and try again.",
@@ -360,7 +377,7 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
           className="flex-1 overflow-y-auto p-4 response-scroll"
           style={{ 
             maxHeight: 'calc(100vh - 160px)',
-            paddingBottom: '80vh' // Extra space at bottom for scrolling up
+            paddingBottom: '80vh'
           }}
         >
           <div className="max-w-4xl mx-auto space-y-6">
@@ -404,7 +421,7 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
               </div>
             ))}
 
-            {/* Waiting for Stream - 3-dot loading animation */}
+            {/* Waiting for Stream */}
             {isWaitingForStream && (
               <div className="flex justify-start">
                 <div className="max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0]">

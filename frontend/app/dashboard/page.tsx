@@ -96,6 +96,13 @@ export default function DashboardPage() {
     setIsSidebarOpen(!isSidebarOpen)
   }
 
+  // NEW ARCHITECTURE: Handle session creation from chat interfaces
+  const handleSessionCreated = (sessionId: string) => {
+    setCurrentSessionId(sessionId)
+    // Note: We don't need to update the sidebar here as it will refresh automatically
+    // when the user navigates or when the sidebar component re-fetches sessions
+  }
+
   if (currentView === "chat") {
     return (
       <div className="flex h-screen">
@@ -111,6 +118,7 @@ export default function DashboardPage() {
             onBack={handleBackToDashboard}
             sessionId={currentSessionId}
             onToggleSidebar={handleToggleSidebar}
+            onSessionCreated={handleSessionCreated}
           />
         </div>
       </div>
@@ -132,6 +140,7 @@ export default function DashboardPage() {
             onBack={handleBackToDashboard}
             sessionId={currentSessionId}
             onToggleSidebar={handleToggleSidebar}
+            onSessionCreated={handleSessionCreated}
           />
         </div>
       </div>

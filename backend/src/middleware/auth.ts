@@ -45,8 +45,8 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
     req.user = {
       userId: user.id,
       email: user.email,
-      name: user.name,
-      picture: user.picture
+      name: user.name || '',
+      picture: user.picture || ''
     };
     next();
   } catch (error) {
@@ -72,8 +72,8 @@ export const optionalAuth = async (req: AuthenticatedRequest, res: Response, nex
         req.user = {
           userId: user.id,
           email: user.email,
-          name: user.name,
-          picture: user.picture
+          name: user.name || '',
+          picture: user.picture || ''
         };
       } else {
         // Clear invalid cookie

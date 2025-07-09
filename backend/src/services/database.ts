@@ -1,21 +1,12 @@
 import { PrismaClient, ChatType } from '@prisma/client';
 
 const prisma = new PrismaClient({
-  // Optimize for shared hosting with connection pooling
   datasources: {
     db: {
       url: process.env.DATABASE_URL,
     },
   },
   log: process.env.NODE_ENV === 'development' ? ['query', 'error'] : ['error'],
-  // Configure connection pool for shared hosting limits
-  // __internal: {
-  //   engine: {
-  //     connectTimeout: 60000,
-  //     queryTimeout: 60000,
-  //     maxConnections: 10, // Keep well below cPanel's 25 connection limit
-  //   },
-  // },
 });
 
 // Handle connection management for shared hosting
@@ -57,15 +48,58 @@ export class DatabaseService {
     ]);
   }
 
-  async createChatSession(userId: string, chatType: ChatType = 'QUICK_CHAT') {
+  /**
+   * NEW ARCHITECTURE: Create session with first message and title atomically
+   * This replaces the old createChatSession method
+   */
+  async createChatSessionWithFirstMessage(
+    userId: string,
+    chatType: ChatType,
+    title: string,
+    firstUserMessage: string,
+    firstAssistantMessage: string
+  ) {
     return await this.withTimeout(async () => {
-      return await prisma.chatSession.create({
-        data: {
-          userId,
-          chatType,
-        },
+      return await prisma.$transaction(async (tx) => {
+        // Create the session with the AI-generated title
+        const session = await tx.chatSession.create({
+          data: {
+            userId,
+            chatType,
+            title,
+            messageCount: 2, // User message + Assistant message
+            lastMessageAt: new Date(),
+          },
+        });
+
+        // Create the first user message
+        await tx.message.create({
+          data: {
+            content: firstUserMessage,
+            role: 'USER',
+            sessionId: session.id,
+          },
+        });
+
+        // Create the first assistant message
+        await tx.message.create({
+          data: {
+            content: firstAssistantMessage,
+            role: 'ASSISTANT',
+            sessionId: session.id,
+          },
+        });
+
+        return session;
       });
     });
+  }
+
+  /**
+   * DEPRECATED: Old session creation method - should not be used in new architecture
+   */
+  async createChatSession(userId: string, chatType: ChatType = 'QUICK_CHAT') {
+    throw new Error('createChatSession is deprecated. Use createChatSessionWithFirstMessage instead.');
   }
 
   async getChatSession(sessionId: string) {
@@ -114,12 +148,20 @@ export class DatabaseService {
     });
   }
 
-  // New methods for efficient chat management
+  /**
+   * UPDATED: Only return sessions that have titles (and thus messages)
+   */
   async getUserChatSessions(userId: string, limit: number = 20, lastCursor?: string) {
     return await this.withTimeout(async () => {
       const where = {
         userId,
         isArchived: false,
+        title: {
+          not: null, // Only sessions with titles
+        },
+        messageCount: {
+          gt: 0, // Only sessions with messages
+        },
         ...(lastCursor && {
           updatedAt: {
             lt: new Date(lastCursor),
@@ -205,95 +247,110 @@ export class DatabaseService {
     });
   }
 
+  /**
+   * UPDATED: No longer auto-generates titles - all sessions should have titles
+   */
   async getChatSummary(sessionId: string) {
-    const session = await prisma.chatSession.findUnique({
-      where: { id: sessionId },
-      select: {
-        id: true,
-        title: true,
-        chatType: true,
-        messageCount: true,
-        lastMessageAt: true,
-        createdAt: true,
-      },
-    });
-
-    // Generate title from first user message if no title exists
-    if (session && !session.title) {
-      const firstMessage = await prisma.message.findFirst({
-        where: { sessionId, role: 'USER' },
-        orderBy: { createdAt: 'asc' },
-        select: { content: true },
+    return await this.withTimeout(async () => {
+      return await prisma.chatSession.findUnique({
+        where: { id: sessionId },
+        select: {
+          id: true,
+          title: true,
+          chatType: true,
+          messageCount: true,
+          lastMessageAt: true,
+          createdAt: true,
+        },
       });
-
-      if (firstMessage) {
-        const autoTitle = firstMessage.content.substring(0, 50).trim();
-        await this.updateChatTitle(sessionId, autoTitle);
-        session.title = autoTitle;
-      }
-    }
-
-    return session;
-  }
-
-  async searchChatSessions(userId: string, query: string, limit: number = 10) {
-    return await prisma.chatSession.findMany({
-      where: {
-        userId,
-        isArchived: false,
-        title: {
-          contains: query,
-        },
-      },
-      orderBy: { updatedAt: 'desc' },
-      take: limit,
-      select: {
-        id: true,
-        title: true,
-        chatType: true,
-        messageCount: true,
-        lastMessageAt: true,
-        createdAt: true,
-      },
     });
   }
 
-  async getArchivedChats(userId: string, limit: number = 20, lastCursor?: string) {
-    const where = {
-      userId,
-      isArchived: true,
-      ...(lastCursor && {
-        updatedAt: {
-          lt: new Date(lastCursor),
+  /**
+   * UPDATED: Only search sessions with titles
+   */
+  async searchChatSessions(userId: string, query: string, limit: number = 10) {
+    return await this.withTimeout(async () => {
+      return await prisma.chatSession.findMany({
+        where: {
+          userId,
+          isArchived: false,
+          title: {
+            contains: query,
+            not: null, // Only sessions with titles
+          },
         },
-      }),
-    };
+        orderBy: { updatedAt: 'desc' },
+        take: limit,
+        select: {
+          id: true,
+          title: true,
+          chatType: true,
+          messageCount: true,
+          lastMessageAt: true,
+          createdAt: true,
+        },
+      });
+    });
+  }
 
-    return await prisma.chatSession.findMany({
-      where,
-      orderBy: { updatedAt: 'desc' },
-      take: limit,
-      select: {
-        id: true,
-        title: true,
-        chatType: true,
-        messageCount: true,
-        lastMessageAt: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+  /**
+   * UPDATED: Only return archived sessions with titles
+   */
+  async getArchivedChats(userId: string, limit: number = 20, lastCursor?: string) {
+    return await this.withTimeout(async () => {
+      const where = {
+        userId,
+        isArchived: true,
+        title: {
+          not: null, // Only sessions with titles
+        },
+        ...(lastCursor && {
+          updatedAt: {
+            lt: new Date(lastCursor),
+          },
+        }),
+      };
+
+      return await prisma.chatSession.findMany({
+        where,
+        orderBy: { updatedAt: 'desc' },
+        take: limit,
+        select: {
+          id: true,
+          title: true,
+          chatType: true,
+          messageCount: true,
+          lastMessageAt: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
     });
   }
 
   async deleteChat(sessionId: string) {
-    return await prisma.chatSession.delete({
-      where: { id: sessionId },
+    return await this.withTimeout(async () => {
+      return await prisma.chatSession.delete({
+        where: { id: sessionId },
+      });
     });
   }
 
+  /**
+   * UPDATED: Only count sessions with titles
+   */
   async getUserChatCount(userId: string) {
-    return await prisma.chatSession.count({
-      where: { userId, isArchived: false },
+    return await this.withTimeout(async () => {
+      return await prisma.chatSession.count({
+        where: { 
+          userId, 
+          isArchived: false,
+          title: {
+            not: null,
+          },
+        },
+      });
     });
   }
 
