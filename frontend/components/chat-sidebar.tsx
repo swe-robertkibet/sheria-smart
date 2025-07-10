@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useImperativeHandle, forwardRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -46,14 +46,18 @@ interface ChatSidebarProps {
   chatType?: 'QUICK_CHAT' | 'STRUCTURED_ANALYSIS'
 }
 
-export function ChatSidebar({ 
+export interface ChatSidebarRef {
+  refreshSessions: () => void
+}
+
+export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({ 
   isOpen, 
   onToggle, 
   currentSessionId, 
   onSessionSelect, 
   onNewChat,
   chatType 
-}: ChatSidebarProps) {
+}, ref) => {
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -260,6 +264,13 @@ export function ChatSidebar({
     return () => clearTimeout(debounce)
   }, [searchQuery])
 
+  // Expose refresh function to parent component
+  useImperativeHandle(ref, () => ({
+    refreshSessions: () => {
+      loadSessions(true)
+    }
+  }), [])
+
   return (
     <>
       {/* Mobile overlay */}
@@ -452,4 +463,6 @@ export function ChatSidebar({
       </Button>
     </>
   )
-}
+})
+
+ChatSidebar.displayName = 'ChatSidebar'

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation"
 import { ChatInterface } from "@/components/chat-interface"
 import { StructuredChatInterface } from "@/components/structured-chat-interface"
 import { DocumentSelector } from "@/components/document-selector"
-import { ChatSidebar } from "@/components/chat-sidebar"
+import { ChatSidebar, ChatSidebarRef } from "@/components/chat-sidebar"
 import { useAuth } from "@/contexts/auth-context"
 import { AuthLoading } from "@/components/auth-loading"
 import { AuthError } from "@/components/auth-error"
@@ -28,6 +28,10 @@ export default function DashboardPage() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const router = useRouter()
   const { user, logout, isLoading, isAuthenticated, authError, isValidatingToken, clearAuthError } = useAuth()
+  
+  // Refs for sidebar components
+  const quickChatSidebarRef = useRef<ChatSidebarRef>(null)
+  const structuredChatSidebarRef = useRef<ChatSidebarRef>(null)
 
   // Reset scroll position when switching between dashboard views
   useEffect(() => {
@@ -116,14 +120,19 @@ export default function DashboardPage() {
   // NEW ARCHITECTURE: Handle session creation from chat interfaces
   const handleSessionCreated = (sessionId: string) => {
     setCurrentSessionId(sessionId)
-    // Note: We don't need to update the sidebar here as it will refresh automatically
-    // when the user navigates or when the sidebar component re-fetches sessions
+    // Trigger sidebar refresh to show the new session immediately
+    if (currentView === "chat") {
+      quickChatSidebarRef.current?.refreshSessions()
+    } else if (currentView === "structured-chat") {
+      structuredChatSidebarRef.current?.refreshSessions()
+    }
   }
 
   if (currentView === "chat") {
     return (
       <div className="flex h-screen">
         <ChatSidebar 
+          ref={quickChatSidebarRef}
           isOpen={isSidebarOpen}
           onToggle={handleToggleSidebar}
           currentSessionId={currentSessionId}
@@ -147,6 +156,7 @@ export default function DashboardPage() {
     return (
       <div className="flex h-screen">
         <ChatSidebar 
+          ref={structuredChatSidebarRef}
           isOpen={isSidebarOpen}
           onToggle={handleToggleSidebar}
           currentSessionId={currentSessionId}
