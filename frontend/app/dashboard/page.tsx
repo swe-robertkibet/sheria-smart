@@ -18,6 +18,8 @@ import { StructuredChatInterface } from "@/components/structured-chat-interface"
 import { DocumentSelector } from "@/components/document-selector"
 import { ChatSidebar } from "@/components/chat-sidebar"
 import { useAuth } from "@/contexts/auth-context"
+import { AuthLoading } from "@/components/auth-loading"
+import { AuthError } from "@/components/auth-error"
 
 export default function DashboardPage() {
   const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "structured-chat" | "documents">("dashboard")
@@ -25,14 +27,7 @@ export default function DashboardPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const router = useRouter()
-  const { user, logout, isLoading, isAuthenticated } = useAuth()
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/login')
-    }
-  }, [isLoading, isAuthenticated, router])
+  const { user, logout, isLoading, isAuthenticated, authError, isValidatingToken, clearAuthError } = useAuth()
 
   // Reset scroll position when switching between dashboard views
   useEffect(() => {
@@ -44,20 +39,42 @@ export default function DashboardPage() {
     router.push("/")
   }
 
-  // Show loading while checking authentication
-  if (isLoading) {
+  const handleRetryAuth = () => {
+    clearAuthError()
+    // Trigger token validation again
+    window.location.reload()
+  }
+
+  const handleGoToLogin = () => {
+    clearAuthError()
+    router.push('/login')
+  }
+
+  // Show loading while validating token on app load
+  if (isValidatingToken) {
+    return <AuthLoading message="Signing you in..." />
+  }
+
+  // Show auth error with user-friendly message
+  if (authError && authError.showToUser) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-[#7C9885]" />
-          <p className="text-[#718096]">Loading...</p>
-        </div>
-      </div>
+      <AuthError 
+        error={authError}
+        onRetry={handleRetryAuth}
+        onGoHome={handleGoToLogin}
+        showRetry={authError.code === 'NETWORK_ERROR'}
+      />
     )
   }
 
-  // Don't render if not authenticated
+  // Show loading during explicit loading operations (like logout)
+  if (isLoading) {
+    return <AuthLoading message="Processing..." />
+  }
+
+  // Redirect if not authenticated (silent redirect without error)
   if (!isAuthenticated || !user) {
+    router.push('/login')
     return null
   }
 

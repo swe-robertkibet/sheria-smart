@@ -27,15 +27,7 @@ const connectPrisma = () => __awaiter(void 0, void 0, void 0, function* () {
         prismaConnected = true;
     }
 });
-// Graceful shutdown for shared hosting
-process.on('SIGTERM', () => __awaiter(void 0, void 0, void 0, function* () {
-    yield prisma.$disconnect();
-    prismaConnected = false;
-}));
-process.on('SIGINT', () => __awaiter(void 0, void 0, void 0, function* () {
-    yield prisma.$disconnect();
-    prismaConnected = false;
-}));
+// Note: Graceful shutdown is now handled centrally in index.ts
 class DatabaseService {
     // Ensure connection before each operation
     ensureConnection() {

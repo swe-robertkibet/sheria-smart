@@ -157,4 +157,75 @@ router.get('/status', auth_1.authenticateToken, (req, res) => {
         user: req.user
     });
 });
+// NEW: Validate token endpoint for secure auto-login
+router.get('/validate-token', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    console.log('🔍 TOKEN VALIDATION: Endpoint called');
+    console.log('🔍 TOKEN VALIDATION: Cookies present:', Object.keys(req.cookies || {}));
+    const token = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.auth_token;
+    if (!token) {
+        console.log('🔍 TOKEN VALIDATION: No token found');
+        return res.status(401).json({
+            error: 'No authentication token found',
+            code: 'TOKEN_MISSING'
+        });
+    }
+    try {
+        console.log('🔍 TOKEN VALIDATION: Verifying JWT...');
+        const decoded = oauth_1.default.verifyJWT(token);
+        console.log('🔍 TOKEN VALIDATION: JWT decoded, userId:', decoded.userId);
+        // Verify user exists in database
+        console.log('🔍 TOKEN VALIDATION: Checking user existence in database...');
+        const user = yield prisma.user.findUnique({
+            where: { id: decoded.userId }
+        });
+        if (!user) {
+            console.log('🔍 TOKEN VALIDATION: User not found in database, clearing cookie');
+            res.clearCookie('auth_token', {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/'
+            });
+            return res.status(401).json({
+                error: 'User account no longer exists',
+                code: 'USER_NOT_FOUND'
+            });
+        }
+        console.log('🔍 TOKEN VALIDATION: Success for user:', user.email);
+        res.json({
+            valid: true,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                picture: user.picture
+            }
+        });
+    }
+    catch (error) {
+        console.error('🔍 TOKEN VALIDATION: Token verification failed:', error);
+        // Clear invalid token
+        res.clearCookie('auth_token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/'
+        });
+        // Determine error type for better UX
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        let errorCode = 'TOKEN_INVALID';
+        if (errorMessage.includes('expired')) {
+            errorCode = 'TOKEN_EXPIRED';
+        }
+        else if (errorMessage.includes('signature')) {
+            errorCode = 'TOKEN_TAMPERED';
+        }
+        return res.status(401).json({
+            error: 'Invalid or expired authentication token',
+            code: errorCode,
+            details: errorMessage
+        });
+    }
+}));
 exports.default = router;

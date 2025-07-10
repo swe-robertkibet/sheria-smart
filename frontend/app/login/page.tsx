@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, Mail, ArrowLeft, Shield, CheckCircle, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Mail, ArrowLeft, Shield, CheckCircle, Loader2, AlertTriangle, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { FloatingIcons } from "@/components/floating-icons"
@@ -26,30 +26,22 @@ export default function LoginPage() {
   })
 
   const router = useRouter()
-  const { login, isAuthenticated, isLoading: authLoading } = useAuth()
+  const { login, isAuthenticated, isLoading: authLoading, authError, isValidatingToken, clearAuthError } = useAuth()
 
-  // Handle auth errors from OAuth callback
+  // Clear auth error on mount if user navigated here manually
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const error = urlParams.get('error')
-    
-    if (error) {
-      console.error('Authentication error:', error, urlParams.get('details'))
-      // Clear any stale auth state
-      if (isAuthenticated) {
-        console.log('Clearing stale auth state due to error')
-      }
+    if (authError) {
+      clearAuthError()
     }
   }, [])
   
-  // Redirect if already authenticated, but not during error handling
+  // Redirect if already authenticated (after token validation is complete)
   useEffect(() => {
-    const hasError = window.location.search.includes('error=')
-    if (isAuthenticated && !hasError && !authLoading) {
+    if (isAuthenticated && !isValidatingToken && !authLoading) {
       console.log('Already authenticated, redirecting to dashboard')
       router.push('/dashboard')
     }
-  }, [isAuthenticated, router, authLoading])
+  }, [isAuthenticated, isValidatingToken, authLoading, router])
 
   const handleGoogleLogin = async () => {
     setIsLoading(true)
@@ -81,6 +73,32 @@ export default function LoginPage() {
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  // Show loading during token validation
+  if (isValidatingToken) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-6">
+          <div className="flex items-center justify-center space-x-3 mb-8">
+            <Image
+              src="/sheria-smart-ico.png"
+              alt="Sheria Smart Icon"
+              width={32}
+              height={32}
+              className="h-8 w-8"
+            />
+            <div className="text-2xl font-bold">
+              <span className="text-[#7C9885]">Sheria</span>
+              <span className="text-[#C99383]"> Smart</span>
+            </div>
+          </div>
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-6 text-[#7C9885]" />
+          <p className="text-lg font-medium text-[#2D3748]">Checking your session...</p>
+          <p className="text-sm text-[#718096] mt-2">Please wait a moment</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -170,6 +188,23 @@ export default function LoginPage() {
               <h2 className="text-4xl font-bold text-[#2D3748]">Sign In</h2>
               <p className="text-[#718096]">Access your legal assistant</p>
             </div>
+
+            {/* Auth Error Display */}
+            {authError && authError.showToUser && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
+                <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-red-800">Authentication Required</p>
+                  <p className="text-sm text-red-600 mt-1">{authError.message}</p>
+                </div>
+                <button 
+                  onClick={clearAuthError}
+                  className="text-red-400 hover:text-red-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
 
           {!showEmailForm ? (

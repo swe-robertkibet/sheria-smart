@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import chatRoutes from './routes/chat';
 import authRoutes from './routes/auth';
+import DatabaseService from './services/database';
 
 dotenv.config();
 
@@ -28,6 +29,40 @@ app.get('/api/health', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+// Graceful shutdown handling
+const gracefulShutdown = async (signal: string) => {
+  console.log(`\nReceived ${signal}, gracefully shutting down...`);
+  
+  // Close server first to stop accepting new connections
+  server.close(async (err) => {
+    if (err) {
+      console.error('Error during server shutdown:', err);
+    } else {
+      console.log('Server closed.');
+    }
+    
+    try {
+      // Close database connections
+      await DatabaseService.disconnect();
+      console.log('Database connections closed.');
+    } catch (error) {
+      console.error('Error closing database connections:', error);
+    }
+    
+    console.log('Graceful shutdown complete.');
+    process.exit(err ? 1 : 0);
+  });
+  
+  // Force exit after 10 seconds if graceful shutdown hangs
+  setTimeout(() => {
+    console.error('Graceful shutdown timeout, forcing exit...');
+    process.exit(1);
+  }, 10000);
+};
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
