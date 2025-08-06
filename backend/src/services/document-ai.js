@@ -1,0 +1,227 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DocumentAIService = void 0;
+const generative_ai_1 = require("@google/generative-ai");
+const KENYAN_LEGAL_SYSTEM_PROMPT = `You are a specialized legal document assistant for Kenyan law. Your role is to generate professional, legally sound content for Non-Disclosure Agreements (NDAs) that comply with Kenyan legal standards.
+
+Key Requirements:
+1. Base all content on Kenyan law and legal principles
+2. Reference the Law of Contract Act (Cap 23) where applicable
+3. Include provisions that align with the Constitution of Kenya 2010, Article 31 (right to privacy)
+4. Ensure compliance with the Data Protection Act 2019 where relevant
+5. Use formal legal language appropriate for Kenyan courts
+6. Include appropriate disclaimers about legal advice vs information
+7. Structure content according to Kenyan contract law requirements
+
+Legal Framework Context:
+- Kenyan contract law is based on English common law
+- Essential elements: offer/acceptance, consideration, intention, capacity, consent
+- Written contracts are preferred for enforceability
+- Courts favor clear, unambiguous language
+- Standard remedies include damages and injunctions
+
+Important: Always recommend that parties seek review by qualified Kenyan legal counsel before execution.`;
+class DocumentAIService {
+    constructor() {
+        if (!process.env.GEMINI_API_KEY) {
+            throw new Error('GEMINI_API_KEY is not set in environment variables');
+        }
+        this.genAI = new generative_ai_1.GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        this.model = this.genAI.getGenerativeModel({
+            model: 'gemini-2.0-flash',
+            generationConfig: {
+                temperature: 0.3, // Lower temperature for legal documents
+                topK: 1,
+                topP: 1,
+                maxOutputTokens: 4096,
+            },
+        });
+    }
+    generateNDAContent(userInput, backstory) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const prompt = `${KENYAN_LEGAL_SYSTEM_PROMPT}
+
+Generate professional content for a Non-Disclosure Agreement (NDA) based on the following information:
+
+PARTIES INFORMATION:
+Disclosing Party: ${userInput.disclosingPartyName}
+Address: ${userInput.disclosingPartyAddress}
+
+Receiving Party: ${userInput.receivingPartyName}
+Address: ${userInput.receivingPartyAddress}
+
+AGREEMENT CONTEXT:
+Purpose: ${userInput.purposeOfDisclosure}
+Backstory: ${backstory}
+Specific Confidential Information: ${userInput.specificConfidentialInfo}
+Duration: ${userInput.agreementDuration}
+Is Perpetual: ${userInput.isPerperual}
+Effective Date: ${userInput.effectiveDate}
+${userInput.additionalTerms ? `Additional Terms: ${userInput.additionalTerms}` : ''}
+
+Generate ONLY a valid JSON object with this exact structure:
+
+{
+  "title": "Professional title for the NDA document",
+  "recitals": "Background and purpose section explaining why parties are entering into this agreement, referencing the specific context provided",
+  "definitions": "Clear definitions of key terms including 'Confidential Information', 'Disclosing Party', 'Receiving Party', and other relevant terms under Kenyan law",
+  "confidentialityObligations": "Detailed obligations of the receiving party regarding confidential information, including restrictions on use, disclosure, and copying under Kenyan legal standards",
+  "permittedUses": "Specific authorized uses of confidential information based on the purpose provided, with clear limitations",
+  "exclusions": "Standard exclusions from confidentiality (public domain information, independently developed information, etc.) as recognized under Kenyan contract law",
+  "termDuration": "Duration clause covering the term of confidentiality obligations, considering whether perpetual or time-limited",
+  "remediesAndEnforcement": "Remedies for breach including injunctive relief and damages, referencing Kenyan legal remedies and court jurisdiction",
+  "generalProvisions": "Standard contractual provisions including entire agreement, amendment procedures, severability, and notice requirements compliant with Kenyan law",
+  "governingLaw": "Governing law clause specifying jurisdiction under Kenyan law and courts",
+  "signatures": "Signature blocks with proper execution requirements for enforceability under Kenyan law, including witness and notarization recommendations"
+}
+
+Guidelines:
+- Use professional legal language appropriate for Kenyan legal documents
+- Reference specific Kenyan statutes where applicable
+- Include appropriate legal disclaimers
+- Ensure enforceability under Kenyan contract law
+- Tailor content to the specific context and backstory provided
+- Include clear consequences for breach
+- Address the specific confidential information categories mentioned
+
+Return ONLY the JSON object, no additional text or formatting.`;
+                const result = yield this.model.generateContent(prompt);
+                const response = result.response;
+                const text = response.text();
+                // Clean up the response to ensure it's valid JSON
+                const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
+                const generatedContent = JSON.parse(cleanedText);
+                // Clean content for PDF compatibility
+                const cleanContent = (str) => {
+                    return str
+                        .replace(/[\u2018\u2019]/g, "'") // Replace smart quotes with regular quotes
+                        .replace(/[\u201C\u201D]/g, '"') // Replace smart double quotes
+                        .replace(/[\u2013\u2014]/g, '-') // Replace em/en dashes with hyphens
+                        .replace(/[\u2026]/g, '...') // Replace ellipsis
+                        .replace(/[^\x20-\x7E\n\r\t]/g, '') // Keep only ASCII + basic whitespace
+                        .trim();
+                };
+                // Apply cleaning to all content fields
+                Object.keys(generatedContent).forEach(key => {
+                    const value = generatedContent[key];
+                    if (typeof value === 'string') {
+                        generatedContent[key] = cleanContent(value);
+                    }
+                });
+                // Validate the response has all required fields
+                const requiredFields = [
+                    'title', 'recitals', 'definitions', 'confidentialityObligations',
+                    'permittedUses', 'exclusions', 'termDuration', 'remediesAndEnforcement',
+                    'generalProvisions', 'governingLaw', 'signatures'
+                ];
+                for (const field of requiredFields) {
+                    if (!generatedContent[field]) {
+                        throw new Error(`Missing required field: ${field}`);
+                    }
+                }
+                return generatedContent;
+            }
+            catch (error) {
+                console.error('Error generating NDA content:', error);
+                // Fallback content if AI generation fails
+                return this.getFallbackNDAContent(userInput, backstory);
+            }
+        });
+    }
+    getFallbackNDAContent(userInput, backstory) {
+        // Clean content for PDF compatibility
+        const cleanContent = (str) => {
+            return str
+                .replace(/[\u2018\u2019]/g, "'") // Replace smart quotes with regular quotes
+                .replace(/[\u201C\u201D]/g, '"') // Replace smart double quotes
+                .replace(/[\u2013\u2014]/g, '-') // Replace em/en dashes with hyphens
+                .replace(/[\u2026]/g, '...') // Replace ellipsis
+                .replace(/[^\x20-\x7E\n\r\t]/g, '') // Keep only ASCII + basic whitespace
+                .trim();
+        };
+        const fallbackContent = {
+            title: "NON-DISCLOSURE AGREEMENT",
+            recitals: `WHEREAS, ${userInput.disclosingPartyName} ("Disclosing Party") possesses certain confidential and proprietary information related to ${userInput.purposeOfDisclosure}; and WHEREAS, ${userInput.receivingPartyName} ("Receiving Party") desires to receive such confidential information for the purpose of ${backstory}; and WHEREAS, both parties wish to protect the confidentiality of such information under the laws of the Republic of Kenya;`,
+            definitions: `For the purposes of this Agreement: (a) "Confidential Information" means ${userInput.specificConfidentialInfo} and any other technical, business, or proprietary information disclosed by the Disclosing Party; (b) "Disclosing Party" means ${userInput.disclosingPartyName}; (c) "Receiving Party" means ${userInput.receivingPartyName}; (d) "Purpose" means ${userInput.purposeOfDisclosure}.`,
+            confidentialityObligations: `The Receiving Party agrees to: (a) maintain the confidentiality of all Confidential Information; (b) not disclose Confidential Information to any third parties without prior written consent; (c) use reasonable care to protect the confidentiality of such information; (d) limit access to Confidential Information to authorized personnel only; (e) return or destroy all Confidential Information upon request or termination of this Agreement.`,
+            permittedUses: `The Receiving Party may use Confidential Information solely for the Purpose as defined herein. Any other use requires express written permission from the Disclosing Party.`,
+            exclusions: `This Agreement shall not apply to information that: (a) is or becomes publicly available through no breach of this Agreement; (b) is rightfully known by the Receiving Party prior to disclosure; (c) is independently developed by the Receiving Party without use of Confidential Information; (d) is required to be disclosed by law or court order.`,
+            termDuration: userInput.isPerperual
+                ? `The obligations of confidentiality shall survive indefinitely unless terminated by mutual written agreement of the parties.`
+                : `This Agreement shall remain in effect for ${userInput.agreementDuration} from the Effective Date, unless earlier terminated by mutual consent of the parties.`,
+            remediesAndEnforcement: `The Receiving Party acknowledges that breach of this Agreement may cause irreparable harm to the Disclosing Party. Therefore, the Disclosing Party shall be entitled to seek injunctive relief and monetary damages in the courts of Kenya. The prevailing party shall be entitled to reasonable attorney's fees and costs.`,
+            generalProvisions: `This Agreement constitutes the entire agreement between the parties regarding the subject matter herein. Any modifications must be in writing and signed by both parties. If any provision is deemed unenforceable, the remainder shall remain in effect. All notices shall be in writing and delivered to the addresses specified herein.`,
+            governingLaw: `This Agreement shall be governed by and construed in accordance with the laws of the Republic of Kenya. Any disputes arising hereunder shall be subject to the exclusive jurisdiction of the courts of Kenya.`,
+            signatures: `IN WITNESS WHEREOF, the parties have executed this Agreement as of the date first written above. It is recommended that this Agreement be witnessed and notarized for enforceability under Kenyan law.\n\nDISCLOSING PARTY:\n\n_____________________\n${userInput.disclosingPartyName}\nDate: ___________\n\nRECEIVING PARTY:\n\n_____________________\n${userInput.receivingPartyName}\nDate: ___________\n\nWITNESS:\n\n_____________________\nName: ___________\nDate: ___________\n\nIMPORTANT: This document is for informational purposes only and does not constitute legal advice. Parties should consult with qualified Kenyan legal counsel before execution.`
+        };
+        // Apply cleaning to all content fields
+        Object.keys(fallbackContent).forEach(key => {
+            const value = fallbackContent[key];
+            if (typeof value === 'string') {
+                fallbackContent[key] = cleanContent(value);
+            }
+        });
+        return fallbackContent;
+    }
+    validateNDAInput(userInput) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+            const errors = [];
+            // Required field validation
+            if (!((_a = userInput.disclosingPartyName) === null || _a === void 0 ? void 0 : _a.trim())) {
+                errors.push('Disclosing party name is required');
+            }
+            if (!((_b = userInput.receivingPartyName) === null || _b === void 0 ? void 0 : _b.trim())) {
+                errors.push('Receiving party name is required');
+            }
+            if (!((_c = userInput.disclosingPartyAddress) === null || _c === void 0 ? void 0 : _c.trim())) {
+                errors.push('Disclosing party address is required');
+            }
+            if (!((_d = userInput.receivingPartyAddress) === null || _d === void 0 ? void 0 : _d.trim())) {
+                errors.push('Receiving party address is required');
+            }
+            if (!((_e = userInput.disclosingPartyEmail) === null || _e === void 0 ? void 0 : _e.trim())) {
+                errors.push('Disclosing party email is required');
+            }
+            if (!((_f = userInput.receivingPartyEmail) === null || _f === void 0 ? void 0 : _f.trim())) {
+                errors.push('Receiving party email is required');
+            }
+            if (!((_g = userInput.purposeOfDisclosure) === null || _g === void 0 ? void 0 : _g.trim())) {
+                errors.push('Purpose of disclosure is required');
+            }
+            if (!((_h = userInput.specificConfidentialInfo) === null || _h === void 0 ? void 0 : _h.trim())) {
+                errors.push('Specific confidential information description is required');
+            }
+            if (!((_j = userInput.effectiveDate) === null || _j === void 0 ? void 0 : _j.trim())) {
+                errors.push('Effective date is required');
+            }
+            if (!userInput.isPerperual && !((_k = userInput.agreementDuration) === null || _k === void 0 ? void 0 : _k.trim())) {
+                errors.push('Agreement duration is required when not perpetual');
+            }
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (userInput.disclosingPartyEmail && !emailRegex.test(userInput.disclosingPartyEmail)) {
+                errors.push('Disclosing party email format is invalid');
+            }
+            if (userInput.receivingPartyEmail && !emailRegex.test(userInput.receivingPartyEmail)) {
+                errors.push('Receiving party email format is invalid');
+            }
+            return {
+                isValid: errors.length === 0,
+                errors
+            };
+        });
+    }
+}
+exports.DocumentAIService = DocumentAIService;
+exports.default = new DocumentAIService();

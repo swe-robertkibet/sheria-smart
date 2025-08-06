@@ -16,16 +16,19 @@ import { useRouter } from "next/navigation"
 import { ChatInterface } from "@/components/chat-interface"
 import { StructuredChatInterface } from "@/components/structured-chat-interface"
 import { DocumentSelector } from "@/components/document-selector"
+import { NDAForm } from "@/components/nda-form"
 import { ChatSidebar, ChatSidebarRef } from "@/components/chat-sidebar"
 import { useAuth } from "@/contexts/auth-context"
 import { AuthLoading } from "@/components/auth-loading"
 import { AuthError } from "@/components/auth-error"
+import { DocumentType } from "@/types/document"
 
 export default function DashboardPage() {
-  const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "structured-chat" | "documents">("dashboard")
+  const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "structured-chat" | "documents" | "nda-form">("dashboard")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
+  const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | null>(null)
   const router = useRouter()
   const { user, logout, isLoading, isAuthenticated, authError, isValidatingToken, clearAuthError } = useAuth()
   
@@ -99,6 +102,14 @@ export default function DashboardPage() {
   const handleBackToDashboard = () => {
     setCurrentView("dashboard")
     setCurrentSessionId(null)
+    setSelectedDocumentType(null)
+  }
+
+  const handleSelectDocument = (documentType: DocumentType) => {
+    setSelectedDocumentType(documentType)
+    if (documentType === DocumentType.NDA) {
+      setCurrentView("nda-form")
+    }
   }
 
   const handleSessionSelect = (sessionId: string) => {
@@ -177,7 +188,11 @@ export default function DashboardPage() {
   }
 
   if (currentView === "documents") {
-    return <DocumentSelector onBack={handleBackToDashboard} />
+    return <DocumentSelector onBack={handleBackToDashboard} onSelectDocument={handleSelectDocument} />
+  }
+
+  if (currentView === "nda-form") {
+    return <NDAForm onBack={handleBackToDashboard} />
   }
 
   return (

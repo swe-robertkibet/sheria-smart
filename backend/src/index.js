@@ -18,6 +18,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const chat_1 = __importDefault(require("./routes/chat"));
 const auth_1 = __importDefault(require("./routes/auth"));
+const documents_1 = __importDefault(require("./routes/documents"));
 const database_1 = __importDefault(require("./services/database"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -32,6 +33,7 @@ app.use((0, cookie_parser_1.default)());
 // Routes
 app.use('/api/auth', auth_1.default);
 app.use('/api/chat', chat_1.default);
+app.use('/api/documents', documents_1.default);
 // Basic health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'Backend server is running' });
