@@ -150,6 +150,26 @@ Return ONLY the JSON object, no additional text or formatting.`;
           throw new Error(`Missing required field: ${field}`);
         }
       }
+
+      // Final validation: Ensure no disclaimer text made it through
+      const disclaimerPatterns = [
+        /informational purposes only/i,
+        /does not constitute legal advice/i,
+        /seek independent legal counsel/i,
+        /important notice/i,
+        /qualified.*attorneys/i,
+        /legal advice/i
+      ];
+
+      for (const field of requiredFields) {
+        const content = generatedContent[field as keyof GeneratedNDAContent] as string;
+        for (const pattern of disclaimerPatterns) {
+          if (pattern.test(content)) {
+            console.warn(`Disclaimer text detected in field ${field}, regenerating with fallback`);
+            return this.getFallbackNDAContent(userInput, backstory);
+          }
+        }
+      }
       
       return generatedContent;
     } catch (error) {
