@@ -72,6 +72,9 @@ class DocumentGeneratorService {
             // Helper function to clean text for PDF generation
             const cleanTextForPDF = (text) => {
                 return text
+                    .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold formatting
+                    .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic formatting
+                    .replace(/_{2,}(.*?)_{2,}/g, '$1') // Remove markdown underline formatting
                     .replace(/[\r\n\t]/g, ' ') // Replace newlines and tabs with spaces
                     .replace(/[^\x20-\x7E]/g, '') // Remove non-ASCII characters
                     .replace(/\s+/g, ' ') // Replace multiple spaces with single space
@@ -176,9 +179,18 @@ class DocumentGeneratorService {
                 addText(section.content);
                 yPosition -= lineHeight;
             }
-            // Signatures
+            // Signatures - handle with preserved line breaks
             addText('SIGNATURES', timesRomanBoldFont, fontSize, true);
-            addText(content.signatures);
+            // Handle signatures with preserved line breaks
+            const signatureLines = content.signatures.split('\\n');
+            for (const line of signatureLines) {
+                if (line.trim()) {
+                    addText(line.trim());
+                }
+                else {
+                    yPosition -= lineHeight; // Add empty line spacing
+                }
+            }
             const pdfBytes = yield pdfDoc.save();
             const filePath = path_1.default.join(this.outputDir, `${baseFilename}.pdf`);
             yield promises_1.default.writeFile(filePath, pdfBytes);
@@ -334,14 +346,36 @@ class DocumentGeneratorService {
                     }),
                 ],
                 spacing: { before: 400, after: 200 },
-            }), new docx_1.Paragraph({
-                children: [
-                    new docx_1.TextRun({
-                        text: section.content,
-                    }),
-                ],
-                spacing: { after: 200 },
             }));
+            // Handle signatures section with preserved line breaks
+            if (section.title === 'SIGNATURES') {
+                const signatureLines = section.content.split('\\n');
+                for (const line of signatureLines) {
+                    result.push(new docx_1.Paragraph({
+                        children: [
+                            new docx_1.TextRun({
+                                text: line,
+                            }),
+                        ],
+                        spacing: line.trim() === '' ? { after: 100 } : { after: 50 },
+                    }));
+                }
+            }
+            else {
+                // Regular content handling with markdown cleanup
+                const cleanedContent = section.content
+                    .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold
+                    .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic
+                    .replace(/_{2,}/g, ''); // Remove underlines
+                result.push(new docx_1.Paragraph({
+                    children: [
+                        new docx_1.TextRun({
+                            text: cleanedContent,
+                        }),
+                    ],
+                    spacing: { after: 200 },
+                }));
+            }
         }
         return result;
     }

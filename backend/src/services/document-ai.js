@@ -29,7 +29,7 @@ Legal Framework Context:
 - Courts favor clear, unambiguous language
 - Standard remedies include damages and injunctions
 
-Important: Always recommend that parties seek review by qualified Kenyan legal counsel before execution.`;
+Important: Generate production-ready legal documents without disclaimers or recommendations to seek legal counsel, as these will be handled separately in the application's terms and conditions.`;
 class DocumentAIService {
     constructor() {
         if (!process.env.GEMINI_API_KEY) {
@@ -82,17 +82,19 @@ Generate ONLY a valid JSON object with this exact structure:
   "remediesAndEnforcement": "Remedies for breach including injunctive relief and damages, referencing Kenyan legal remedies and court jurisdiction",
   "generalProvisions": "Standard contractual provisions including entire agreement, amendment procedures, severability, and notice requirements compliant with Kenyan law",
   "governingLaw": "Governing law clause specifying jurisdiction under Kenyan law and courts",
-  "signatures": "Signature blocks with proper execution requirements for enforceability under Kenyan law, including witness and notarization recommendations"
+  "signatures": "Professional signature blocks with proper execution requirements for enforceability under Kenyan law, formatted for immediate signing"
 }
 
 Guidelines:
 - Use professional legal language appropriate for Kenyan legal documents
 - Reference specific Kenyan statutes where applicable
-- Include appropriate legal disclaimers
+- Create production-ready documents ready for signing without any disclaimers, notices, or recommendations for legal counsel
 - Ensure enforceability under Kenyan contract law
 - Tailor content to the specific context and backstory provided
 - Include clear consequences for breach
 - Address the specific confidential information categories mentioned
+- Do NOT include any text suggesting the document is for informational purposes only
+- Do NOT include recommendations to consult legal counsel
 
 Return ONLY the JSON object, no additional text or formatting.`;
                 const result = yield this.model.generateContent(prompt);
@@ -162,7 +164,7 @@ Return ONLY the JSON object, no additional text or formatting.`;
             remediesAndEnforcement: `The Receiving Party acknowledges that breach of this Agreement may cause irreparable harm to the Disclosing Party. Therefore, the Disclosing Party shall be entitled to seek injunctive relief and monetary damages in the courts of Kenya. The prevailing party shall be entitled to reasonable attorney's fees and costs.`,
             generalProvisions: `This Agreement constitutes the entire agreement between the parties regarding the subject matter herein. Any modifications must be in writing and signed by both parties. If any provision is deemed unenforceable, the remainder shall remain in effect. All notices shall be in writing and delivered to the addresses specified herein.`,
             governingLaw: `This Agreement shall be governed by and construed in accordance with the laws of the Republic of Kenya. Any disputes arising hereunder shall be subject to the exclusive jurisdiction of the courts of Kenya.`,
-            signatures: `IN WITNESS WHEREOF, the parties have executed this Agreement as of the date first written above. It is recommended that this Agreement be witnessed and notarized for enforceability under Kenyan law.\n\nDISCLOSING PARTY:\n\n_____________________\n${userInput.disclosingPartyName}\nDate: ___________\n\nRECEIVING PARTY:\n\n_____________________\n${userInput.receivingPartyName}\nDate: ___________\n\nWITNESS:\n\n_____________________\nName: ___________\nDate: ___________\n\nIMPORTANT: This document is for informational purposes only and does not constitute legal advice. Parties should consult with qualified Kenyan legal counsel before execution.`
+            signatures: `IN WITNESS WHEREOF, the parties have executed this Agreement as of the date first written above.\n\nDISCLOSING PARTY:\n\nSignature: _____________________\nName: ${userInput.disclosingPartyName}\nTitle: _____________________\nDate: ___________\n\n\nRECEIVING PARTY:\n\nSignature: _____________________\nName: ${userInput.receivingPartyName}\nTitle: _____________________\nDate: ___________\n\n\nWITNESS:\n\nSignature: _____________________\nName: _____________________\nTitle: _____________________\nDate: ___________`
         };
         // Apply cleaning to all content fields
         Object.keys(fallbackContent).forEach(key => {
