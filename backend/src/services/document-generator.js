@@ -74,7 +74,7 @@ class DocumentGeneratorService {
                 return text
                     .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold formatting
                     .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic formatting
-                    .replace(/_{2,}(.*?)_{2,}/g, '$1') // Remove markdown underline formatting
+                    .replace(/_{2}([^_\s]+.*?[^_\s])_{2}/g, '$1') // Remove markdown underline formatting (only when text is between underscores)
                     .replace(/[\r\n\t]/g, ' ') // Replace newlines and tabs with spaces
                     .replace(/[^\x20-\x7E]/g, '') // Remove non-ASCII characters
                     .replace(/\s+/g, ' ') // Replace multiple spaces with single space
@@ -182,7 +182,7 @@ class DocumentGeneratorService {
             // Signatures - handle with preserved line breaks
             addText('SIGNATURES', timesRomanBoldFont, fontSize, true);
             // Handle signatures with preserved line breaks
-            const signatureLines = content.signatures.split('\\n');
+            const signatureLines = content.signatures.replace(/\\n/g, '\n').split('\n');
             for (const line of signatureLines) {
                 if (line.trim()) {
                     addText(line.trim());
@@ -349,7 +349,7 @@ class DocumentGeneratorService {
             }));
             // Handle signatures section with preserved line breaks
             if (section.title === 'SIGNATURES') {
-                const signatureLines = section.content.split('\\n');
+                const signatureLines = section.content.replace(/\\n/g, '\n').split('\n');
                 for (const line of signatureLines) {
                     result.push(new docx_1.Paragraph({
                         children: [
@@ -366,7 +366,7 @@ class DocumentGeneratorService {
                 const cleanedContent = section.content
                     .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold
                     .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic
-                    .replace(/_{2,}/g, ''); // Remove underlines
+                    .replace(/_{2}([^_\s]+.*?[^_\s])_{2}/g, '$1'); // Remove markdown underline formatting (only when text is between underscores)
                 result.push(new docx_1.Paragraph({
                     children: [
                         new docx_1.TextRun({
