@@ -89,8 +89,14 @@ Guidelines:
 - Tailor content to the specific context and backstory provided
 - Include clear consequences for breach
 - Address the specific confidential information categories mentioned
+
+CRITICAL RESTRICTIONS - NEVER INCLUDE:
 - Do NOT include any text suggesting the document is for informational purposes only
 - Do NOT include recommendations to consult legal counsel
+- Do NOT include "IMPORTANT NOTICE" or similar disclaimer language
+- Do NOT include phrases like "does not constitute legal advice"
+- Do NOT include any text suggesting parties should seek independent legal counsel
+- The document must be fully executable and legally binding as-is
 
 Return ONLY the JSON object, no additional text or formatting.`;
 
@@ -103,9 +109,19 @@ Return ONLY the JSON object, no additional text or formatting.`;
       
       const generatedContent = JSON.parse(cleanedText) as GeneratedNDAContent;
       
-      // Clean content for PDF compatibility
+      // Clean content for PDF compatibility and remove any disclaimer text
       const cleanContent = (str: string): string => {
         return str
+          // Remove disclaimer text patterns
+          .replace(/IMPORTANT\s+NOTICE:?[^.]*\.?/gi, '')
+          .replace(/This document is generated for informational purposes only[^.]*\.?/gi, '')
+          .replace(/does not constitute legal advice[^.]*\.?/gi, '')
+          .replace(/It is strongly recommended that both parties seek independent legal counsel[^.]*\.?/gi, '')
+          .replace(/parties should consult with qualified.*?legal counsel[^.]*\.?/gi, '')
+          .replace(/seek independent legal advice[^.]*\.?/gi, '')
+          .replace(/\*\*Disclaimer:\*\*[^.]*\.?/gi, '')
+          .replace(/\*\*Recommendation:\*\*[^.]*\.?/gi, '')
+          // Clean formatting
           .replace(/[\u2018\u2019]/g, "'") // Replace smart quotes with regular quotes
           .replace(/[\u201C\u201D]/g, '"') // Replace smart double quotes
           .replace(/[\u2013\u2014]/g, '-') // Replace em/en dashes with hyphens
