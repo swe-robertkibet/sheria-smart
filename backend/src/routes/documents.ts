@@ -1,10 +1,12 @@
 import express from 'express';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import DocumentOrchestrator from '../services/document-orchestrator';
+import DocumentCatalog from '../services/document-catalog';
 import { 
   DocumentType, 
   DocumentFormat, 
   DocumentGenerationRequest,
+  DocumentUserInput,
   NDAUserInput 
 } from '../types/document';
 
@@ -13,53 +15,22 @@ const router = express.Router();
 // Get available document types
 router.get('/types', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
-    const documentTypes = [
-      {
-        id: DocumentType.NDA,
-        name: 'Non-Disclosure Agreement (NDA)',
-        description: 'Protect confidential information shared between parties',
-        isActive: true,
-        requiredFields: [
-          'disclosingPartyName',
-          'disclosingPartyAddress', 
-          'disclosingPartyEmail',
-          'receivingPartyName',
-          'receivingPartyAddress',
-          'receivingPartyEmail',
-          'purposeOfDisclosure',
-          'specificConfidentialInfo',
-          'effectiveDate',
-          'agreementDuration',
-          'isPerperual'
-        ]
-      },
-      {
-        id: DocumentType.EMPLOYMENT_CONTRACT,
-        name: 'Employment Contract',
-        description: 'Employment agreements compliant with Kenyan labor law',
-        isActive: false, // Coming soon
-        requiredFields: []
-      },
-      {
-        id: DocumentType.SERVICE_AGREEMENT,
-        name: 'Service Agreement',
-        description: 'Professional service contracts and agreements',
-        isActive: false, // Coming soon
-        requiredFields: []
-      },
-      {
-        id: DocumentType.LEASE_AGREEMENT,
-        name: 'Lease Agreement',
-        description: 'Property rental and lease agreements',
-        isActive: false, // Coming soon
-        requiredFields: []
-      }
-    ];
-
+    const documentTypes = DocumentCatalog.getAllDocumentTypes();
     res.json({ documentTypes });
   } catch (error) {
     console.error('Error fetching document types:', error);
     res.status(500).json({ error: 'Failed to fetch document types' });
+  }
+});
+
+// Get document categories with grouped document types
+router.get('/categories', authenticateToken, async (req: AuthenticatedRequest, res) => {
+  try {
+    const categories = DocumentCatalog.getAllCategories();
+    res.json({ categories });
+  } catch (error) {
+    console.error('Error fetching document categories:', error);
+    res.status(500).json({ error: 'Failed to fetch document categories' });
   }
 });
 
@@ -74,22 +45,24 @@ router.post('/generate', authenticateToken, async (req: AuthenticatedRequest, re
       documentType,
       userInput,
       backstory,
-      formats,
-      emailAddress
+      formats
     } = req.body;
+
+    // SECURITY: Use authenticated user's email ONLY - never trust frontend email input
+    const emailAddress = req.user.email;
 
     console.log('Document generation request:', {
       documentType,
       formats,
       userId: req.user.userId,
-      emailAddress
+      emailAddress: emailAddress
     });
 
     // Validate required fields
-    if (!documentType || !userInput || !backstory || !formats || !emailAddress) {
+    if (!documentType || !userInput || !backstory || !formats) {
       return res.status(400).json({ 
         error: 'Missing required fields',
-        required: ['documentType', 'userInput', 'backstory', 'formats', 'emailAddress']
+        required: ['documentType', 'userInput', 'backstory', 'formats']
       });
     }
 
@@ -118,17 +91,22 @@ router.post('/generate', authenticateToken, async (req: AuthenticatedRequest, re
       }
     }
 
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(emailAddress)) {
-      return res.status(400).json({ error: 'Invalid email address format' });
-    }
+    // Email validation not needed - authenticated user's email is already validated during OAuth
 
-    // Currently only NDA is supported
-    if (documentType !== DocumentType.NDA) {
+    // Check if the document type is supported by either legacy or new generator
+    const supportedTypes = [
+      DocumentType.NDA,
+      DocumentType.SALES_PURCHASE_AGREEMENT,
+      DocumentType.DISTRIBUTION_AGREEMENT,
+      DocumentType.PARTNERSHIP_AGREEMENT,
+      DocumentType.ENHANCED_EMPLOYMENT_CONTRACT,
+      DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT
+    ];
+    
+    if (!supportedTypes.includes(documentType)) {
       return res.status(400).json({ 
         error: `Document type ${documentType} is not yet supported`,
-        supportedTypes: [DocumentType.NDA]
+        supportedTypes
       });
     }
 

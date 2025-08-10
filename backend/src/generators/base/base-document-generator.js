@@ -12,16 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DocumentGeneratorService = void 0;
+exports.BaseDocumentGenerator = void 0;
 const pdf_lib_1 = require("pdf-lib");
 const docx_1 = require("docx");
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
-const document_1 = require("../types/document");
-const document_generator_registry_1 = require("../generators/document-generator-registry");
-class DocumentGeneratorService {
+const document_1 = require("../../types/document");
+class BaseDocumentGenerator {
     constructor() {
-        this.outputDir = path_1.default.join(__dirname, '../../generated-documents');
+        this.outputDir = path_1.default.join(__dirname, '../../../generated-documents');
         this.ensureOutputDirectory();
     }
     ensureOutputDirectory() {
@@ -34,39 +33,20 @@ class DocumentGeneratorService {
             }
         });
     }
-    // New unified document generation method
-    generateDocument(documentType, userInput, generatedContent, formats) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                // Check if we have a new generator for this document type
-                if (document_generator_registry_1.documentGeneratorRegistry.isDocumentTypeSupported(documentType)) {
-                    return yield document_generator_registry_1.documentGeneratorRegistry.generateDocument(documentType, userInput, generatedContent, formats);
-                }
-                // Fall back to legacy NDA generation for backward compatibility
-                if (documentType === document_1.DocumentType.NDA) {
-                    return yield this.generateNDA(userInput, generatedContent, formats);
-                }
-                throw new Error(`Document type ${documentType} is not yet implemented`);
-            }
-            catch (error) {
-                console.error('Error generating document:', error);
-                throw new Error('Failed to generate document');
-            }
-        });
-    }
-    generateNDA(userInput, generatedContent, formats) {
+    // Common document generation method
+    generateDocument(userInput, generatedContent, formats) {
         return __awaiter(this, void 0, void 0, function* () {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const baseFilename = `NDA_${userInput.disclosingPartyName}_${userInput.receivingPartyName}_${timestamp}`;
+            const baseFilename = `${this.getBaseFilename(userInput)}_${timestamp}`;
             const filePaths = [];
             try {
                 for (const format of formats) {
                     if (format === document_1.DocumentFormat.PDF) {
-                        const pdfPath = yield this.generateNDAPDF(userInput, generatedContent, baseFilename);
+                        const pdfPath = yield this.generatePDF(userInput, generatedContent, baseFilename);
                         filePaths.push(pdfPath);
                     }
                     else if (format === document_1.DocumentFormat.DOCX) {
-                        const docxPath = yield this.generateNDADOCX(userInput, generatedContent, baseFilename);
+                        const docxPath = yield this.generateDOCX(userInput, generatedContent, baseFilename);
                         filePaths.push(docxPath);
                     }
                 }
@@ -78,7 +58,8 @@ class DocumentGeneratorService {
             }
         });
     }
-    generateNDAPDF(userInput, content, baseFilename) {
+    // Common PDF generation with standardized formatting
+    generatePDF(userInput, generatedContent, baseFilename) {
         return __awaiter(this, void 0, void 0, function* () {
             const pdfDoc = yield pdf_lib_1.PDFDocument.create();
             const timesRomanFont = yield pdfDoc.embedFont(pdf_lib_1.StandardFonts.TimesRoman);
@@ -95,7 +76,7 @@ class DocumentGeneratorService {
                 return text
                     .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold formatting
                     .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic formatting
-                    .replace(/_{2}([^_\s]+.*?[^_\s])_{2}/g, '$1') // Remove markdown underline formatting (only when text is between underscores)
+                    .replace(/_{2}([^_\s]+.*?[^_\s])_{2}/g, '$1') // Remove markdown underline formatting
                     .replace(/[\r\n\t]/g, ' ') // Replace newlines and tabs with spaces
                     .replace(/[^\x20-\x7E]/g, '') // Remove non-ASCII characters
                     .replace(/\s+/g, ' ') // Replace multiple spaces with single space
@@ -154,8 +135,9 @@ class DocumentGeneratorService {
                 }
                 yPosition -= 5; // Extra spacing
             };
-            // Title
-            const cleanTitle = cleanTextForPDF(content.title);
+            // Add document title
+            const documentTitle = this.getDocumentTitle(userInput);
+            const cleanTitle = cleanTextForPDF(documentTitle);
             page.drawText(cleanTitle, {
                 x: margin,
                 y: yPosition,
@@ -164,53 +146,23 @@ class DocumentGeneratorService {
                 color: (0, pdf_lib_1.rgb)(0, 0, 0),
             });
             yPosition -= titleFontSize + 10;
-            // Date
-            addText(`Date: ${userInput.effectiveDate}`, timesRomanFont, fontSize);
+            // Add effective date
+            const effectiveDate = userInput.effectiveDate || new Date().toISOString().split('T')[0];
+            addText(`Date: ${effectiveDate}`, timesRomanFont, fontSize);
             yPosition -= lineHeight;
-            // Parties
+            // Add party information
+            const partyInfo = this.getPartyInformation(userInput);
             addText('PARTIES:', timesRomanBoldFont, fontSize, true);
-            addText(`Disclosing Party: ${userInput.disclosingPartyName}`);
-            addText(`Address: ${userInput.disclosingPartyAddress}`);
-            addText(`Email: ${userInput.disclosingPartyEmail}`);
-            if (userInput.disclosingPartyPhone) {
-                addText(`Phone: ${userInput.disclosingPartyPhone}`);
+            for (const info of partyInfo) {
+                addText(info);
             }
             yPosition -= lineHeight;
-            addText(`Receiving Party: ${userInput.receivingPartyName}`);
-            addText(`Address: ${userInput.receivingPartyAddress}`);
-            addText(`Email: ${userInput.receivingPartyEmail}`);
-            if (userInput.receivingPartyPhone) {
-                addText(`Phone: ${userInput.receivingPartyPhone}`);
-            }
-            yPosition -= lineHeight;
-            // Main Content Sections
-            const sections = [
-                { title: 'RECITALS', content: content.recitals },
-                { title: 'DEFINITIONS', content: content.definitions },
-                { title: 'CONFIDENTIALITY OBLIGATIONS', content: content.confidentialityObligations },
-                { title: 'PERMITTED USES', content: content.permittedUses },
-                { title: 'EXCLUSIONS', content: content.exclusions },
-                { title: 'TERM AND DURATION', content: content.termDuration },
-                { title: 'REMEDIES AND ENFORCEMENT', content: content.remediesAndEnforcement },
-                { title: 'GENERAL PROVISIONS', content: content.generalProvisions },
-                { title: 'GOVERNING LAW', content: content.governingLaw },
-            ];
+            // Add document sections
+            const sections = this.getDocumentSections(userInput, generatedContent);
             for (const section of sections) {
                 addText(section.title, timesRomanBoldFont, fontSize, true);
                 addText(section.content);
                 yPosition -= lineHeight;
-            }
-            // Signatures - handle with preserved line breaks
-            addText('SIGNATURES', timesRomanBoldFont, fontSize, true);
-            // Handle signatures with preserved line breaks
-            const signatureLines = content.signatures.replace(/\\n/g, '\n').split('\n');
-            for (const line of signatureLines) {
-                if (line.trim()) {
-                    addText(line.trim());
-                }
-                else {
-                    yPosition -= lineHeight; // Add empty line spacing
-                }
             }
             const pdfBytes = yield pdfDoc.save();
             const filePath = path_1.default.join(this.outputDir, `${baseFilename}.pdf`);
@@ -218,8 +170,13 @@ class DocumentGeneratorService {
             return filePath;
         });
     }
-    generateNDADOCX(userInput, content, baseFilename) {
+    // Common DOCX generation with standardized formatting
+    generateDOCX(userInput, generatedContent, baseFilename) {
         return __awaiter(this, void 0, void 0, function* () {
+            const effectiveDate = userInput.effectiveDate || new Date().toISOString().split('T')[0];
+            const documentTitle = this.getDocumentTitle(userInput);
+            const partyInfo = this.getPartyInformation(userInput);
+            const sections = this.getDocumentSections(userInput, generatedContent);
             const doc = new docx_1.Document({
                 sections: [{
                         properties: {},
@@ -228,7 +185,7 @@ class DocumentGeneratorService {
                             new docx_1.Paragraph({
                                 children: [
                                     new docx_1.TextRun({
-                                        text: content.title,
+                                        text: documentTitle,
                                         bold: true,
                                         size: 32,
                                         underline: {
@@ -243,7 +200,7 @@ class DocumentGeneratorService {
                             new docx_1.Paragraph({
                                 children: [
                                     new docx_1.TextRun({
-                                        text: `Date: ${userInput.effectiveDate}`,
+                                        text: `Date: ${effectiveDate}`,
                                         bold: true,
                                     }),
                                 ],
@@ -260,92 +217,17 @@ class DocumentGeneratorService {
                                 ],
                                 spacing: { after: 200 },
                             }),
-                            new docx_1.Paragraph({
+                            // Party information paragraphs
+                            ...partyInfo.map(info => new docx_1.Paragraph({
                                 children: [
                                     new docx_1.TextRun({
-                                        text: 'Disclosing Party:',
-                                        bold: true,
+                                        text: info,
                                     }),
                                 ],
-                            }),
-                            new docx_1.Paragraph({
-                                children: [
-                                    new docx_1.TextRun({
-                                        text: `Name: ${userInput.disclosingPartyName}`,
-                                    }),
-                                ],
-                            }),
-                            new docx_1.Paragraph({
-                                children: [
-                                    new docx_1.TextRun({
-                                        text: `Address: ${userInput.disclosingPartyAddress}`,
-                                    }),
-                                ],
-                            }),
-                            new docx_1.Paragraph({
-                                children: [
-                                    new docx_1.TextRun({
-                                        text: `Email: ${userInput.disclosingPartyEmail}`,
-                                    }),
-                                ],
-                            }),
-                            ...(userInput.disclosingPartyPhone ? [new docx_1.Paragraph({
-                                    children: [
-                                        new docx_1.TextRun({
-                                            text: `Phone: ${userInput.disclosingPartyPhone}`,
-                                        }),
-                                    ],
-                                })] : []),
-                            new docx_1.Paragraph({
-                                children: [
-                                    new docx_1.TextRun({
-                                        text: 'Receiving Party:',
-                                        bold: true,
-                                    }),
-                                ],
-                                spacing: { before: 200 },
-                            }),
-                            new docx_1.Paragraph({
-                                children: [
-                                    new docx_1.TextRun({
-                                        text: `Name: ${userInput.receivingPartyName}`,
-                                    }),
-                                ],
-                            }),
-                            new docx_1.Paragraph({
-                                children: [
-                                    new docx_1.TextRun({
-                                        text: `Address: ${userInput.receivingPartyAddress}`,
-                                    }),
-                                ],
-                            }),
-                            new docx_1.Paragraph({
-                                children: [
-                                    new docx_1.TextRun({
-                                        text: `Email: ${userInput.receivingPartyEmail}`,
-                                    }),
-                                ],
-                            }),
-                            ...(userInput.receivingPartyPhone ? [new docx_1.Paragraph({
-                                    children: [
-                                        new docx_1.TextRun({
-                                            text: `Phone: ${userInput.receivingPartyPhone}`,
-                                        }),
-                                    ],
-                                })] : []),
+                                spacing: { after: 100 },
+                            })),
                             // Main Content Sections
-                            ...this.createDocxSections([
-                                { title: 'RECITALS', content: content.recitals },
-                                { title: 'DEFINITIONS', content: content.definitions },
-                                { title: 'CONFIDENTIALITY OBLIGATIONS', content: content.confidentialityObligations },
-                                { title: 'PERMITTED USES', content: content.permittedUses },
-                                { title: 'EXCLUSIONS', content: content.exclusions },
-                                { title: 'TERM AND DURATION', content: content.termDuration },
-                                { title: 'REMEDIES AND ENFORCEMENT', content: content.remediesAndEnforcement },
-                                { title: 'GENERAL PROVISIONS', content: content.generalProvisions },
-                                { title: 'GOVERNING LAW', content: content.governingLaw },
-                                { title: 'SIGNATURES', content: content.signatures },
-                            ]),
+                            ...this.createDocxSections(sections),
                         ],
                     }],
             });
@@ -369,7 +251,7 @@ class DocumentGeneratorService {
                 spacing: { before: 400, after: 200 },
             }));
             // Handle signatures section with preserved line breaks
-            if (section.title === 'SIGNATURES') {
+            if (section.title.includes('SIGNATURE')) {
                 const signatureLines = section.content.replace(/\\n/g, '\n').split('\n');
                 for (const line of signatureLines) {
                     result.push(new docx_1.Paragraph({
@@ -387,7 +269,7 @@ class DocumentGeneratorService {
                 const cleanedContent = section.content
                     .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold
                     .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic
-                    .replace(/_{2}([^_\s]+.*?[^_\s])_{2}/g, '$1'); // Remove markdown underline formatting (only when text is between underscores)
+                    .replace(/_{2}([^_\s]+.*?[^_\s])_{2}/g, '$1'); // Remove markdown underline formatting
                 result.push(new docx_1.Paragraph({
                     children: [
                         new docx_1.TextRun({
@@ -400,6 +282,7 @@ class DocumentGeneratorService {
         }
         return result;
     }
+    // Utility methods
     getDocumentPath(filename) {
         return __awaiter(this, void 0, void 0, function* () {
             return path_1.default.join(this.outputDir, filename);
@@ -429,5 +312,4 @@ class DocumentGeneratorService {
         });
     }
 }
-exports.DocumentGeneratorService = DocumentGeneratorService;
-exports.default = new DocumentGeneratorService();
+exports.BaseDocumentGenerator = BaseDocumentGenerator;

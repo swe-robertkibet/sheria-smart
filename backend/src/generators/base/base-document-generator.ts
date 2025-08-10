@@ -1,15 +1,19 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, UnderlineType, PageBreak, Packer } from 'docx';
+import { Document, Paragraph, TextRun, AlignmentType, UnderlineType, Packer } from 'docx';
 import fs from 'fs/promises';
 import path from 'path';
-import { DocumentFormat, DocumentType, DocumentUserInput, NDAUserInput, GeneratedNDAContent } from '../types/document';
-import { documentGeneratorRegistry } from '../generators/document-generator-registry';
+import { DocumentFormat, DocumentUserInput } from '../../types/document';
 
-export class DocumentGeneratorService {
-  private outputDir: string;
+export interface DocumentSection {
+  title: string;
+  content: string;
+}
+
+export abstract class BaseDocumentGenerator {
+  protected outputDir: string;
 
   constructor() {
-    this.outputDir = path.join(__dirname, '../../generated-documents');
+    this.outputDir = path.join(__dirname, '../../../generated-documents');
     this.ensureOutputDirectory();
   }
 
@@ -21,56 +25,29 @@ export class DocumentGeneratorService {
     }
   }
 
-  // New unified document generation method
+  // Abstract methods that must be implemented by specific document generators
+  abstract getDocumentTitle(userInput: DocumentUserInput): string;
+  abstract getBaseFilename(userInput: DocumentUserInput): string;
+  abstract getDocumentSections(userInput: DocumentUserInput, generatedContent: any): DocumentSection[];
+  abstract getPartyInformation(userInput: DocumentUserInput): string[];
+
+  // Common document generation method
   async generateDocument(
-    documentType: DocumentType,
     userInput: DocumentUserInput,
     generatedContent: any,
     formats: DocumentFormat[]
   ): Promise<string[]> {
-    try {
-      // Check if we have a new generator for this document type
-      if (documentGeneratorRegistry.isDocumentTypeSupported(documentType)) {
-        return await documentGeneratorRegistry.generateDocument(
-          documentType,
-          userInput,
-          generatedContent,
-          formats
-        );
-      }
-
-      // Fall back to legacy NDA generation for backward compatibility
-      if (documentType === DocumentType.NDA) {
-        return await this.generateNDA(
-          userInput as NDAUserInput,
-          generatedContent as GeneratedNDAContent,
-          formats
-        );
-      }
-
-      throw new Error(`Document type ${documentType} is not yet implemented`);
-    } catch (error) {
-      console.error('Error generating document:', error);
-      throw new Error('Failed to generate document');
-    }
-  }
-
-  async generateNDA(
-    userInput: NDAUserInput,
-    generatedContent: GeneratedNDAContent,
-    formats: DocumentFormat[]
-  ): Promise<string[]> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const baseFilename = `NDA_${userInput.disclosingPartyName}_${userInput.receivingPartyName}_${timestamp}`;
+    const baseFilename = `${this.getBaseFilename(userInput)}_${timestamp}`;
     const filePaths: string[] = [];
 
     try {
       for (const format of formats) {
         if (format === DocumentFormat.PDF) {
-          const pdfPath = await this.generateNDAPDF(userInput, generatedContent, baseFilename);
+          const pdfPath = await this.generatePDF(userInput, generatedContent, baseFilename);
           filePaths.push(pdfPath);
         } else if (format === DocumentFormat.DOCX) {
-          const docxPath = await this.generateNDADOCX(userInput, generatedContent, baseFilename);
+          const docxPath = await this.generateDOCX(userInput, generatedContent, baseFilename);
           filePaths.push(docxPath);
         }
       }
@@ -82,9 +59,10 @@ export class DocumentGeneratorService {
     }
   }
 
-  private async generateNDAPDF(
-    userInput: NDAUserInput,
-    content: GeneratedNDAContent,
+  // Common PDF generation with standardized formatting
+  protected async generatePDF(
+    userInput: DocumentUserInput,
+    generatedContent: any,
     baseFilename: string
   ): Promise<string> {
     const pdfDoc = await PDFDocument.create();
@@ -104,7 +82,7 @@ export class DocumentGeneratorService {
       return text
         .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold formatting
         .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic formatting
-        .replace(/_{2}([^_\s]+.*?[^_\s])_{2}/g, '$1') // Remove markdown underline formatting (only when text is between underscores)
+        .replace(/_{2}([^_\s]+.*?[^_\s])_{2}/g, '$1') // Remove markdown underline formatting
         .replace(/[\r\n\t]/g, ' ') // Replace newlines and tabs with spaces
         .replace(/[^\x20-\x7E]/g, '') // Remove non-ASCII characters
         .replace(/\s+/g, ' ') // Replace multiple spaces with single space
@@ -168,8 +146,9 @@ export class DocumentGeneratorService {
       yPosition -= 5; // Extra spacing
     };
 
-    // Title
-    const cleanTitle = cleanTextForPDF(content.title);
+    // Add document title
+    const documentTitle = this.getDocumentTitle(userInput);
+    const cleanTitle = cleanTextForPDF(documentTitle);
     page.drawText(cleanTitle, {
       x: margin,
       y: yPosition,
@@ -179,58 +158,25 @@ export class DocumentGeneratorService {
     });
     yPosition -= titleFontSize + 10;
 
-    // Date
-    addText(`Date: ${userInput.effectiveDate}`, timesRomanFont, fontSize);
+    // Add effective date
+    const effectiveDate = (userInput as any).effectiveDate || new Date().toISOString().split('T')[0];
+    addText(`Date: ${effectiveDate}`, timesRomanFont, fontSize);
     yPosition -= lineHeight;
 
-    // Parties
+    // Add party information
+    const partyInfo = this.getPartyInformation(userInput);
     addText('PARTIES:', timesRomanBoldFont, fontSize, true);
-    addText(`Disclosing Party: ${userInput.disclosingPartyName}`);
-    addText(`Address: ${userInput.disclosingPartyAddress}`);
-    addText(`Email: ${userInput.disclosingPartyEmail}`);
-    if (userInput.disclosingPartyPhone) {
-      addText(`Phone: ${userInput.disclosingPartyPhone}`);
+    for (const info of partyInfo) {
+      addText(info);
     }
     yPosition -= lineHeight;
 
-    addText(`Receiving Party: ${userInput.receivingPartyName}`);
-    addText(`Address: ${userInput.receivingPartyAddress}`);
-    addText(`Email: ${userInput.receivingPartyEmail}`);
-    if (userInput.receivingPartyPhone) {
-      addText(`Phone: ${userInput.receivingPartyPhone}`);
-    }
-    yPosition -= lineHeight;
-
-    // Main Content Sections
-    const sections = [
-      { title: 'RECITALS', content: content.recitals },
-      { title: 'DEFINITIONS', content: content.definitions },
-      { title: 'CONFIDENTIALITY OBLIGATIONS', content: content.confidentialityObligations },
-      { title: 'PERMITTED USES', content: content.permittedUses },
-      { title: 'EXCLUSIONS', content: content.exclusions },
-      { title: 'TERM AND DURATION', content: content.termDuration },
-      { title: 'REMEDIES AND ENFORCEMENT', content: content.remediesAndEnforcement },
-      { title: 'GENERAL PROVISIONS', content: content.generalProvisions },
-      { title: 'GOVERNING LAW', content: content.governingLaw },
-    ];
-
+    // Add document sections
+    const sections = this.getDocumentSections(userInput, generatedContent);
     for (const section of sections) {
       addText(section.title, timesRomanBoldFont, fontSize, true);
       addText(section.content);
       yPosition -= lineHeight;
-    }
-
-    // Signatures - handle with preserved line breaks
-    addText('SIGNATURES', timesRomanBoldFont, fontSize, true);
-    
-    // Handle signatures with preserved line breaks
-    const signatureLines = content.signatures.replace(/\\n/g, '\n').split('\n');
-    for (const line of signatureLines) {
-      if (line.trim()) {
-        addText(line.trim());
-      } else {
-        yPosition -= lineHeight; // Add empty line spacing
-      }
     }
 
     const pdfBytes = await pdfDoc.save();
@@ -240,11 +186,17 @@ export class DocumentGeneratorService {
     return filePath;
   }
 
-  private async generateNDADOCX(
-    userInput: NDAUserInput,
-    content: GeneratedNDAContent,
+  // Common DOCX generation with standardized formatting
+  protected async generateDOCX(
+    userInput: DocumentUserInput,
+    generatedContent: any,
     baseFilename: string
   ): Promise<string> {
+    const effectiveDate = (userInput as any).effectiveDate || new Date().toISOString().split('T')[0];
+    const documentTitle = this.getDocumentTitle(userInput);
+    const partyInfo = this.getPartyInformation(userInput);
+    const sections = this.getDocumentSections(userInput, generatedContent);
+
     const doc = new Document({
       sections: [{
         properties: {},
@@ -253,7 +205,7 @@ export class DocumentGeneratorService {
           new Paragraph({
             children: [
               new TextRun({
-                text: content.title,
+                text: documentTitle,
                 bold: true,
                 size: 32,
                 underline: {
@@ -269,7 +221,7 @@ export class DocumentGeneratorService {
           new Paragraph({
             children: [
               new TextRun({
-                text: `Date: ${userInput.effectiveDate}`,
+                text: `Date: ${effectiveDate}`,
                 bold: true,
               }),
             ],
@@ -288,102 +240,18 @@ export class DocumentGeneratorService {
             spacing: { after: 200 },
           }),
 
-          new Paragraph({
+          // Party information paragraphs
+          ...partyInfo.map(info => new Paragraph({
             children: [
               new TextRun({
-                text: 'Disclosing Party:',
-                bold: true,
+                text: info,
               }),
             ],
-          }),
-
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Name: ${userInput.disclosingPartyName}`,
-              }),
-            ],
-          }),
-
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Address: ${userInput.disclosingPartyAddress}`,
-              }),
-            ],
-          }),
-
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Email: ${userInput.disclosingPartyEmail}`,
-              }),
-            ],
-          }),
-
-          ...(userInput.disclosingPartyPhone ? [new Paragraph({
-            children: [
-              new TextRun({
-                text: `Phone: ${userInput.disclosingPartyPhone}`,
-              }),
-            ],
-          })] : []),
-
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: 'Receiving Party:',
-                bold: true,
-              }),
-            ],
-            spacing: { before: 200 },
-          }),
-
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Name: ${userInput.receivingPartyName}`,
-              }),
-            ],
-          }),
-
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Address: ${userInput.receivingPartyAddress}`,
-              }),
-            ],
-          }),
-
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Email: ${userInput.receivingPartyEmail}`,
-              }),
-            ],
-          }),
-
-          ...(userInput.receivingPartyPhone ? [new Paragraph({
-            children: [
-              new TextRun({
-                text: `Phone: ${userInput.receivingPartyPhone}`,
-              }),
-            ],
-          })] : []),
+            spacing: { after: 100 },
+          })),
 
           // Main Content Sections
-          ...this.createDocxSections([
-            { title: 'RECITALS', content: content.recitals },
-            { title: 'DEFINITIONS', content: content.definitions },
-            { title: 'CONFIDENTIALITY OBLIGATIONS', content: content.confidentialityObligations },
-            { title: 'PERMITTED USES', content: content.permittedUses },
-            { title: 'EXCLUSIONS', content: content.exclusions },
-            { title: 'TERM AND DURATION', content: content.termDuration },
-            { title: 'REMEDIES AND ENFORCEMENT', content: content.remediesAndEnforcement },
-            { title: 'GENERAL PROVISIONS', content: content.generalProvisions },
-            { title: 'GOVERNING LAW', content: content.governingLaw },
-            { title: 'SIGNATURES', content: content.signatures },
-          ]),
+          ...this.createDocxSections(sections),
         ],
       }],
     });
@@ -395,7 +263,7 @@ export class DocumentGeneratorService {
     return filePath;
   }
 
-  private createDocxSections(sections: { title: string; content: string }[]) {
+  private createDocxSections(sections: DocumentSection[]) {
     const result = [];
     
     for (const section of sections) {
@@ -413,7 +281,7 @@ export class DocumentGeneratorService {
       );
 
       // Handle signatures section with preserved line breaks
-      if (section.title === 'SIGNATURES') {
+      if (section.title.includes('SIGNATURE')) {
         const signatureLines = section.content.replace(/\\n/g, '\n').split('\n');
         for (const line of signatureLines) {
           result.push(
@@ -432,7 +300,7 @@ export class DocumentGeneratorService {
         const cleanedContent = section.content
           .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold
           .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic
-          .replace(/_{2}([^_\s]+.*?[^_\s])_{2}/g, '$1'); // Remove markdown underline formatting (only when text is between underscores)
+          .replace(/_{2}([^_\s]+.*?[^_\s])_{2}/g, '$1'); // Remove markdown underline formatting
         
         result.push(
           new Paragraph({
@@ -450,6 +318,7 @@ export class DocumentGeneratorService {
     return result;
   }
 
+  // Utility methods
   async getDocumentPath(filename: string): Promise<string> {
     return path.join(this.outputDir, filename);
   }
@@ -473,5 +342,3 @@ export class DocumentGeneratorService {
     }
   }
 }
-
-export default new DocumentGeneratorService();

@@ -17,6 +17,7 @@ import { ChatInterface } from "@/components/chat-interface"
 import { StructuredChatInterface } from "@/components/structured-chat-interface"
 import { DocumentSelector } from "@/components/document-selector"
 import { NDAForm } from "@/components/nda-form"
+import { GenericDocumentForm } from "@/components/generic-document-form"
 import { ChatSidebar, ChatSidebarRef } from "@/components/chat-sidebar"
 import { useAuth } from "@/contexts/auth-context"
 import { AuthLoading } from "@/components/auth-loading"
@@ -24,7 +25,7 @@ import { AuthError } from "@/components/auth-error"
 import { DocumentType } from "@/types/document"
 
 export default function DashboardPage() {
-  const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "structured-chat" | "documents" | "nda-form">("dashboard")
+  const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "structured-chat" | "documents" | "nda-form" | "document-form">("dashboard")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
@@ -109,6 +110,9 @@ export default function DashboardPage() {
     setSelectedDocumentType(documentType)
     if (documentType === DocumentType.NDA) {
       setCurrentView("nda-form")
+    } else {
+      // For now, navigate to a generic document form for all new document types
+      setCurrentView("document-form")
     }
   }
 
@@ -193,6 +197,10 @@ export default function DashboardPage() {
 
   if (currentView === "nda-form") {
     return <NDAForm onBack={handleBackToDashboard} />
+  }
+
+  if (currentView === "document-form" && selectedDocumentType) {
+    return <GenericDocumentForm onBack={handleBackToDashboard} documentType={selectedDocumentType} />
   }
 
   return (

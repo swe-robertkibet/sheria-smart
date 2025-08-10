@@ -184,8 +184,8 @@ export function NDAForm({ onBack }: NDAFormProps) {
           contactPersonTitle: formData.contactPersonTitle
         },
         backstory: formData.backstory,
-        formats: formData.selectedFormats,
-        emailAddress: formData.emailAddress
+        formats: formData.selectedFormats
+        // SECURITY: Email address is now handled by backend using authenticated user's email only
       }
 
       console.log('Sending document generation request:', requestData)

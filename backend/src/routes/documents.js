@@ -48,58 +48,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const auth_1 = require("../middleware/auth");
 const document_orchestrator_1 = __importDefault(require("../services/document-orchestrator"));
+const document_catalog_1 = __importDefault(require("../services/document-catalog"));
 const document_1 = require("../types/document");
 const router = express_1.default.Router();
 // Get available document types
 router.get('/types', auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const documentTypes = [
-            {
-                id: document_1.DocumentType.NDA,
-                name: 'Non-Disclosure Agreement (NDA)',
-                description: 'Protect confidential information shared between parties',
-                isActive: true,
-                requiredFields: [
-                    'disclosingPartyName',
-                    'disclosingPartyAddress',
-                    'disclosingPartyEmail',
-                    'receivingPartyName',
-                    'receivingPartyAddress',
-                    'receivingPartyEmail',
-                    'purposeOfDisclosure',
-                    'specificConfidentialInfo',
-                    'effectiveDate',
-                    'agreementDuration',
-                    'isPerperual'
-                ]
-            },
-            {
-                id: document_1.DocumentType.EMPLOYMENT_CONTRACT,
-                name: 'Employment Contract',
-                description: 'Employment agreements compliant with Kenyan labor law',
-                isActive: false, // Coming soon
-                requiredFields: []
-            },
-            {
-                id: document_1.DocumentType.SERVICE_AGREEMENT,
-                name: 'Service Agreement',
-                description: 'Professional service contracts and agreements',
-                isActive: false, // Coming soon
-                requiredFields: []
-            },
-            {
-                id: document_1.DocumentType.LEASE_AGREEMENT,
-                name: 'Lease Agreement',
-                description: 'Property rental and lease agreements',
-                isActive: false, // Coming soon
-                requiredFields: []
-            }
-        ];
+        const documentTypes = document_catalog_1.default.getAllDocumentTypes();
         res.json({ documentTypes });
     }
     catch (error) {
         console.error('Error fetching document types:', error);
         res.status(500).json({ error: 'Failed to fetch document types' });
+    }
+}));
+// Get document categories with grouped document types
+router.get('/categories', auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const categories = document_catalog_1.default.getAllCategories();
+        res.json({ categories });
+    }
+    catch (error) {
+        console.error('Error fetching document categories:', error);
+        res.status(500).json({ error: 'Failed to fetch document categories' });
     }
 }));
 // Generate a document
@@ -149,11 +120,19 @@ router.post('/generate', auth_1.authenticateToken, (req, res) => __awaiter(void 
         if (!emailRegex.test(emailAddress)) {
             return res.status(400).json({ error: 'Invalid email address format' });
         }
-        // Currently only NDA is supported
-        if (documentType !== document_1.DocumentType.NDA) {
+        // Check if the document type is supported by either legacy or new generator
+        const supportedTypes = [
+            document_1.DocumentType.NDA,
+            document_1.DocumentType.SALES_PURCHASE_AGREEMENT,
+            document_1.DocumentType.DISTRIBUTION_AGREEMENT,
+            document_1.DocumentType.PARTNERSHIP_AGREEMENT,
+            document_1.DocumentType.ENHANCED_EMPLOYMENT_CONTRACT,
+            document_1.DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT
+        ];
+        if (!supportedTypes.includes(documentType)) {
             return res.status(400).json({
                 error: `Document type ${documentType} is not yet supported`,
-                supportedTypes: [document_1.DocumentType.NDA]
+                supportedTypes
             });
         }
         // Create generation request
