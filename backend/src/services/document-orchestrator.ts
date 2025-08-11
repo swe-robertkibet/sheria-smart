@@ -112,25 +112,19 @@ export class DocumentOrchestrator {
         }
       });
 
-      // Send email with attachments
-      const emailSent = await this.sendDocumentEmail(
+      // Send email with attachments and immediate cleanup
+      const emailResult = await this.sendDocumentEmailWithCleanup(
         documentRequestId,
         request,
         filePaths
       );
 
-      if (emailSent) {
-        await this.updateRequestStatus(documentRequestId, RequestStatus.EMAIL_SENT);
-      }
-
       return {
         requestId: documentRequestId,
-        status: emailSent ? RequestStatus.EMAIL_SENT : RequestStatus.COMPLETED,
-        filePaths: filePaths,
-        emailSent: emailSent,
-        message: emailSent 
-          ? 'Documents generated and sent successfully to your email'
-          : 'Documents generated successfully but email delivery failed'
+        status: emailResult.status,
+        filePaths: emailResult.success ? [] : filePaths, // Don't return paths if files were cleaned up
+        emailSent: emailResult.success,
+        message: emailResult.message
       };
 
     } catch (error) {
@@ -218,13 +212,13 @@ export class DocumentOrchestrator {
     }
   }
 
-  private async sendDocumentEmail(
+  private async sendDocumentEmailWithCleanup(
     requestId: string,
     request: DocumentGenerationRequest,
     filePaths: string[]
-  ): Promise<boolean> {
+  ): Promise<{ success: boolean; status: RequestStatus; message: string }> {
     try {
-      console.log('Preparing to send document email...');
+      console.log('📧 EMAIL FLOW: Preparing to send document email with cleanup...');
 
       // Get user info for personalization
       const user = await prisma.user.findUnique({
@@ -232,8 +226,13 @@ export class DocumentOrchestrator {
       });
 
       if (!user) {
-        console.error('User not found for document request');
-        return false;
+        console.error('❌ EMAIL FLOW: User not found for document request');
+        await this.updateRequestStatus(requestId, RequestStatus.FAILED);
+        return {
+          success: false,
+          status: RequestStatus.FAILED,
+          message: 'User not found for document request'
+        };
       }
 
       // Prepare email attachments
@@ -269,22 +268,64 @@ export class DocumentOrchestrator {
         })
       };
 
-      const success = await EmailService.sendDocumentEmail(emailData);
+      // Send email with retry logic
+      const emailResult = await EmailService.sendDocumentEmail(emailData, 3);
       
-      if (success) {
-        await prisma.documentRequest.update({
-          where: { id: requestId },
-          data: { emailSent: true }
-        });
-        console.log('Document email sent successfully');
+      // Update database with email attempt info
+      await prisma.documentRequest.update({
+        where: { id: requestId },
+        data: {
+          emailRetryCount: emailResult.attempt,
+          lastEmailAttempt: new Date(),
+          emailError: emailResult.error || null,
+          emailSent: emailResult.success
+        }
+      });
+      
+      if (emailResult.success) {
+        console.log(`✅ EMAIL FLOW: Email sent successfully on attempt ${emailResult.attempt}, cleaning up files...`);
+        
+        // CRITICAL: Delete files immediately after successful email send
+        await this.deleteDocumentFiles(filePaths);
+        console.log(`🗑️ FILE CLEANUP: Deleted ${filePaths.length} files immediately after email success`);
+        
+        // Update status to EMAIL_QUEUED (email accepted by SMTP, files deleted)
+        await this.updateRequestStatus(requestId, RequestStatus.EMAIL_QUEUED);
+        
+        return {
+          success: true,
+          status: RequestStatus.EMAIL_QUEUED,
+          message: 'Documents generated and sent successfully to your email'
+        };
       } else {
-        console.error('Failed to send document email');
+        console.error(`❌ EMAIL FLOW: All retry attempts failed: ${emailResult.error}`);
+        await this.updateRequestStatus(requestId, RequestStatus.FAILED);
+        
+        return {
+          success: false,
+          status: RequestStatus.FAILED,
+          message: `Email delivery failed after ${emailResult.attempt} attempts: ${emailResult.error}`
+        };
       }
-
-      return success;
     } catch (error) {
-      console.error('Error sending document email:', error);
-      return false;
+      console.error('❌ EMAIL FLOW: Error in email and cleanup process:', error);
+      
+      // Update database with error info
+      await prisma.documentRequest.update({
+        where: { id: requestId },
+        data: {
+          emailError: error instanceof Error ? error.message : 'Unknown error',
+          lastEmailAttempt: new Date()
+        }
+      });
+      
+      await this.updateRequestStatus(requestId, RequestStatus.FAILED);
+      
+      return {
+        success: false,
+        status: RequestStatus.FAILED,
+        message: 'Email sending and file cleanup failed due to system error'
+      };
     }
   }
 
@@ -388,9 +429,45 @@ export class DocumentOrchestrator {
         }
       }
 
-      console.log(`Cleaned up documents from ${oldRequests.length} old requests`);
+      console.log(`🗑️ SCHEDULED CLEANUP: Cleaned up documents from ${oldRequests.length} old requests`);
     } catch (error) {
-      console.error('Error during document cleanup:', error);
+      console.error('❌ SCHEDULED CLEANUP: Error during document cleanup:', error);
+    }
+  }
+
+  // Clean up failed email requests (documents older than 1 day that failed email delivery)
+  async cleanupFailedEmailRequests(): Promise<void> {
+    try {
+      const oneDayAgo = new Date();
+      oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+      const failedRequests = await prisma.documentRequest.findMany({
+        where: {
+          status: RequestStatus.FAILED,
+          lastEmailAttempt: {
+            lt: oneDayAgo
+          },
+          filePaths: {
+            not: null
+          }
+        }
+      });
+
+      for (const request of failedRequests) {
+        if (request.filePaths) {
+          const filePaths = JSON.parse(request.filePaths) as string[];
+          await this.deleteDocumentFiles(filePaths);
+          
+          await prisma.documentRequest.update({
+            where: { id: request.id },
+            data: { filePaths: null }
+          });
+        }
+      }
+
+      console.log(`🗑️ FAILED EMAIL CLEANUP: Cleaned up ${failedRequests.length} failed email requests`);
+    } catch (error) {
+      console.error('❌ FAILED EMAIL CLEANUP: Error during failed email cleanup:', error);
     }
   }
 }

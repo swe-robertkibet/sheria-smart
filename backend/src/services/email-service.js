@@ -30,27 +30,42 @@ class EmailService {
             },
         });
     }
-    sendDocumentEmail(emailData) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const subject = `Your ${emailData.documentType} Document - Sheria Smart`;
-                const htmlContent = this.generateEmailHTML(emailData);
-                const mailOptions = {
-                    from: `"${process.env.SMTP_FROM_NAME || 'Sheria Smart'}" <${process.env.SMTP_FROM_ADDRESS || process.env.SMTP_USER}>`,
-                    to: emailData.recipientEmail,
-                    subject: subject,
-                    html: htmlContent,
-                    attachments: emailData.attachments,
-                };
-                const info = yield this.transporter.sendMail(mailOptions);
-                console.log('Document email sent successfully:', info.messageId);
-                return true;
+    sendDocumentEmail(emailData_1) {
+        return __awaiter(this, arguments, void 0, function* (emailData, maxRetries = 3) {
+            const subject = `Your ${emailData.documentType} Document - Sheria Smart`;
+            const htmlContent = this.generateEmailHTML(emailData);
+            const mailOptions = {
+                from: `"${process.env.SMTP_FROM_NAME || 'Sheria Smart'}" <${process.env.SMTP_FROM_ADDRESS || process.env.SMTP_USER}>`,
+                to: emailData.recipientEmail,
+                subject: subject,
+                html: htmlContent,
+                attachments: emailData.attachments,
+            };
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    console.log(`📧 EMAIL ATTEMPT ${attempt}/${maxRetries}: Sending to ${emailData.recipientEmail}`);
+                    const info = yield this.transporter.sendMail(mailOptions);
+                    console.log(`✅ EMAIL SUCCESS: Document email sent successfully on attempt ${attempt}:`, info.messageId);
+                    return { success: true, attempt };
+                }
+                catch (error) {
+                    console.error(`❌ EMAIL ATTEMPT ${attempt}/${maxRetries} FAILED:`, error);
+                    if (attempt === maxRetries) {
+                        const errorMessage = error instanceof Error ? error.message : 'Unknown email error';
+                        console.error(`🚫 EMAIL FAILED: All ${maxRetries} attempts exhausted for ${emailData.recipientEmail}`);
+                        return { success: false, attempt, error: errorMessage };
+                    }
+                    // Exponential backoff: 1s, 4s, 16s delays
+                    const delayMs = Math.pow(4, attempt - 1) * 1000;
+                    console.log(`⏳ EMAIL RETRY: Waiting ${delayMs}ms before attempt ${attempt + 1}`);
+                    yield this.delay(delayMs);
+                }
             }
-            catch (error) {
-                console.error('Error sending document email:', error);
-                return false;
-            }
+            return { success: false, attempt: maxRetries, error: 'Unexpected retry loop exit' };
         });
+    }
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
     generateEmailHTML(emailData) {
         const attachmentsList = emailData.attachments.map(att => `<li>${att.filename}</li>`).join('');

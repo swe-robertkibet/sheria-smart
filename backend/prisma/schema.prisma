@@ -107,6 +107,9 @@ model DocumentRequest {
   emailSent       Boolean         @default(false)
   emailAddress    String
   filePaths       String?         @db.Text // JSON array of generated file paths
+  emailRetryCount Int             @default(0)
+  lastEmailAttempt DateTime?
+  emailError      String?         @db.Text // Store last email error message
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   
@@ -170,5 +173,6 @@ enum RequestStatus {
   PROCESSING
   COMPLETED
   FAILED
+  EMAIL_QUEUED
   EMAIL_SENT
 }

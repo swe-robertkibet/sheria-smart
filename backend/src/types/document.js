@@ -64,5 +64,6 @@ var RequestStatus;
     RequestStatus["PROCESSING"] = "PROCESSING";
     RequestStatus["COMPLETED"] = "COMPLETED";
     RequestStatus["FAILED"] = "FAILED";
+    RequestStatus["EMAIL_QUEUED"] = "EMAIL_QUEUED";
     RequestStatus["EMAIL_SENT"] = "EMAIL_SENT";
 })(RequestStatus || (exports.RequestStatus = RequestStatus = {}));
