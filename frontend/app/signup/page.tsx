@@ -19,6 +19,7 @@ import { AuthLoading } from "@/components/auth-loading"
 export default function SignupPage() {
   // OAuth-only authentication - no password fields needed
   const [isLoading, setIsLoading] = useState(false)
+  const [showRedirecting, setShowRedirecting] = useState(false)
   // OAuth-only authentication - no email form needed
 
   const router = useRouter()
@@ -43,7 +44,11 @@ export default function SignupPage() {
     const hasError = window.location.search.includes('error=')
     if (isAuthenticated && !hasError && !authLoading) {
       console.log('Already authenticated, redirecting to dashboard')
-      router.push('/dashboard')
+      setShowRedirecting(true)
+      // Add a brief delay to show "Redirecting..." message
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 800)
     }
   }, [isAuthenticated, router, authLoading])
 
@@ -62,6 +67,17 @@ export default function SignupPage() {
   // Show loading while validating token on app load
   if (isValidatingToken) {
     return <AuthLoading {...loadingContext} />
+  }
+
+  // Show redirecting message when authenticated and about to redirect
+  if (showRedirecting) {
+    return (
+      <AuthLoading 
+        message="Redirecting to dashboard..."
+        subtitle="Taking you to your account..."
+        showProgress={true}
+      />
+    )
   }
 
   return (

@@ -41,6 +41,12 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
       return res.status(401).json({ error: 'User not found in database' });
     }
     
+    console.log('🔐 AUTH MIDDLEWARE: Full user object from database:', JSON.stringify(user, null, 2));
+    console.log('🔐 AUTH MIDDLEWARE: user.email value:', user.email);
+    console.log('🔐 AUTH MIDDLEWARE: typeof user.email:', typeof user.email);
+    console.log('🔐 AUTH MIDDLEWARE: user.email === null:', user.email === null);
+    console.log('🔐 AUTH MIDDLEWARE: user.email === undefined:', user.email === undefined);
+    
     console.log('🔐 AUTH MIDDLEWARE: Authentication successful for', user.email);
     req.user = {
       userId: user.id,
@@ -48,6 +54,9 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
       name: user.name || '',
       picture: user.picture || ''
     };
+    
+    console.log('🔐 AUTH MIDDLEWARE: req.user object set to:', JSON.stringify(req.user, null, 2));
+    console.log('🔐 AUTH MIDDLEWARE: req.user.email after setting:', req.user.email);
     next();
   } catch (error) {
     console.error('🔐 AUTH MIDDLEWARE: Token verification failed:', error);

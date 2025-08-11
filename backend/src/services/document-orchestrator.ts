@@ -61,8 +61,17 @@ export class DocumentOrchestrator {
         }
       } else {
         // Use new validation system for other document types
+        // Debug logging for validation
+        console.log('🔍 VALIDATION DEBUG:', {
+          documentType: request.documentType,
+          userInputKeys: Object.keys(request.userInput || {}),
+          userInputSample: request.userInput
+        });
+
         const validation = DocumentValidators.validateDocumentInput(request.documentType, request.userInput);
+        
         if (!validation.isValid) {
+          console.log('❌ VALIDATION FAILED:', validation.errors);
           await this.updateRequestStatus(documentRequestId, RequestStatus.FAILED);
           return {
             requestId: documentRequestId,
@@ -71,6 +80,8 @@ export class DocumentOrchestrator {
             message: `Validation failed: ${validation.errors.join(', ')}`
           };
         }
+        
+        console.log('✅ VALIDATION PASSED');
       }
 
       // Generate AI content based on document type

@@ -51,11 +51,33 @@ router.post('/generate', authenticateToken, async (req: AuthenticatedRequest, re
     // SECURITY: Use authenticated user's email ONLY - never trust frontend email input
     const emailAddress = req.user.email;
 
+    // CRITICAL: Validate email address is available before proceeding
+    if (!emailAddress || typeof emailAddress !== 'string' || emailAddress.trim() === '') {
+      console.error('❌ SECURITY: User email missing or invalid:', {
+        userId: req.user.userId,
+        emailAddress: emailAddress,
+        userObject: req.user
+      });
+      return res.status(400).json({ 
+        error: 'User email not available',
+        message: 'Your account does not have an email address associated with it. Please contact support or try logging in again.',
+        code: 'EMAIL_MISSING'
+      });
+    }
+
+    console.log('🔍 DEBUG: Full req.user object:', JSON.stringify(req.user, null, 2));
+    console.log('🔍 DEBUG: req.user exists:', !!req.user);
+    console.log('🔍 DEBUG: req.user.email:', req.user?.email);
+    console.log('🔍 DEBUG: typeof req.user.email:', typeof req.user?.email);
+    console.log('🔍 DEBUG: emailAddress variable:', emailAddress);
+    console.log('✅ SECURITY VALIDATED: Document will be sent to authenticated user email:', emailAddress);
     console.log('Document generation request:', {
       documentType,
       formats,
       userId: req.user.userId,
-      emailAddress: emailAddress
+      emailAddress: emailAddress, // This is the correct value being passed to document orchestrator
+      userEmail: req.user?.email,
+      hasUserEmail: !!req.user?.email
     });
 
     // Validate required fields
@@ -65,6 +87,7 @@ router.post('/generate', authenticateToken, async (req: AuthenticatedRequest, re
         required: ['documentType', 'userInput', 'backstory', 'formats']
       });
     }
+
 
     // Validate document type
     if (!Object.values(DocumentType).includes(documentType)) {

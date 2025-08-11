@@ -250,6 +250,15 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         // SECURITY: Email address is now handled by backend using authenticated user's email only
       }
 
+      // Debug logging to see what's being sent
+      console.log('📋 FORM DEBUG: Request data being sent to backend:', {
+        documentType,
+        userInputKeys: Object.keys(processedUserInput),
+        userInputValues: processedUserInput,
+        formats: selectedFormats,
+        allRequiredFields: getRequiredFields().filter(f => f.required).map(f => f.key)
+      })
+
       const response = await fetch('http://localhost:5000/api/documents/generate', {
         method: 'POST',
         headers: {

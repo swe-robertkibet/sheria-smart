@@ -14,14 +14,16 @@ import { FloatingIcons } from "@/components/floating-icons"
 import { TestimonialCarousel } from "@/components/testimonial-carousel"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
+import { AuthLoading } from "@/components/auth-loading"
 
 export default function LoginPage() {
   // OAuth-only authentication - no password field needed
   const [isLoading, setIsLoading] = useState(false)
+  const [showRedirecting, setShowRedirecting] = useState(false)
   // OAuth-only authentication - no email form needed
 
   const router = useRouter()
-  const { login, isAuthenticated, isLoading: authLoading, authError, isValidatingToken, clearAuthError } = useAuth()
+  const { login, isAuthenticated, isLoading: authLoading, authError, isValidatingToken, isRedirecting, loadingContext, clearAuthError } = useAuth()
 
   // Clear auth error on mount if user navigated here manually
   useEffect(() => {
@@ -34,7 +36,11 @@ export default function LoginPage() {
   useEffect(() => {
     if (isAuthenticated && !isValidatingToken && !authLoading) {
       console.log('Already authenticated, redirecting to dashboard')
-      router.push('/dashboard')
+      setShowRedirecting(true)
+      // Add a brief delay to show "Redirecting..." message
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 800)
     }
   }, [isAuthenticated, isValidatingToken, authLoading, router])
 
@@ -50,29 +56,19 @@ export default function LoginPage() {
 
   // OAuth-only authentication - no email form submission needed
 
-  // Show loading during token validation
+  // Show loading during token validation or redirecting
   if (isValidatingToken) {
+    return <AuthLoading {...loadingContext} />
+  }
+
+  // Show redirecting message when authenticated and about to redirect
+  if (showRedirecting) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-6">
-          <div className="flex items-center justify-center space-x-3 mb-8">
-            <Image
-              src="/sheria-smart-ico.png"
-              alt="Sheria Smart Icon"
-              width={32}
-              height={32}
-              className="h-8 w-8"
-            />
-            <div className="text-2xl font-bold">
-              <span className="text-[#7C9885]">Sheria</span>
-              <span className="text-[#C99383]"> Smart</span>
-            </div>
-          </div>
-          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-6 text-[#7C9885]" />
-          <p className="text-lg font-medium text-[#2D3748]">Logging you in...</p>
-          <p className="text-sm text-[#718096] mt-2">Please wait a moment</p>
-        </div>
-      </div>
+      <AuthLoading 
+        message="Redirecting to dashboard..."
+        subtitle="Taking you to your account..."
+        showProgress={true}
+      />
     )
   }
 

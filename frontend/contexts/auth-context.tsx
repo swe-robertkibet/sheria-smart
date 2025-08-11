@@ -29,6 +29,7 @@ interface AuthContextType {
   authError: AuthError | null
   isValidatingToken: boolean
   loadingContext: AuthLoadingContext
+  isRedirecting: boolean
   login: () => Promise<void>
   logout: () => Promise<void>
   clearAuthError: () => void
@@ -58,15 +59,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
     subtitle: "Please wait a moment...",
     showProgress: true
   })
+  const [isRedirecting, setIsRedirecting] = useState(false)
+  const [loadingStartTime, setLoadingStartTime] = useState<number | null>(null)
   const router = useRouter()
 
   const clearAuthError = () => {
     setAuthError(null)
   }
 
+  // Helper function to ensure minimum loading duration
+  const ensureMinimumLoadingDuration = async (startTime: number, minDuration = 1500) => {
+    const elapsedTime = Date.now() - startTime
+    const remainingTime = minDuration - elapsedTime
+    
+    if (remainingTime > 0) {
+      console.log(`🔍 AUTH: Waiting additional ${remainingTime}ms to meet minimum loading duration`)
+      await new Promise(resolve => setTimeout(resolve, remainingTime))
+    }
+  }
+
   // NEW: Secure token validation with backend verification
   const validateToken = async (context?: Partial<AuthLoadingContext>): Promise<boolean> => {
     console.log('🔍 AUTH: Starting token validation...')
+    const startTime = Date.now()
+    setLoadingStartTime(startTime)
     setIsValidatingToken(true)
     setAuthError(null)
     
@@ -86,6 +102,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const data = await response.json()
         console.log('🔍 AUTH: Token valid, user authenticated:', data.user.email)
         setUser(data.user)
+        
+        // Ensure minimum loading duration for better UX
+        await ensureMinimumLoadingDuration(startTime)
+        
         setIsValidatingToken(false)
         return true
       } else {
@@ -132,6 +152,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           })
         }
 
+        // Ensure minimum loading duration for better UX
+        await ensureMinimumLoadingDuration(startTime)
+        
         setIsValidatingToken(false)
         return false
       }
@@ -143,6 +166,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         code: 'NETWORK_ERROR',
         showToUser: true
       })
+      
+      // Ensure minimum loading duration for better UX
+      await ensureMinimumLoadingDuration(startTime)
+      
       setIsValidatingToken(false)
       return false
     }
@@ -286,6 +313,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     authError,
     isValidatingToken,
     loadingContext,
+    isRedirecting,
     login,
     logout,
     clearAuthError

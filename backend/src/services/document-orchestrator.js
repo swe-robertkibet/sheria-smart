@@ -62,8 +62,15 @@ class DocumentOrchestrator {
                 }
                 else {
                     // Use new validation system for other document types
+                    // Debug logging for validation
+                    console.log('🔍 VALIDATION DEBUG:', {
+                        documentType: request.documentType,
+                        userInputKeys: Object.keys(request.userInput || {}),
+                        userInputSample: request.userInput
+                    });
                     const validation = document_validators_1.default.validateDocumentInput(request.documentType, request.userInput);
                     if (!validation.isValid) {
+                        console.log('❌ VALIDATION FAILED:', validation.errors);
                         yield this.updateRequestStatus(documentRequestId, document_1.RequestStatus.FAILED);
                         return {
                             requestId: documentRequestId,
@@ -72,6 +79,7 @@ class DocumentOrchestrator {
                             message: `Validation failed: ${validation.errors.join(', ')}`
                         };
                     }
+                    console.log('✅ VALIDATION PASSED');
                 }
                 // Generate AI content based on document type
                 let filePaths = [];

@@ -75,22 +75,46 @@ router.get('/categories', auth_1.authenticateToken, (req, res) => __awaiter(void
 }));
 // Generate a document
 router.post('/generate', auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d;
     try {
         if (!req.user) {
             return res.status(401).json({ error: 'User not authenticated' });
         }
-        const { documentType, userInput, backstory, formats, emailAddress } = req.body;
+        const { documentType, userInput, backstory, formats } = req.body;
+        // SECURITY: Use authenticated user's email ONLY - never trust frontend email input
+        const emailAddress = req.user.email;
+        // CRITICAL: Validate email address is available before proceeding
+        if (!emailAddress || typeof emailAddress !== 'string' || emailAddress.trim() === '') {
+            console.error('❌ SECURITY: User email missing or invalid:', {
+                userId: req.user.userId,
+                emailAddress: emailAddress,
+                userObject: req.user
+            });
+            return res.status(400).json({
+                error: 'User email not available',
+                message: 'Your account does not have an email address associated with it. Please contact support or try logging in again.',
+                code: 'EMAIL_MISSING'
+            });
+        }
+        console.log('🔍 DEBUG: Full req.user object:', JSON.stringify(req.user, null, 2));
+        console.log('🔍 DEBUG: req.user exists:', !!req.user);
+        console.log('🔍 DEBUG: req.user.email:', (_a = req.user) === null || _a === void 0 ? void 0 : _a.email);
+        console.log('🔍 DEBUG: typeof req.user.email:', typeof ((_b = req.user) === null || _b === void 0 ? void 0 : _b.email));
+        console.log('🔍 DEBUG: emailAddress variable:', emailAddress);
+        console.log('✅ SECURITY VALIDATED: Document will be sent to authenticated user email:', emailAddress);
         console.log('Document generation request:', {
             documentType,
             formats,
             userId: req.user.userId,
-            emailAddress
+            emailAddress: emailAddress, // This is the correct value being passed to document orchestrator
+            userEmail: (_c = req.user) === null || _c === void 0 ? void 0 : _c.email,
+            hasUserEmail: !!((_d = req.user) === null || _d === void 0 ? void 0 : _d.email)
         });
         // Validate required fields
-        if (!documentType || !userInput || !backstory || !formats || !emailAddress) {
+        if (!documentType || !userInput || !backstory || !formats) {
             return res.status(400).json({
                 error: 'Missing required fields',
-                required: ['documentType', 'userInput', 'backstory', 'formats', 'emailAddress']
+                required: ['documentType', 'userInput', 'backstory', 'formats']
             });
         }
         // Validate document type
@@ -115,11 +139,7 @@ router.post('/generate', auth_1.authenticateToken, (req, res) => __awaiter(void 
                 });
             }
         }
-        // Validate email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(emailAddress)) {
-            return res.status(400).json({ error: 'Invalid email address format' });
-        }
+        // Email validation not needed - authenticated user's email is already validated during OAuth
         // Check if the document type is supported by either legacy or new generator
         const supportedTypes = [
             document_1.DocumentType.NDA,
