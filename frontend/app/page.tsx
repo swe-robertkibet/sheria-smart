@@ -34,18 +34,7 @@ export default function HomePage() {
   const router = useRouter()
   const { isAuthenticated, isValidatingToken, loadingContext } = useAuth()
 
-  // Show loading while validating token on app load
-  if (isValidatingToken) {
-    return <AuthLoading {...loadingContext} />
-  }
-
-  // Redirect to dashboard if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/dashboard')
-    }
-  }, [isAuthenticated, router])
-
+  // All useEffect hooks must come before any conditional returns
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
@@ -53,6 +42,11 @@ export default function HomePage() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // Show loading while validating token on app load
+  if (isValidatingToken) {
+    return <AuthLoading {...loadingContext} />
+  }
 
   return (
     <div className="min-h-screen bg-[#FEFCF3] overflow-x-hidden">
@@ -91,19 +85,30 @@ export default function HomePage() {
             </a>
           </div>
           <div className="flex items-center space-x-4">
-            <Button
-              variant="outline"
-              onClick={() => router.push("/login")}
-              className="border-[#7C9885] text-[#7C9885] hover:bg-[#7C9885] hover:text-white bg-transparent transition-all duration-300"
-            >
-              Login
-            </Button>
-            <Button
-              onClick={() => router.push("/signup")}
-              className="bg-[#7C9885] hover:bg-[#5D7A6B] text-white transition-all duration-300"
-            >
-              Sign Up
-            </Button>
+            {isAuthenticated ? (
+              <Button
+                onClick={() => router.push("/dashboard")}
+                className="bg-[#7C9885] hover:bg-[#5D7A6B] text-white transition-all duration-300"
+              >
+                Go to Dashboard
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push("/login")}
+                  className="border-[#7C9885] text-[#7C9885] hover:bg-[#7C9885] hover:text-white bg-transparent transition-all duration-300"
+                >
+                  Login
+                </Button>
+                <Button
+                  onClick={() => router.push("/signup")}
+                  className="bg-[#7C9885] hover:bg-[#5D7A6B] text-white transition-all duration-300"
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
           </div>
         </nav>
       </header>
