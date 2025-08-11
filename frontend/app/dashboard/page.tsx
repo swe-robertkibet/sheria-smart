@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | null>(null)
   const router = useRouter()
-  const { user, logout, isLoading, isAuthenticated, authError, isValidatingToken, clearAuthError } = useAuth()
+  const { user, logout, isLoading, isAuthenticated, authError, isValidatingToken, loadingContext, clearAuthError } = useAuth()
   
   // Refs for sidebar components
   const quickChatSidebarRef = useRef<ChatSidebarRef>(null)
@@ -60,7 +60,7 @@ export default function DashboardPage() {
 
   // Show loading while validating token on app load
   if (isValidatingToken) {
-    return <AuthLoading message="Signing you in..." />
+    return <AuthLoading {...loadingContext} />
   }
 
   // Show auth error with user-friendly message

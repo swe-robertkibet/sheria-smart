@@ -32,11 +32,11 @@ import { AuthLoading } from "@/components/auth-loading"
 export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false)
   const router = useRouter()
-  const { isAuthenticated, isValidatingToken } = useAuth()
+  const { isAuthenticated, isValidatingToken, loadingContext } = useAuth()
 
   // Show loading while validating token on app load
   if (isValidatingToken) {
-    return <AuthLoading message="Logging you in..." />
+    return <AuthLoading {...loadingContext} />
   }
 
   // Redirect to dashboard if already authenticated

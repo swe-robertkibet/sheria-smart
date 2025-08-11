@@ -16,12 +16,19 @@ interface AuthError {
   showToUser: boolean
 }
 
+type AuthLoadingContext = {
+  message: string
+  subtitle: string
+  showProgress: boolean
+}
+
 interface AuthContextType {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
   authError: AuthError | null
   isValidatingToken: boolean
+  loadingContext: AuthLoadingContext
   login: () => Promise<void>
   logout: () => Promise<void>
   clearAuthError: () => void
@@ -46,6 +53,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [authError, setAuthError] = useState<AuthError | null>(null)
   const [isValidatingToken, setIsValidatingToken] = useState(true) // Show loading on app load
+  const [loadingContext, setLoadingContext] = useState<AuthLoadingContext>({
+    message: "Logging you in...",
+    subtitle: "Please wait a moment...",
+    showProgress: true
+  })
   const router = useRouter()
 
   const clearAuthError = () => {
@@ -53,10 +65,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   // NEW: Secure token validation with backend verification
-  const validateToken = async (): Promise<boolean> => {
+  const validateToken = async (context?: Partial<AuthLoadingContext>): Promise<boolean> => {
     console.log('🔍 AUTH: Starting token validation...')
     setIsValidatingToken(true)
     setAuthError(null)
+    
+    // Update loading context if provided
+    if (context) {
+      setLoadingContext(prev => ({ ...prev, ...context }))
+    }
 
     try {
       const response = await fetch('http://localhost:5000/api/auth/validate-token', {
@@ -183,6 +200,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // NEW: Auto-login validation on app load
   useEffect(() => {
     console.log('🔍 AUTH: App loaded, starting token validation...')
+    setLoadingContext({
+      message: "Logging you in...",
+      subtitle: "Checking your session...",
+      showProgress: true
+    })
     validateToken()
   }, [])
 
@@ -195,6 +217,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     if (authStatus === 'success') {
       console.log('🔍 AUTH: OAuth callback success - validating token')
+      setLoadingContext({
+        message: "Completing sign up...",
+        subtitle: "Setting up your account...",
+        showProgress: true
+      })
       validateToken().then((isValid) => {
         if (isValid) {
           // Clean up URL after successful auth
@@ -258,6 +285,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isAuthenticated: !!user,
     authError,
     isValidatingToken,
+    loadingContext,
     login,
     logout,
     clearAuthError

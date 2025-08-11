@@ -22,7 +22,7 @@ export default function SignupPage() {
   // OAuth-only authentication - no email form needed
 
   const router = useRouter()
-  const { login, isAuthenticated, isLoading: authLoading, isValidatingToken } = useAuth()
+  const { login, isAuthenticated, isLoading: authLoading, isValidatingToken, loadingContext } = useAuth()
 
   // Handle auth errors from OAuth callback
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function SignupPage() {
 
   // Show loading while validating token on app load
   if (isValidatingToken) {
-    return <AuthLoading message="Logging you in..." />
+    return <AuthLoading {...loadingContext} />
   }
 
   return (
