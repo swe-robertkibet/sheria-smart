@@ -26,10 +26,25 @@ import { TypewriterText } from "@/components/typewriter-text"
 import { CounterAnimation } from "@/components/counter-animation"
 import { ScrollReveal } from "@/components/scroll-reveal"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/contexts/auth-context"
+import { AuthLoading } from "@/components/auth-loading"
 
 export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false)
   const router = useRouter()
+  const { isAuthenticated, isValidatingToken } = useAuth()
+
+  // Show loading while validating token on app load
+  if (isValidatingToken) {
+    return <AuthLoading message="Logging you in..." />
+  }
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard')
+    }
+  }, [isAuthenticated, router])
 
   useEffect(() => {
     const handleScroll = () => {
