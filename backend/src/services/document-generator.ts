@@ -112,7 +112,35 @@ export class DocumentGeneratorService {
     };
 
     // Helper function to add text with word wrapping
-    const addText = (text: string, font = timesRomanFont, size = fontSize, isBold = false) => {
+    const addText = (text: string, font = timesRomanFont, size = fontSize, isBold = false, isSignature = false) => {
+      // For signature sections, preserve line breaks to match DOCX formatting
+      if (isSignature) {
+        const lines = text.split('\n');
+        for (const line of lines) {
+          const cleanedLine = line.replace(/[^\x20-\x7E]/g, '').trim(); // Clean but preserve structure
+          
+          // Check if we need a new page
+          if (yPosition < margin) {
+            page = pdfDoc.addPage();
+            yPosition = height - margin;
+          }
+          
+          if (cleanedLine || line.trim() === '') {
+            page.drawText(cleanedLine, {
+              x: margin,
+              y: yPosition,
+              size: size,
+              font: font,
+              color: rgb(0, 0, 0),
+            });
+          }
+          yPosition -= lineHeight;
+        }
+        yPosition -= 5; // Extra spacing after signature section
+        return;
+      }
+      
+      // Regular text handling with word wrapping
       const cleanedText = cleanTextForPDF(text);
       const words = cleanedText.split(' ');
       let line = '';
@@ -168,10 +196,12 @@ export class DocumentGeneratorService {
       yPosition -= 5; // Extra spacing
     };
 
-    // Title
+    // Title (centered to match DOCX)
     const cleanTitle = cleanTextForPDF(content.title);
+    const titleWidth = timesRomanBoldFont.widthOfTextAtSize(cleanTitle, titleFontSize);
+    const titleX = (width - titleWidth) / 2; // Center the title
     page.drawText(cleanTitle, {
-      x: margin,
+      x: titleX,
       y: yPosition,
       size: titleFontSize,
       font: timesRomanBoldFont,
@@ -223,15 +253,9 @@ export class DocumentGeneratorService {
     // Signatures - handle with preserved line breaks
     addText('SIGNATURES', timesRomanBoldFont, fontSize, true);
     
-    // Handle signatures with preserved line breaks
-    const signatureLines = content.signatures.replace(/\\n/g, '\n').split('\n');
-    for (const line of signatureLines) {
-      if (line.trim()) {
-        addText(line.trim());
-      } else {
-        yPosition -= lineHeight; // Add empty line spacing
-      }
-    }
+    // Handle signatures with preserved line breaks to match DOCX formatting
+    const signaturesText = content.signatures.replace(/\\n/g, '\n');
+    addText(signaturesText, timesRomanFont, fontSize, false, true);
 
     const pdfBytes = await pdfDoc.save();
     const filePath = path.join(this.outputDir, `${baseFilename}.pdf`);

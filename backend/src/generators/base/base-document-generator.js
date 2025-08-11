@@ -83,7 +83,32 @@ class BaseDocumentGenerator {
                     .trim();
             };
             // Helper function to add text with word wrapping
-            const addText = (text, font = timesRomanFont, size = fontSize, isBold = false) => {
+            const addText = (text, font = timesRomanFont, size = fontSize, isBold = false, isSignature = false) => {
+                // For signature sections, preserve line breaks to match DOCX formatting
+                if (isSignature) {
+                    const lines = text.split('\n');
+                    for (const line of lines) {
+                        const cleanedLine = line.replace(/[^\x20-\x7E]/g, '').trim(); // Clean but preserve structure
+                        // Check if we need a new page
+                        if (yPosition < margin) {
+                            page = pdfDoc.addPage();
+                            yPosition = height - margin;
+                        }
+                        if (cleanedLine || line.trim() === '') {
+                            page.drawText(cleanedLine, {
+                                x: margin,
+                                y: yPosition,
+                                size: size,
+                                font: font,
+                                color: (0, pdf_lib_1.rgb)(0, 0, 0),
+                            });
+                        }
+                        yPosition -= lineHeight;
+                    }
+                    yPosition -= 5; // Extra spacing after signature section
+                    return;
+                }
+                // Regular text handling with word wrapping
                 const cleanedText = cleanTextForPDF(text);
                 const words = cleanedText.split(' ');
                 let line = '';
@@ -135,11 +160,13 @@ class BaseDocumentGenerator {
                 }
                 yPosition -= 5; // Extra spacing
             };
-            // Add document title
+            // Add document title (centered to match DOCX)
             const documentTitle = this.getDocumentTitle(userInput);
             const cleanTitle = cleanTextForPDF(documentTitle);
+            const titleWidth = timesRomanBoldFont.widthOfTextAtSize(cleanTitle, titleFontSize);
+            const titleX = (width - titleWidth) / 2; // Center the title
             page.drawText(cleanTitle, {
-                x: margin,
+                x: titleX,
                 y: yPosition,
                 size: titleFontSize,
                 font: timesRomanBoldFont,
@@ -161,7 +188,9 @@ class BaseDocumentGenerator {
             const sections = this.getDocumentSections(userInput, generatedContent);
             for (const section of sections) {
                 addText(section.title, timesRomanBoldFont, fontSize, true);
-                addText(section.content);
+                // Check if this is a signature section to preserve line breaks
+                const isSignatureSection = section.title.includes('SIGNATURE');
+                addText(section.content, timesRomanFont, fontSize, false, isSignatureSection);
                 yPosition -= lineHeight;
             }
             const pdfBytes = yield pdfDoc.save();
