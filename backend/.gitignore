@@ -2,6 +2,12 @@ node_modules
 # Keep environment variables out of version control
 .env
 
-generated-documents
+# Build output
+dist/
 
+# Generated documents and screenshots
+generated-documents
 generated-docs-screenshots
+
+# TypeScript compiled files in source (should not exist but extra safety)
+src/**/*.js

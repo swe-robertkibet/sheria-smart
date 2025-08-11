@@ -117,7 +117,9 @@ export class EnhancedEmploymentContractGenerator extends BaseDocumentGenerator {
   }
 
   private generatePositionAndDuties(input: EnhancedEmploymentContractUserInput): string {
-    return `Job Title: ${input.jobTitle}. Department: ${input.department}. Reporting Manager: ${input.reportingManager}. Work Location: ${input.workLocation}. Job Description and Duties: ${input.jobDescription}. The Employee shall perform such additional duties as may be reasonably assigned by the Employer from time to time.`;
+    const reportingManager = input.reportingManager || 'To be determined';
+    const workLocation = input.workLocation || 'To be determined';
+    return `Job Title: ${input.jobTitle}. Department: ${input.department}. Reporting Manager: ${reportingManager}. Work Location: ${workLocation}. Job Description and Duties: ${input.jobDescription}. The Employee shall perform such additional duties as may be reasonably assigned by the Employer from time to time.`;
   }
 
   private generateRemunerationAndBenefits(input: EnhancedEmploymentContractUserInput): string {
@@ -127,11 +129,17 @@ export class EnhancedEmploymentContractGenerator extends BaseDocumentGenerator {
   }
 
   private generateWorkingTime(input: EnhancedEmploymentContractUserInput): string {
-    return `Working Hours: ${input.workingHoursPerWeek} hours per week, ${input.workingDaysPerWeek} days per week. Normal working hours shall be as determined by the Employer in compliance with the Employment Act 2007. Overtime shall be compensated in accordance with Kenyan labor law.`;
+    const workingHours = input.workingHoursPerWeek || '40';
+    const workingDays = input.workingDaysPerWeek || '5';
+    return `Working Hours: ${workingHours} hours per week, ${workingDays} days per week. Normal working hours shall be as determined by the Employer in compliance with the Employment Act 2007. Overtime shall be compensated in accordance with Kenyan labor law.`;
   }
 
   private generateLeaveEntitlements(input: EnhancedEmploymentContractUserInput): string {
-    return `Annual Leave: ${input.annualLeaveEntitlement} days per year. Sick Leave: ${input.sickLeaveEntitlement} days per year. Maternity/Paternity Leave: ${input.maternityPaternityLeave}. Public Holidays: ${input.publicHolidayEntitlement}. All leave shall be subject to the provisions of the Employment Act 2007.`;
+    const annualLeave = input.annualLeaveEntitlement || '21';
+    const sickLeave = input.sickLeaveEntitlement || '14';
+    const maternityPaternityLeave = input.maternityPaternityLeave || 'As per Employment Act 2007';
+    const publicHolidays = input.publicHolidayEntitlement || 'As per Employment Act 2007';
+    return `Annual Leave: ${annualLeave} days per year. Sick Leave: ${sickLeave} days per year. Maternity/Paternity Leave: ${maternityPaternityLeave}. Public Holidays: ${publicHolidays}. All leave shall be subject to the provisions of the Employment Act 2007.`;
   }
 
   private generateProbationaryPeriod(input: EnhancedEmploymentContractUserInput): string {
@@ -142,15 +150,20 @@ export class EnhancedEmploymentContractGenerator extends BaseDocumentGenerator {
   }
 
   private generateTerminationProvisions(input: EnhancedEmploymentContractUserInput): string {
-    return `Notice Period - Employee: ${input.noticePeriodEmployee}. Notice Period - Employer: ${input.noticePeriodEmployer}. Severance Pay: ${input.severancePayProvisions}. Termination shall be in accordance with the Employment Act 2007. The Employer may terminate employment immediately for gross misconduct without notice or payment in lieu thereof.`;
+    const noticePeriodEmployee = input.noticePeriodEmployee || 'One month';
+    const noticePeriodEmployer = input.noticePeriodEmployer || 'One month';
+    const severancePayProvisions = input.severancePayProvisions || 'As per Employment Act 2007';
+    return `Notice Period - Employee: ${noticePeriodEmployee}. Notice Period - Employer: ${noticePeriodEmployer}. Severance Pay: ${severancePayProvisions}. Termination shall be in accordance with the Employment Act 2007. The Employer may terminate employment immediately for gross misconduct without notice or payment in lieu thereof.`;
   }
 
   private generateConfidentiality(input: EnhancedEmploymentContractUserInput): string {
-    return `Confidentiality Obligations: ${input.confidentialityObligations}. The Employee shall not, during or after employment, disclose any confidential information belonging to the Employer. This obligation shall survive termination of employment.`;
+    const confidentialityObligations = input.confidentialityObligations || 'The Employee shall maintain strict confidentiality of all business information and trade secrets';
+    return `Confidentiality Obligations: ${confidentialityObligations}. The Employee shall not, during or after employment, disclose any confidential information belonging to the Employer. This obligation shall survive termination of employment.`;
   }
 
   private generateIntellectualProperty(input: EnhancedEmploymentContractUserInput): string {
-    return `Intellectual Property Rights: ${input.intellectualPropertyRights}. All intellectual property created by the Employee in the course of employment shall belong to the Employer. The Employee hereby assigns all such rights to the Employer.`;
+    const intellectualPropertyRights = input.intellectualPropertyRights || 'All work product and innovations created during employment shall belong to the Employer';
+    return `Intellectual Property Rights: ${intellectualPropertyRights}. All intellectual property created by the Employee in the course of employment shall belong to the Employer. The Employee hereby assigns all such rights to the Employer.`;
   }
 
   private generatePostEmploymentRestrictions(input: EnhancedEmploymentContractUserInput): string {
@@ -160,11 +173,13 @@ export class EnhancedEmploymentContractGenerator extends BaseDocumentGenerator {
   }
 
   private generateDisciplinaryProcedures(input: EnhancedEmploymentContractUserInput): string {
-    return `Disciplinary Procedures: ${input.disciplinaryProcedures}. The Employer shall follow fair disciplinary procedures in accordance with the Employment Act 2007 and the Labour Relations Act.`;
+    const disciplinaryProcedures = input.disciplinaryProcedures || 'Progressive discipline including verbal warning, written warning, final written warning, and termination';
+    return `Disciplinary Procedures: ${disciplinaryProcedures}. The Employer shall follow fair disciplinary procedures in accordance with the Employment Act 2007 and the Labour Relations Act.`;
   }
 
   private generateGrievanceProcedures(input: EnhancedEmploymentContractUserInput): string {
-    return `Grievance Procedures: ${input.grievanceProcedures}. The Employee has the right to raise grievances through the established procedures and to be represented during grievance hearings.`;
+    const grievanceProcedures = input.grievanceProcedures || 'Internal grievance procedure with escalation to management, followed by external mediation if necessary';
+    return `Grievance Procedures: ${grievanceProcedures}. The Employee has the right to raise grievances through the established procedures and to be represented during grievance hearings.`;
   }
 
   private generateGeneralProvisions(input: EnhancedEmploymentContractUserInput): string {

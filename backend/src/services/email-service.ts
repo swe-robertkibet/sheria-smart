@@ -4,6 +4,8 @@ import { DocumentEmailData, DocumentType } from '../types/document';
 
 export class EmailService {
   private transporter;
+  private lastEmailSent: number = 0;
+  private readonly EMAIL_RATE_LIMIT_MS = 5000; // 5 seconds between emails
 
   constructor() {
     if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
@@ -18,10 +20,33 @@ export class EmailService {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      // Connection pooling for better performance
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100,
+      // Connection timeout optimizations  
+      connectionTimeout: 60000, // 60 seconds
+      socketTimeout: 60000, // 60 seconds
+      greetingTimeout: 30000, // 30 seconds
+      // Additional performance settings
+      tls: {
+        rejectUnauthorized: process.env.NODE_ENV === 'production'
+      },
+      debug: process.env.NODE_ENV === 'development'
     });
   }
 
-  async sendDocumentEmail(emailData: DocumentEmailData, maxRetries: number = 3): Promise<{ success: boolean; attempt: number; error?: string }> {
+  async sendDocumentEmail(emailData: DocumentEmailData, maxRetries: number = 3): Promise<{ success: boolean; attempt: number; error?: string; rateDelayMs?: number }> {
+    // Implement rate limiting to prevent overwhelming SMTP server
+    const now = Date.now();
+    const timeSinceLastEmail = now - this.lastEmailSent;
+    
+    if (timeSinceLastEmail < this.EMAIL_RATE_LIMIT_MS) {
+      const delayMs = this.EMAIL_RATE_LIMIT_MS - timeSinceLastEmail;
+      console.log(`⏳ RATE LIMIT: Waiting ${delayMs}ms before sending email to ${emailData.recipientEmail}`);
+      await this.delay(delayMs);
+    }
+
     const subject = `Your ${emailData.documentType} Document - Sheria Smart`;
     const htmlContent = this.generateEmailHTML(emailData);
     
@@ -36,8 +61,19 @@ export class EmailService {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log(`📧 EMAIL ATTEMPT ${attempt}/${maxRetries}: Sending to ${emailData.recipientEmail}`);
+        
+        // Start performance monitoring
+        const startTime = Date.now();
         const info = await this.transporter.sendMail(mailOptions);
-        console.log(`✅ EMAIL SUCCESS: Document email sent successfully on attempt ${attempt}:`, info.messageId);
+        const handoffTime = Date.now();
+        const smtpHandoffDuration = handoffTime - startTime;
+        
+        // Update last email sent timestamp for rate limiting
+        this.lastEmailSent = handoffTime;
+        
+        console.log(`✅ EMAIL SUCCESS: Document email sent successfully on attempt ${attempt}`);
+        console.log(`📊 PERFORMANCE: SMTP handoff took ${smtpHandoffDuration}ms`);
+        console.log(`📨 EMAIL INFO:`, { messageId: info.messageId, recipientEmail: emailData.recipientEmail });
         
         return { success: true, attempt };
       } catch (error) {
@@ -215,6 +251,8 @@ export class EmailService {
             
             <p>Thank you for using Sheria Smart for your legal document needs. We're pleased to provide you with your professionally generated ${emailData.documentType} document.</p>
             
+            <p><strong>📬 Delivery Note:</strong> This email has been successfully processed by our system and delivered to your inbox. Due to email server processing and security filtering, there may be a short delay before it appears in your email client.</p>
+            
             <div class="document-info">
                 <h3>Document Details</h3>
                 <p><strong>Document Type:</strong> ${emailData.documentType}</p>
@@ -260,11 +298,24 @@ export class EmailService {
 
   async testEmailConfiguration(): Promise<boolean> {
     try {
+      console.log('🔧 Testing SMTP configuration...');
+      const startTime = Date.now();
       await this.transporter.verify();
-      console.log('Email configuration verified successfully');
+      const verifyTime = Date.now() - startTime;
+      
+      console.log(`✅ Email configuration verified successfully in ${verifyTime}ms`);
+      console.log('📊 SMTP Configuration:', {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT || '587',
+        secure: process.env.SMTP_SECURE === 'true',
+        poolEnabled: true,
+        maxConnections: 5,
+        maxMessages: 100
+      });
+      
       return true;
     } catch (error) {
-      console.error('Email configuration test failed:', error);
+      console.error('❌ Email configuration test failed:', error);
       return false;
     }
   }

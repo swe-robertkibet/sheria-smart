@@ -268,8 +268,14 @@ export class DocumentOrchestrator {
         })
       };
 
-      // Send email with retry logic
+      // Send email with retry logic - track timing
+      console.log('📧 EMAIL FLOW: Starting email send process...');
+      const emailStartTime = Date.now();
       const emailResult = await EmailService.sendDocumentEmail(emailData, 3);
+      const emailEndTime = Date.now();
+      const totalEmailProcessingTime = emailEndTime - emailStartTime;
+      
+      console.log(`📊 EMAIL TIMING: Total email processing took ${totalEmailProcessingTime}ms (including rate limiting and retries)`);
       
       // Update database with email attempt info
       await prisma.documentRequest.update({
@@ -295,7 +301,7 @@ export class DocumentOrchestrator {
         return {
           success: true,
           status: RequestStatus.EMAIL_QUEUED,
-          message: 'Documents generated and sent successfully to your email'
+          message: 'Documents generated and queued for email delivery. Your documents should arrive within 2-10 minutes depending on server processing time.'
         };
       } else {
         console.error(`❌ EMAIL FLOW: All retry attempts failed: ${emailResult.error}`);

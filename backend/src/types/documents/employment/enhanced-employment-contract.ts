@@ -21,8 +21,8 @@ export interface EnhancedEmploymentContractUserInput extends BaseDocumentUserInp
   jobTitle: string;
   jobDescription: string;
   department: string;
-  reportingManager: string;
-  workLocation: string;
+  reportingManager?: string;
+  workLocation?: string;
   
   // Terms of Employment
   employmentType: 'permanent' | 'fixed_term' | 'casual' | 'contract';
@@ -38,31 +38,31 @@ export interface EnhancedEmploymentContractUserInput extends BaseDocumentUserInp
   benefitsPackage: string;
   
   // Working Hours and Leave
-  workingHoursPerWeek: string;
-  workingDaysPerWeek: string;
-  annualLeaveEntitlement: string;
-  sickLeaveEntitlement: string;
-  maternityPaternityLeave: string;
-  publicHolidayEntitlement: string;
+  workingHoursPerWeek?: string;
+  workingDaysPerWeek?: string;
+  annualLeaveEntitlement?: string;
+  sickLeaveEntitlement?: string;
+  maternityPaternityLeave?: string;
+  publicHolidayEntitlement?: string;
   
   // Performance and Development
   performanceReviewFrequency?: string;
   trainingAndDevelopment?: string;
   
   // Termination Provisions
-  noticePeriodEmployee: string;
-  noticePeriodEmployer: string;
-  severancePayProvisions: string;
+  noticePeriodEmployee?: string;
+  noticePeriodEmployer?: string;
+  severancePayProvisions?: string;
   
   // Confidentiality and IP
-  confidentialityObligations: string;
-  intellectualPropertyRights: string;
+  confidentialityObligations?: string;
+  intellectualPropertyRights?: string;
   nonCompeteClause?: string;
   nonSolicitationClause?: string;
   
   // Disciplinary Procedures
-  disciplinaryProcedures: string;
-  grievanceProcedures: string;
+  disciplinaryProcedures?: string;
+  grievanceProcedures?: string;
 }
 
 export interface GeneratedEnhancedEmploymentContractContent {

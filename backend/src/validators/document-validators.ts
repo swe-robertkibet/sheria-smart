@@ -245,6 +245,7 @@ export class DocumentValidators {
       case DocumentType.PARTNERSHIP_AGREEMENT:
         return this.validatePartnershipAgreementInput(userInput as PartnershipAgreementUserInput);
       
+      case DocumentType.EMPLOYMENT_CONTRACT:
       case DocumentType.ENHANCED_EMPLOYMENT_CONTRACT:
         return this.validateEnhancedEmploymentContractInput(userInput as EnhancedEmploymentContractUserInput);
       

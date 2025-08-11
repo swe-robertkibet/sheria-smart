@@ -74,6 +74,7 @@ export class DocumentGeneratorRegistry {
     this.generators.set(DocumentType.PARTNERSHIP_AGREEMENT, new PartnershipAgreementGenerator());
     
     // Employment generators
+    this.generators.set(DocumentType.EMPLOYMENT_CONTRACT, new EnhancedEmploymentContractGenerator());
     this.generators.set(DocumentType.ENHANCED_EMPLOYMENT_CONTRACT, new EnhancedEmploymentContractGenerator());
     this.generators.set(DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT, new IndependentContractorGenerator());
   }
