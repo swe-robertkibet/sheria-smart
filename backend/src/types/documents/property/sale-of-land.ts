@@ -60,7 +60,7 @@ export interface SaleOfLandUserInput extends BaseDocumentUserInput {
   // Default and Remedies
   defaultProvisions: string;
   remediesForBreach: string;
-  timeIsOfEssenceClause: boolean;
+  timeIsOfEssenceClause: boolean | string;
   forfeituteClause?: string;
   
   // Legal and Professional Costs

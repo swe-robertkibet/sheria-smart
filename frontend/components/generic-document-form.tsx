@@ -44,6 +44,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Non-Compete Agreement'
       case DocumentType.ENHANCED_LEASE_AGREEMENT:
         return 'Enhanced Lease Agreement'
+      case DocumentType.SALE_OF_LAND_AGREEMENT:
+        return 'Sale of Land Agreement'
       default:
         return 'Legal Document'
     }
@@ -67,6 +69,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Restrict competitive activities during and after employment'
       case DocumentType.ENHANCED_LEASE_AGREEMENT:
         return 'Comprehensive rental agreements for residential and commercial properties'
+      case DocumentType.SALE_OF_LAND_AGREEMENT:
+        return 'Contracts for the purchase and sale of real property'
       default:
         return 'Generate a professional legal document'
     }
@@ -392,6 +396,88 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           
           ...basicFields
         ]
+      
+      case DocumentType.SALE_OF_LAND_AGREEMENT:
+        return [
+          // Vendor Information
+          { key: 'vendorName', label: 'Vendor Name', type: 'text', required: true },
+          { key: 'vendorAddress', label: 'Vendor Address', type: 'textarea', required: true },
+          { key: 'vendorEmail', label: 'Vendor Email', type: 'email', required: true },
+          { key: 'vendorPhone', label: 'Vendor Phone (Optional)', type: 'text', required: false },
+          { key: 'vendorIdNumber', label: 'Vendor ID Number', type: 'text', required: true },
+          { key: 'vendorMaritalStatus', label: 'Vendor Marital Status (Optional)', type: 'text', required: false },
+          
+          // Purchaser Information
+          { key: 'purchaserName', label: 'Purchaser Name', type: 'text', required: true },
+          { key: 'purchaserAddress', label: 'Purchaser Address', type: 'textarea', required: true },
+          { key: 'purchaserEmail', label: 'Purchaser Email', type: 'email', required: true },
+          { key: 'purchaserPhone', label: 'Purchaser Phone (Optional)', type: 'text', required: false },
+          { key: 'purchaserIdNumber', label: 'Purchaser ID Number', type: 'text', required: true },
+          { key: 'purchaserMaritalStatus', label: 'Purchaser Marital Status (Optional)', type: 'text', required: false },
+          
+          // Property Details
+          { key: 'propertyDescription', label: 'Property Description', type: 'textarea', required: true },
+          { key: 'propertyAddress', label: 'Property Address', type: 'textarea', required: true },
+          { key: 'titleNumber', label: 'Title Number', type: 'text', required: true },
+          { key: 'landRegistryOffice', label: 'Land Registry Office', type: 'text', required: true },
+          { key: 'propertySize', label: 'Property Size', type: 'text', required: true },
+          { key: 'propertyBoundaries', label: 'Property Boundaries', type: 'textarea', required: true },
+          { key: 'propertyType', label: 'Property Type', type: 'select', required: true, options: ['residential', 'commercial', 'agricultural', 'industrial'] },
+          
+          // Purchase Terms
+          { key: 'purchasePrice', label: 'Purchase Price', type: 'text', required: true },
+          { key: 'paymentTerms', label: 'Payment Terms', type: 'textarea', required: true },
+          { key: 'depositAmount', label: 'Deposit Amount', type: 'text', required: true },
+          { key: 'balancePaymentSchedule', label: 'Balance Payment Schedule', type: 'textarea', required: true },
+          { key: 'completionDate', label: 'Completion Date', type: 'date', required: true },
+          
+          // Title and Encumbrances
+          { key: 'titleWarranties', label: 'Title Warranties', type: 'textarea', required: true },
+          { key: 'existingEncumbrances', label: 'Existing Encumbrances (Optional)', type: 'textarea', required: false },
+          { key: 'outstandingCharges', label: 'Outstanding Charges (Optional)', type: 'textarea', required: false },
+          { key: 'caveatOrRestrictions', label: 'Caveats or Restrictions (Optional)', type: 'textarea', required: false },
+          
+          // Conditions of Sale
+          { key: 'conditionsToCompletion', label: 'Conditions to Completion', type: 'textarea', required: true },
+          { key: 'surveyRequirements', label: 'Survey Requirements (Optional)', type: 'textarea', required: false },
+          { key: 'soilTestRequirements', label: 'Soil Test Requirements (Optional)', type: 'textarea', required: false },
+          { key: 'planningPermissionStatus', label: 'Planning Permission Status (Optional)', type: 'textarea', required: false },
+          
+          // Risk and Insurance
+          { key: 'riskPassageDate', label: 'Risk Passage Date', type: 'date', required: true },
+          { key: 'insuranceRequirements', label: 'Insurance Requirements', type: 'textarea', required: true },
+          { key: 'propertyInsuranceTransfer', label: 'Property Insurance Transfer', type: 'textarea', required: true },
+          
+          // Completion Arrangements
+          { key: 'completionVenue', label: 'Completion Venue', type: 'text', required: true },
+          { key: 'documentsForCompletion', label: 'Documents for Completion', type: 'textarea', required: true },
+          { key: 'possessionDate', label: 'Possession Date', type: 'date', required: true },
+          { key: 'keyHandoverArrangements', label: 'Key Handover Arrangements (Optional)', type: 'textarea', required: false },
+          
+          // Default and Remedies
+          { key: 'defaultProvisions', label: 'Default Provisions', type: 'textarea', required: true },
+          { key: 'remediesForBreach', label: 'Remedies for Breach', type: 'textarea', required: true },
+          { key: 'timeIsOfEssenceClause', label: 'Time is of the Essence', type: 'radio', required: true, options: ['true', 'false'] },
+          { key: 'forfeituteClause', label: 'Forfeiture Clause (Optional)', type: 'textarea', required: false },
+          
+          // Legal and Professional Costs
+          { key: 'legalCosts', label: 'Legal Costs Allocation', type: 'textarea', required: true },
+          { key: 'stampDutyResponsibility', label: 'Stamp Duty Responsibility', type: 'textarea', required: true },
+          { key: 'registrationFees', label: 'Registration Fees Responsibility', type: 'textarea', required: true },
+          { key: 'surveyorFees', label: 'Surveyor Fees (Optional)', type: 'textarea', required: false },
+          
+          // Consent Requirements
+          { key: 'landControlBoardConsent', label: 'Land Control Board Consent (Optional)', type: 'textarea', required: false },
+          { key: 'spouseConsent', label: 'Spouse Consent (Optional)', type: 'textarea', required: false },
+          { key: 'familyConsent', label: 'Family Consent (Optional)', type: 'textarea', required: false },
+          
+          // Additional Provisions
+          { key: 'reservedRights', label: 'Reserved Rights (Optional)', type: 'textarea', required: false },
+          { key: 'easementsAndRights', label: 'Easements and Rights (Optional)', type: 'textarea', required: false },
+          { key: 'environmentalCompliance', label: 'Environmental Compliance (Optional)', type: 'textarea', required: false },
+          
+          ...basicFields
+        ]
 
       default:
         return [
@@ -561,6 +647,25 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
                       ))}
                     </SelectContent>
                   </Select>
+                ) : field.type === 'radio' ? (
+                  <div className="mt-1 space-y-2">
+                    {(field as any).options?.map((option: string) => (
+                      <div key={option} className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          id={`${field.key}-${option}`}
+                          name={field.key}
+                          value={option}
+                          checked={formData[field.key] === option}
+                          onChange={(e) => handleInputChange(field.key, e.target.value)}
+                          className="focus:ring-[#7C9885] text-[#7C9885]"
+                        />
+                        <Label htmlFor={`${field.key}-${option}`} className="text-sm">
+                          {option === 'true' ? 'Yes' : option === 'false' ? 'No' : option}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
                   <Input
                     id={field.key}

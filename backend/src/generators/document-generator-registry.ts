@@ -14,6 +14,7 @@ import { NonCompeteGenerator } from './employment/non-compete-generator';
 
 // Property generators
 import { EnhancedLeaseGenerator } from './property/enhanced-lease-generator';
+import { SaleOfLandGenerator } from './property/sale-of-land-generator';
 
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
@@ -86,6 +87,7 @@ export class DocumentGeneratorRegistry {
     
     // Property generators
     this.generators.set(DocumentType.ENHANCED_LEASE_AGREEMENT, new EnhancedLeaseGenerator());
+    this.generators.set(DocumentType.SALE_OF_LAND_AGREEMENT, new SaleOfLandGenerator());
   }
 
   getGenerator(documentType: DocumentType): BaseDocumentGenerator | null {

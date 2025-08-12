@@ -7,7 +7,8 @@ import {
   IndependentContractorUserInput,
   ServiceAgreementUserInput,
   NonCompeteUserInput,
-  EnhancedLeaseUserInput
+  EnhancedLeaseUserInput,
+  SaleOfLandUserInput
 } from '../types/documents';
 
 export interface ValidationResult {
@@ -454,6 +455,93 @@ export class DocumentValidators {
     };
   }
 
+  static validateSaleOfLandInput(input: SaleOfLandUserInput): ValidationResult {
+    const errors: string[] = [];
+
+    // Vendor Information - Required fields
+    if (!input.vendorName?.trim()) errors.push('Vendor name is required');
+    if (!input.vendorAddress?.trim()) errors.push('Vendor address is required');
+    if (!input.vendorEmail?.trim()) errors.push('Vendor email is required');
+    if (!input.vendorIdNumber?.trim()) errors.push('Vendor ID number is required');
+
+    // Purchaser Information - Required fields
+    if (!input.purchaserName?.trim()) errors.push('Purchaser name is required');
+    if (!input.purchaserAddress?.trim()) errors.push('Purchaser address is required');
+    if (!input.purchaserEmail?.trim()) errors.push('Purchaser email is required');
+    if (!input.purchaserIdNumber?.trim()) errors.push('Purchaser ID number is required');
+
+    // Property Details - Required fields
+    if (!input.propertyDescription?.trim()) errors.push('Property description is required');
+    if (!input.propertyAddress?.trim()) errors.push('Property address is required');
+    if (!input.titleNumber?.trim()) errors.push('Title number is required');
+    if (!input.landRegistryOffice?.trim()) errors.push('Land registry office is required');
+    if (!input.propertySize?.trim()) errors.push('Property size is required');
+    if (!input.propertyBoundaries?.trim()) errors.push('Property boundaries are required');
+    if (!input.propertyType) errors.push('Property type is required');
+
+    // Purchase Terms - Required fields
+    if (!input.purchasePrice?.trim()) errors.push('Purchase price is required');
+    if (!input.paymentTerms?.trim()) errors.push('Payment terms are required');
+    if (!input.depositAmount?.trim()) errors.push('Deposit amount is required');
+    if (!input.balancePaymentSchedule?.trim()) errors.push('Balance payment schedule is required');
+    if (!input.completionDate?.trim()) errors.push('Completion date is required');
+
+    // Title and Encumbrances - Required fields
+    if (!input.titleWarranties?.trim()) errors.push('Title warranties are required');
+
+    // Conditions of Sale - Required fields
+    if (!input.conditionsToCompletion?.trim()) errors.push('Conditions to completion are required');
+
+    // Risk and Insurance - Required fields
+    if (!input.riskPassageDate?.trim()) errors.push('Risk passage date is required');
+    if (!input.insuranceRequirements?.trim()) errors.push('Insurance requirements are required');
+    if (!input.propertyInsuranceTransfer?.trim()) errors.push('Property insurance transfer is required');
+
+    // Completion Arrangements - Required fields
+    if (!input.completionVenue?.trim()) errors.push('Completion venue is required');
+    if (!input.documentsForCompletion?.trim()) errors.push('Documents for completion are required');
+    if (!input.possessionDate?.trim()) errors.push('Possession date is required');
+
+    // Default and Remedies - Required fields
+    if (!input.defaultProvisions?.trim()) errors.push('Default provisions are required');
+    if (!input.remediesForBreach?.trim()) errors.push('Remedies for breach are required');
+    if (input.timeIsOfEssenceClause === undefined || input.timeIsOfEssenceClause === null || input.timeIsOfEssenceClause === '') errors.push('Time is of essence clause selection is required');
+
+    // Legal and Professional Costs - Required fields
+    if (!input.legalCosts?.trim()) errors.push('Legal costs allocation is required');
+    if (!input.stampDutyResponsibility?.trim()) errors.push('Stamp duty responsibility is required');
+    if (!input.registrationFees?.trim()) errors.push('Registration fees responsibility is required');
+
+    // Base document fields
+    if (!input.effectiveDate?.trim()) errors.push('Effective date is required');
+
+    // Email format validation
+    if (input.vendorEmail && !emailRegex.test(input.vendorEmail)) {
+      errors.push('Invalid vendor email format');
+    }
+    if (input.purchaserEmail && !emailRegex.test(input.purchaserEmail)) {
+      errors.push('Invalid purchaser email format');
+    }
+
+    // Phone format validation (optional fields)
+    if (input.vendorPhone && !phoneRegex.test(input.vendorPhone)) {
+      errors.push('Invalid vendor phone format (use Kenya format: +254... or 07.../01...)');
+    }
+    if (input.purchaserPhone && !phoneRegex.test(input.purchaserPhone)) {
+      errors.push('Invalid purchaser phone format (use Kenya format: +254... or 07.../01...)');
+    }
+
+    // Property type validation
+    if (input.propertyType && !['residential', 'commercial', 'agricultural', 'industrial'].includes(input.propertyType)) {
+      errors.push('Property type must be residential, commercial, agricultural, or industrial');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
   static validateDocumentInput(documentType: DocumentType, userInput: DocumentUserInput): ValidationResult {
     switch (documentType) {
       case DocumentType.SALES_PURCHASE_AGREEMENT:
@@ -480,6 +568,9 @@ export class DocumentValidators {
       
       case DocumentType.ENHANCED_LEASE_AGREEMENT:
         return this.validateEnhancedLeaseInput(userInput as EnhancedLeaseUserInput);
+      
+      case DocumentType.SALE_OF_LAND_AGREEMENT:
+        return this.validateSaleOfLandInput(userInput as SaleOfLandUserInput);
       
       default:
         return {

@@ -151,9 +151,19 @@ export class DocumentCatalog {
       name: 'Sale of Land Agreement',
       category: DocumentCategory.PROPERTY_REAL_ESTATE,
       description: 'Contracts for the purchase and sale of real property',
-      isActive: false,
+      isActive: true,
       complexity: 'High',
-      requiredFields: []
+      requiredFields: [
+        'vendorName', 'vendorAddress', 'vendorEmail', 'vendorIdNumber', 'purchaserName', 
+        'purchaserAddress', 'purchaserEmail', 'purchaserIdNumber', 'propertyDescription', 
+        'propertyAddress', 'titleNumber', 'landRegistryOffice', 'propertySize', 
+        'propertyBoundaries', 'propertyType', 'purchasePrice', 'paymentTerms', 
+        'depositAmount', 'balancePaymentSchedule', 'completionDate', 'titleWarranties', 
+        'conditionsToCompletion', 'riskPassageDate', 'insuranceRequirements', 
+        'propertyInsuranceTransfer', 'completionVenue', 'documentsForCompletion', 
+        'possessionDate', 'defaultProvisions', 'remediesForBreach', 'timeIsOfEssenceClause', 
+        'legalCosts', 'stampDutyResponsibility', 'registrationFees', 'effectiveDate'
+      ]
     },
     [DocumentType.PROPERTY_MANAGEMENT_AGREEMENT]: {
       name: 'Property Management Agreement',
