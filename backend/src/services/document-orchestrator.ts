@@ -7,7 +7,6 @@ import {
   DocumentFormat, 
   RequestStatus,
   DocumentUserInput,
-  NDAUserInput,
   DocumentEmailData
 } from '../types/document';
 import DocumentGeneratorService from './document-generator';
@@ -47,61 +46,39 @@ export class DocumentOrchestrator {
       
       documentRequestId = documentRequest.id;
 
-      // Validate user input
-      if (request.documentType === DocumentType.NDA) {
-        const validation = await DocumentAIService.validateNDAInput(request.userInput as NDAUserInput);
-        if (!validation.isValid) {
-          await this.updateRequestStatus(documentRequestId, RequestStatus.FAILED);
-          return {
-            requestId: documentRequestId,
-            status: RequestStatus.FAILED,
-            emailSent: false,
-            message: `Validation failed: ${validation.errors.join(', ')}`
-          };
-        }
-      } else {
-        // Use new validation system for other document types
-        // Debug logging for validation
-        console.log('🔍 VALIDATION DEBUG:', {
-          documentType: request.documentType,
-          userInputKeys: Object.keys(request.userInput || {}),
-          userInputSample: request.userInput
-        });
+      // Validate user input using new validation system
+      // Debug logging for validation
+      console.log('🔍 VALIDATION DEBUG:', {
+        documentType: request.documentType,
+        userInputKeys: Object.keys(request.userInput || {}),
+        userInputSample: request.userInput
+      });
 
-        const validation = DocumentValidators.validateDocumentInput(request.documentType, request.userInput);
+      const validation = DocumentValidators.validateDocumentInput(request.documentType, request.userInput);
         
-        if (!validation.isValid) {
-          console.log('❌ VALIDATION FAILED:', validation.errors);
-          await this.updateRequestStatus(documentRequestId, RequestStatus.FAILED);
-          return {
-            requestId: documentRequestId,
-            status: RequestStatus.FAILED,
-            emailSent: false,
-            message: `Validation failed: ${validation.errors.join(', ')}`
-          };
-        }
-        
-        console.log('✅ VALIDATION PASSED');
+      if (!validation.isValid) {
+        console.log('❌ VALIDATION FAILED:', validation.errors);
+        await this.updateRequestStatus(documentRequestId, RequestStatus.FAILED);
+        return {
+          requestId: documentRequestId,
+          status: RequestStatus.FAILED,
+          emailSent: false,
+          message: `Validation failed: ${validation.errors.join(', ')}`
+        };
       }
+        
+      console.log('✅ VALIDATION PASSED');
 
       // Generate AI content based on document type
       let filePaths: string[] = [];
       
-      if (request.documentType === DocumentType.NDA) {
-        filePaths = await this.generateNDADocument(
-          request.userInput as NDAUserInput, 
-          request.backstory, 
-          request.formats
-        );
-      } else {
-        // Use new document generator for other document types
-        filePaths = await this.generateNewDocument(
-          request.documentType,
-          request.userInput,
-          request.backstory,
-          request.formats
-        );
-      }
+      // Use new document generator for all document types (NDA removed)
+      filePaths = await this.generateNewDocument(
+        request.documentType,
+        request.userInput,
+        request.backstory,
+        request.formats
+      );
 
       // Update database with generated file paths
       await prisma.documentRequest.update({
@@ -143,29 +120,7 @@ export class DocumentOrchestrator {
     }
   }
 
-  private async generateNDADocument(
-    userInput: NDAUserInput,
-    backstory: string,
-    formats: DocumentFormat[]
-  ): Promise<string[]> {
-    console.log('Generating NDA content with AI...');
-    
-    // Generate AI content for NDA
-    const generatedContent = await DocumentAIService.generateNDAContent(userInput, backstory);
-    
-    console.log('AI content generated, creating document files...');
-    
-    // Generate document files
-    const filePaths = await DocumentGeneratorService.generateNDA(
-      userInput,
-      generatedContent,
-      formats
-    );
-    
-    console.log('Document files created:', filePaths.map(fp => path.basename(fp)));
-    
-    return filePaths;
-  }
+  // generateNDADocument method removed - NDA document type discontinued
 
   private async generateNewDocument(
     documentType: DocumentType,
@@ -393,8 +348,6 @@ export class DocumentOrchestrator {
 
   private getDocumentTypeDisplayName(type: DocumentType): string {
     switch (type) {
-      case DocumentType.NDA:
-        return 'Non-Disclosure Agreement (NDA)';
       case DocumentType.EMPLOYMENT_CONTRACT:
         return 'Employment Contract';
       case DocumentType.SERVICE_AGREEMENT:

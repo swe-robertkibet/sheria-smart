@@ -70,8 +70,6 @@ export function DocumentSelector({ onBack, onSelectDocument }: DocumentSelectorP
 
   const getDocumentIcon = (type: DocumentType) => {
     switch (type) {
-      case DocumentType.NDA:
-        return Shield
       case DocumentType.EMPLOYMENT_CONTRACT:
       case DocumentType.ENHANCED_EMPLOYMENT_CONTRACT:
       case DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT:
@@ -94,8 +92,6 @@ export function DocumentSelector({ onBack, onSelectDocument }: DocumentSelectorP
 
   const getDocumentColor = (type: DocumentType) => {
     switch (type) {
-      case DocumentType.NDA:
-        return "bg-[#7C9885]"
       case DocumentType.EMPLOYMENT_CONTRACT:
         return "bg-[#C99383]"
       case DocumentType.SERVICE_AGREEMENT:
@@ -109,8 +105,6 @@ export function DocumentSelector({ onBack, onSelectDocument }: DocumentSelectorP
 
   const getTextColor = (type: DocumentType) => {
     switch (type) {
-      case DocumentType.NDA:
-        return "text-[#7C9885]"
       case DocumentType.EMPLOYMENT_CONTRACT:
         return "text-[#C99383]"
       case DocumentType.SERVICE_AGREEMENT:

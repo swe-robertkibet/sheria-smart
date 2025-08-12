@@ -13,7 +13,6 @@ export enum DocumentCategory {
 
 export enum DocumentType {
   // Original
-  NDA = "NDA",
   EMPLOYMENT_CONTRACT = "EMPLOYMENT_CONTRACT",
   SERVICE_AGREEMENT = "SERVICE_AGREEMENT",
   LEASE_AGREEMENT = "LEASE_AGREEMENT",
@@ -73,48 +72,7 @@ export enum RequestStatus {
   EMAIL_SENT = "EMAIL_SENT"
 }
 
-// NDA-specific interfaces
-export interface NDAUserInput {
-  // Parties Information
-  disclosingPartyName: string;
-  disclosingPartyAddress: string;
-  disclosingPartyEmail: string;
-  disclosingPartyPhone?: string;
-  
-  receivingPartyName: string;
-  receivingPartyAddress: string;
-  receivingPartyEmail: string;
-  receivingPartyPhone?: string;
-  
-  // Agreement Details
-  purposeOfDisclosure: string; // The backstory/context
-  specificConfidentialInfo: string;
-  agreementDuration: string;
-  isPerperual: boolean;
-  
-  // Optional Details
-  additionalTerms?: string;
-  governingState?: string; // Defaults to "Republic of Kenya"
-  effectiveDate: string;
-  
-  // Contact for questions
-  contactPersonName?: string;
-  contactPersonTitle?: string;
-}
-
-export interface GeneratedNDAContent {
-  title: string;
-  recitals: string;
-  definitions: string;
-  confidentialityObligations: string;
-  permittedUses: string;
-  exclusions: string;
-  termDuration: string;
-  remediesAndEnforcement: string;
-  generalProvisions: string;
-  governingLaw: string;
-  signatures: string;
-}
+// Removed NDA interfaces - NDA document type has been discontinued
 
 // Base user input interface
 export interface BaseDocumentUserInput {
@@ -153,7 +111,6 @@ import {
 
 // Union type for all possible user inputs
 export type DocumentUserInput = 
-  | NDAUserInput 
   | SalesPurchaseUserInput
   | DistributionAgreementUserInput
   | PartnershipAgreementUserInput

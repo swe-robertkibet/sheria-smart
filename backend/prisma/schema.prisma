@@ -122,7 +122,6 @@ model DocumentRequest {
 
 enum DocumentType {
   // Original
-  NDA
   EMPLOYMENT_CONTRACT
   SERVICE_AGREEMENT
   LEASE_AGREEMENT

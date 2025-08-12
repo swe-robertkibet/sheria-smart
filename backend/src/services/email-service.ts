@@ -346,8 +346,6 @@ export class EmailService {
 
   private getDocumentTypeDisplayName(type: DocumentType): string {
     switch (type) {
-      case DocumentType.NDA:
-        return 'Non-Disclosure Agreement (NDA)';
       case DocumentType.EMPLOYMENT_CONTRACT:
         return 'Employment Contract';
       case DocumentType.SERVICE_AGREEMENT:

@@ -13,7 +13,6 @@ export enum DocumentCategory {
 
 export enum DocumentType {
   // Original
-  NDA = "NDA",
   EMPLOYMENT_CONTRACT = "EMPLOYMENT_CONTRACT",
   SERVICE_AGREEMENT = "SERVICE_AGREEMENT",
   LEASE_AGREEMENT = "LEASE_AGREEMENT",
@@ -72,38 +71,11 @@ export enum RequestStatus {
   EMAIL_SENT = "EMAIL_SENT"
 }
 
-// NDA-specific interfaces
-export interface NDAUserInput {
-  // Parties Information
-  disclosingPartyName: string;
-  disclosingPartyAddress: string;
-  disclosingPartyEmail: string;
-  disclosingPartyPhone?: string;
-  
-  receivingPartyName: string;
-  receivingPartyAddress: string;
-  receivingPartyEmail: string;
-  receivingPartyPhone?: string;
-  
-  // Agreement Details
-  purposeOfDisclosure: string; // The backstory/context
-  specificConfidentialInfo: string;
-  agreementDuration: string;
-  isPerperual: boolean;
-  
-  // Optional Details
-  additionalTerms?: string;
-  governingState?: string; // Defaults to "Republic of Kenya"
-  effectiveDate: string;
-  
-  // Contact for questions
-  contactPersonName?: string;
-  contactPersonTitle?: string;
-}
+// Removed NDA interfaces - NDA document type has been discontinued
 
 export interface DocumentGenerationRequest {
   documentType: DocumentType;
-  userInput: NDAUserInput;
+  userInput: any; // Generic user input interface
   backstory: string;
   formats: DocumentFormat[];
   emailAddress: string;
@@ -156,12 +128,7 @@ export interface ValidationResult {
   errors: string[];
 }
 
-// Form state interfaces
-export interface NDAFormData extends NDAUserInput {
-  backstory: string;
-  selectedFormats: DocumentFormat[];
-  emailAddress: string;
-}
+// Removed NDA form data - NDA document type has been discontinued
 
 export interface DocumentFormStep {
   id: string;

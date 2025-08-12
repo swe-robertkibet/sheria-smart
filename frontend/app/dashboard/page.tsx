@@ -16,7 +16,6 @@ import { useRouter } from "next/navigation"
 import { ChatInterface } from "@/components/chat-interface"
 import { StructuredChatInterface } from "@/components/structured-chat-interface"
 import { DocumentSelector } from "@/components/document-selector"
-import { NDAForm } from "@/components/nda-form"
 import { GenericDocumentForm } from "@/components/generic-document-form"
 import { ChatSidebar, ChatSidebarRef } from "@/components/chat-sidebar"
 import { useAuth } from "@/contexts/auth-context"
@@ -25,7 +24,7 @@ import { AuthError } from "@/components/auth-error"
 import { DocumentType } from "@/types/document"
 
 export default function DashboardPage() {
-  const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "structured-chat" | "documents" | "nda-form" | "document-form">("dashboard")
+  const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "structured-chat" | "documents" | "document-form">("dashboard")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
@@ -108,12 +107,8 @@ export default function DashboardPage() {
 
   const handleSelectDocument = (documentType: DocumentType) => {
     setSelectedDocumentType(documentType)
-    if (documentType === DocumentType.NDA) {
-      setCurrentView("nda-form")
-    } else {
-      // For now, navigate to a generic document form for all new document types
-      setCurrentView("document-form")
-    }
+    // Navigate to generic document form for all document types (NDA removed)
+    setCurrentView("document-form")
   }
 
   const handleSessionSelect = (sessionId: string) => {
@@ -195,9 +190,7 @@ export default function DashboardPage() {
     return <DocumentSelector onBack={handleBackToDashboard} onSelectDocument={handleSelectDocument} />
   }
 
-  if (currentView === "nda-form") {
-    return <NDAForm onBack={handleBackToDashboard} />
-  }
+  // NDA form removed - document type has been discontinued
 
   if (currentView === "document-form" && selectedDocumentType) {
     return <GenericDocumentForm onBack={handleBackToDashboard} documentType={selectedDocumentType} />

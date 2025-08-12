@@ -6,8 +6,7 @@ import {
   DocumentType, 
   DocumentFormat, 
   DocumentGenerationRequest,
-  DocumentUserInput,
-  NDAUserInput 
+  DocumentUserInput
 } from '../types/document';
 
 const router = express.Router();
@@ -118,7 +117,6 @@ router.post('/generate', authenticateToken, async (req: AuthenticatedRequest, re
 
     // Check if the document type is supported by either legacy or new generator
     const supportedTypes = [
-      DocumentType.NDA,
       DocumentType.SALES_PURCHASE_AGREEMENT,
       DocumentType.DISTRIBUTION_AGREEMENT,
       DocumentType.PARTNERSHIP_AGREEMENT,
@@ -213,28 +211,7 @@ router.get('/requests', authenticateToken, async (req: AuthenticatedRequest, res
 });
 
 // Validate NDA input (helper endpoint for frontend)
-router.post('/validate-nda', authenticateToken, async (req: AuthenticatedRequest, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ error: 'User not authenticated' });
-    }
-
-    const { userInput } = req.body;
-    
-    if (!userInput) {
-      return res.status(400).json({ error: 'userInput is required' });
-    }
-
-    // Import the service here to avoid circular dependencies
-    const { default: DocumentAIService } = await import('../services/document-ai');
-    const validation = await DocumentAIService.validateNDAInput(userInput as NDAUserInput);
-
-    res.json(validation);
-  } catch (error) {
-    console.error('Error validating NDA input:', error);
-    res.status(500).json({ error: 'Failed to validate NDA input' });
-  }
-});
+// NDA validation route removed - document type has been discontinued
 
 // Test email configuration (admin endpoint)
 router.post('/test-email', authenticateToken, async (req: AuthenticatedRequest, res) => {

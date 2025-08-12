@@ -10,19 +10,6 @@ import { documentGeneratorRegistry } from '../generators/document-generator-regi
 export class DocumentCatalog {
   private static documentTypeMetadata: Record<DocumentType, Omit<DocumentTypeInfo, 'id'>> = {
     // Original documents
-    [DocumentType.NDA]: {
-      name: 'Non-Disclosure Agreement (NDA)',
-      category: DocumentCategory.BUSINESS_COMMERCIAL,
-      description: 'Protect confidential information shared between parties',
-      isActive: true,
-      complexity: 'Low',
-      requiredFields: [
-        'disclosingPartyName', 'disclosingPartyAddress', 'disclosingPartyEmail',
-        'receivingPartyName', 'receivingPartyAddress', 'receivingPartyEmail',
-        'purposeOfDisclosure', 'specificConfidentialInfo', 'effectiveDate',
-        'agreementDuration', 'isPerperual'
-      ]
-    },
     [DocumentType.EMPLOYMENT_CONTRACT]: {
       name: 'Employment Contract',
       category: DocumentCategory.EMPLOYMENT_HR,

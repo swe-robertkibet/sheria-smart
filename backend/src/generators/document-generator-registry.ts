@@ -14,7 +14,6 @@ import { IndependentContractorGenerator } from './employment/independent-contrac
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
   // Original documents
-  [DocumentType.NDA]: DocumentCategory.BUSINESS_COMMERCIAL,
   [DocumentType.EMPLOYMENT_CONTRACT]: DocumentCategory.EMPLOYMENT_HR,
   [DocumentType.SERVICE_AGREEMENT]: DocumentCategory.BUSINESS_COMMERCIAL,
   [DocumentType.LEASE_AGREEMENT]: DocumentCategory.PROPERTY_REAL_ESTATE,
