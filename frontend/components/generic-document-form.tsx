@@ -220,7 +220,22 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
     try {
       const requiredFields = getRequiredFields()
       const missingFields = requiredFields
-        .filter(field => field.required && !formData[field.key]?.trim())
+        .filter(field => {
+          const value = formData[field.key]
+          if (field.required) {
+            // Handle string values
+            if (typeof value === 'string') {
+              return !value.trim()
+            }
+            // Handle arrays (like partners)
+            if (Array.isArray(value)) {
+              return value.length === 0
+            }
+            // Handle other types or undefined/null
+            return !value
+          }
+          return false
+        })
         .map(field => field.label)
 
       if (missingFields.length > 0) {

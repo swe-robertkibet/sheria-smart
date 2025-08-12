@@ -126,10 +126,10 @@ export class DocumentValidators {
         if (!partner.partnerName?.trim()) errors.push(`Partner ${index + 1} name is required`);
         if (!partner.partnerAddress?.trim()) errors.push(`Partner ${index + 1} address is required`);
         if (!partner.partnerEmail?.trim()) errors.push(`Partner ${index + 1} email is required`);
-        if (!partner.capitalContribution?.trim()) errors.push(`Partner ${index + 1} capital contribution is required`);
+        if (!partner.capitalContribution || !String(partner.capitalContribution).trim()) errors.push(`Partner ${index + 1} capital contribution is required`);
         if (!partner.contributionType) errors.push(`Partner ${index + 1} contribution type is required`);
-        if (!partner.profitSharePercentage?.trim()) errors.push(`Partner ${index + 1} profit share percentage is required`);
-        if (!partner.lossSharePercentage?.trim()) errors.push(`Partner ${index + 1} loss share percentage is required`);
+        if (!partner.profitSharePercentage || !String(partner.profitSharePercentage).trim()) errors.push(`Partner ${index + 1} profit share percentage is required`);
+        if (!partner.lossSharePercentage || !String(partner.lossSharePercentage).trim()) errors.push(`Partner ${index + 1} loss share percentage is required`);
 
         // Email validation for partners
         if (partner.partnerEmail && !emailRegex.test(partner.partnerEmail)) {
