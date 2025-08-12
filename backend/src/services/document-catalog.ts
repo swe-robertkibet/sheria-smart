@@ -112,9 +112,19 @@ export class DocumentCatalog {
       name: 'Non-Compete Agreement',
       category: DocumentCategory.EMPLOYMENT_HR,
       description: 'Restrict employee competitive activities during and after employment',
-      isActive: false,
+      isActive: true,
       complexity: 'Medium',
-      requiredFields: []
+      requiredFields: [
+        'employeeName', 'employeeAddress', 'employeeEmail', 'employeePosition',
+        'employerName', 'employerAddress', 'employerEmail', 'employerBusinessRegistration',
+        'employerBusinessType', 'employmentStartDate', 'currentPosition',
+        'accessToConfidentialInfo', 'customerRelationships', 'restrictedActivities',
+        'competitorDefinition', 'restrictedServices', 'restrictedProducts',
+        'geographicScope', 'territoryDefinition', 'restrictionDuration',
+        'restrictionStartDate', 'customerNonSolicitation', 'employeeNonSolicitation',
+        'considerationProvided', 'remediesAvailable', 'injunctiveReliefProvision',
+        'severabilityProvisions', 'effectiveDate'
+      ]
     },
 
     // Property & Real Estate (simplified for now)

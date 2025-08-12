@@ -5,7 +5,8 @@ import {
   PartnershipAgreementUserInput,
   EnhancedEmploymentContractUserInput,
   IndependentContractorUserInput,
-  ServiceAgreementUserInput
+  ServiceAgreementUserInput,
+  NonCompeteUserInput
 } from '../types/documents';
 
 export interface ValidationResult {
@@ -280,6 +281,73 @@ export class DocumentValidators {
     };
   }
 
+  static validateNonCompeteInput(input: NonCompeteUserInput): ValidationResult {
+    const errors: string[] = [];
+
+    // Employee Information - Required fields
+    if (!input.employeeName?.trim()) errors.push('Employee name is required');
+    if (!input.employeeAddress?.trim()) errors.push('Employee address is required');
+    if (!input.employeeEmail?.trim()) errors.push('Employee email is required');
+    if (!input.employeePosition?.trim()) errors.push('Employee position is required');
+
+    // Employer Information - Required fields
+    if (!input.employerName?.trim()) errors.push('Employer name is required');
+    if (!input.employerAddress?.trim()) errors.push('Employer address is required');
+    if (!input.employerEmail?.trim()) errors.push('Employer email is required');
+    if (!input.employerBusinessRegistration?.trim()) errors.push('Employer business registration is required');
+    if (!input.employerBusinessType?.trim()) errors.push('Employer business type is required');
+
+    // Employment Context - Required fields
+    if (!input.employmentStartDate?.trim()) errors.push('Employment start date is required');
+    if (!input.currentPosition?.trim()) errors.push('Current position is required');
+    if (!input.accessToConfidentialInfo?.trim()) errors.push('Access to confidential info description is required');
+    if (!input.customerRelationships?.trim()) errors.push('Customer relationships description is required');
+
+    // Non-Compete Restrictions - Required fields
+    if (!input.restrictedActivities?.trim()) errors.push('Restricted activities description is required');
+    if (!input.competitorDefinition?.trim()) errors.push('Competitor definition is required');
+    if (!input.restrictedServices?.trim()) errors.push('Restricted services description is required');
+    if (!input.restrictedProducts?.trim()) errors.push('Restricted products description is required');
+
+    // Geographic Scope - Required fields
+    if (!input.geographicScope?.trim()) errors.push('Geographic scope is required');
+    if (!input.territoryDefinition?.trim()) errors.push('Territory definition is required');
+
+    // Temporal Scope - Required fields
+    if (!input.restrictionDuration?.trim()) errors.push('Restriction duration is required');
+    if (!input.restrictionStartDate?.trim()) errors.push('Restriction start date is required');
+
+    // Non-Solicitation - Required fields
+    if (!input.customerNonSolicitation?.trim()) errors.push('Customer non-solicitation clause is required');
+    if (!input.employeeNonSolicitation?.trim()) errors.push('Employee non-solicitation clause is required');
+
+    // Consideration - Required fields
+    if (!input.considerationProvided?.trim()) errors.push('Consideration provided description is required');
+
+    // Enforcement - Required fields
+    if (!input.remediesAvailable?.trim()) errors.push('Remedies available description is required');
+    if (!input.injunctiveReliefProvision?.trim()) errors.push('Injunctive relief provision is required');
+
+    // Severability - Required fields
+    if (!input.severabilityProvisions?.trim()) errors.push('Severability provisions are required');
+
+    // Base document fields
+    if (!input.effectiveDate?.trim()) errors.push('Effective date is required');
+
+    // Email format validation
+    if (input.employeeEmail && !emailRegex.test(input.employeeEmail)) {
+      errors.push('Invalid employee email format');
+    }
+    if (input.employerEmail && !emailRegex.test(input.employerEmail)) {
+      errors.push('Invalid employer email format');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
   static validateDocumentInput(documentType: DocumentType, userInput: DocumentUserInput): ValidationResult {
     switch (documentType) {
       case DocumentType.SALES_PURCHASE_AGREEMENT:
@@ -300,6 +368,9 @@ export class DocumentValidators {
       
       case DocumentType.SERVICE_AGREEMENT:
         return this.validateServiceAgreementInput(userInput as unknown as ServiceAgreementUserInput);
+      
+      case DocumentType.NON_COMPETE_AGREEMENT:
+        return this.validateNonCompeteInput(userInput as NonCompeteUserInput);
       
       default:
         return {

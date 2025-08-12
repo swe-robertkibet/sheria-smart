@@ -10,6 +10,7 @@ import { ServiceAgreementGenerator } from './business/service-agreement-generato
 // Employment generators
 import { EnhancedEmploymentContractGenerator } from './employment/enhanced-employment-generator';
 import { IndependentContractorGenerator } from './employment/independent-contractor-generator';
+import { NonCompeteGenerator } from './employment/non-compete-generator';
 
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
@@ -78,6 +79,7 @@ export class DocumentGeneratorRegistry {
     this.generators.set(DocumentType.EMPLOYMENT_CONTRACT, new EnhancedEmploymentContractGenerator());
     this.generators.set(DocumentType.ENHANCED_EMPLOYMENT_CONTRACT, new EnhancedEmploymentContractGenerator());
     this.generators.set(DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT, new IndependentContractorGenerator());
+    this.generators.set(DocumentType.NON_COMPETE_AGREEMENT, new NonCompeteGenerator());
   }
 
   getGenerator(documentType: DocumentType): BaseDocumentGenerator | null {

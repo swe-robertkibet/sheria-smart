@@ -40,6 +40,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Enhanced Employment Contract'
       case DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT:
         return 'Independent Contractor Agreement'
+      case DocumentType.NON_COMPETE_AGREEMENT:
+        return 'Non-Compete Agreement'
       default:
         return 'Legal Document'
     }
@@ -59,6 +61,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Create a comprehensive employment contract with enhanced terms'
       case DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT:
         return 'Engage independent contractors with proper classification'
+      case DocumentType.NON_COMPETE_AGREEMENT:
+        return 'Restrict competitive activities during and after employment'
       default:
         return 'Generate a professional legal document'
     }
@@ -233,6 +237,70 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           { key: 'projectStartDate', label: 'Project Start Date', type: 'date', required: true },
           { key: 'projectDuration', label: 'Project Duration', type: 'text', required: true },
           { key: 'intellectualPropertyOwnership', label: 'IP Ownership', type: 'textarea', required: true },
+          ...basicFields
+        ]
+
+      case DocumentType.NON_COMPETE_AGREEMENT:
+        return [
+          // Employee Information
+          { key: 'employeeName', label: 'Employee Name', type: 'text', required: true },
+          { key: 'employeeAddress', label: 'Employee Address', type: 'textarea', required: true },
+          { key: 'employeeEmail', label: 'Employee Email', type: 'email', required: true },
+          { key: 'employeePosition', label: 'Employee Position', type: 'text', required: true },
+          { key: 'employeeId', label: 'Employee ID (Optional)', type: 'text', required: false },
+          
+          // Employer Information
+          { key: 'employerName', label: 'Employer Name', type: 'text', required: true },
+          { key: 'employerAddress', label: 'Employer Address', type: 'textarea', required: true },
+          { key: 'employerEmail', label: 'Employer Email', type: 'email', required: true },
+          { key: 'employerBusinessRegistration', label: 'Employer Business Registration', type: 'text', required: true },
+          { key: 'employerBusinessType', label: 'Employer Business Type', type: 'text', required: true },
+          
+          // Employment Context
+          { key: 'employmentStartDate', label: 'Employment Start Date', type: 'date', required: true },
+          { key: 'currentPosition', label: 'Current Position', type: 'text', required: true },
+          { key: 'accessToConfidentialInfo', label: 'Access to Confidential Information', type: 'textarea', required: true },
+          { key: 'customerRelationships', label: 'Customer Relationships', type: 'textarea', required: true },
+          
+          // Non-Compete Restrictions
+          { key: 'restrictedActivities', label: 'Restricted Activities', type: 'textarea', required: true },
+          { key: 'competitorDefinition', label: 'Competitor Definition', type: 'textarea', required: true },
+          { key: 'restrictedServices', label: 'Restricted Services', type: 'textarea', required: true },
+          { key: 'restrictedProducts', label: 'Restricted Products', type: 'textarea', required: true },
+          
+          // Geographic Scope
+          { key: 'geographicScope', label: 'Geographic Scope', type: 'textarea', required: true },
+          { key: 'specificLocations', label: 'Specific Locations (Optional)', type: 'textarea', required: false },
+          { key: 'territoryDefinition', label: 'Territory Definition', type: 'textarea', required: true },
+          
+          // Temporal Scope
+          { key: 'restrictionDuration', label: 'Restriction Duration', type: 'text', required: true },
+          { key: 'restrictionStartDate', label: 'Restriction Start Date', type: 'text', required: true },
+          
+          // Non-Solicitation
+          { key: 'customerNonSolicitation', label: 'Customer Non-Solicitation Clause', type: 'textarea', required: true },
+          { key: 'employeeNonSolicitation', label: 'Employee Non-Solicitation Clause', type: 'textarea', required: true },
+          { key: 'supplierNonSolicitation', label: 'Supplier Non-Solicitation (Optional)', type: 'textarea', required: false },
+          
+          // Consideration
+          { key: 'considerationProvided', label: 'Consideration Provided', type: 'textarea', required: true },
+          { key: 'considerationValue', label: 'Consideration Value (Optional)', type: 'text', required: false },
+          { key: 'additionalBenefits', label: 'Additional Benefits (Optional)', type: 'textarea', required: false },
+          
+          // Exceptions
+          { key: 'permittedActivities', label: 'Permitted Activities (Optional)', type: 'textarea', required: false },
+          { key: 'generalBusinessExceptions', label: 'General Business Exceptions (Optional)', type: 'textarea', required: false },
+          { key: 'investmentExceptions', label: 'Investment Exceptions (Optional)', type: 'textarea', required: false },
+          
+          // Enforcement
+          { key: 'remediesAvailable', label: 'Remedies Available', type: 'textarea', required: true },
+          { key: 'injunctiveReliefProvision', label: 'Injunctive Relief Provision', type: 'textarea', required: true },
+          { key: 'attorneyFeesProvision', label: 'Attorney Fees Provision (Optional)', type: 'textarea', required: false },
+          
+          // Severability
+          { key: 'severabilityProvisions', label: 'Severability Provisions', type: 'textarea', required: true },
+          { key: 'modificationRights', label: 'Modification Rights (Optional)', type: 'textarea', required: false },
+          
           ...basicFields
         ]
 
