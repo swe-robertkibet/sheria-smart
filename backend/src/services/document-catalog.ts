@@ -132,9 +132,20 @@ export class DocumentCatalog {
       name: 'Enhanced Lease Agreement',
       category: DocumentCategory.PROPERTY_REAL_ESTATE,
       description: 'Comprehensive rental agreements for residential and commercial properties',
-      isActive: false,
+      isActive: true,
       complexity: 'Medium',
-      requiredFields: []
+      requiredFields: [
+        'landlordName', 'landlordAddress', 'landlordEmail', 'tenantName', 'tenantAddress', 
+        'tenantEmail', 'propertyAddress', 'propertyDescription', 'propertyType', 'propertySize',
+        'furnishingStatus', 'leaseType', 'leaseTerm', 'leaseStartDate', 'monthlyRent',
+        'rentPaymentDate', 'rentPaymentMethod', 'securityDeposit', 'permittedUse', 
+        'sublettingPolicy', 'landlordMaintenanceResponsibilities', 'tenantMaintenanceResponsibilities',
+        'repairNotificationProcess', 'emergencyRepairProcedures', 'utilitiesIncluded',
+        'utilitiesPaidByTenant', 'landlordInsuranceRequirements', 'liabilityAllocation',
+        'propertyDamageResponsibility', 'landlordEntryRights', 'noticeRequirements',
+        'terminationConditions', 'noticePeriodsForTermination', 'defaultRemedies',
+        'evictionProcedures', 'effectiveDate'
+      ]
     },
     [DocumentType.SALE_OF_LAND_AGREEMENT]: {
       name: 'Sale of Land Agreement',

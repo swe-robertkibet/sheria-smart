@@ -6,7 +6,8 @@ import {
   EnhancedEmploymentContractUserInput,
   IndependentContractorUserInput,
   ServiceAgreementUserInput,
-  NonCompeteUserInput
+  NonCompeteUserInput,
+  EnhancedLeaseUserInput
 } from '../types/documents';
 
 export interface ValidationResult {
@@ -348,6 +349,111 @@ export class DocumentValidators {
     };
   }
 
+  static validateEnhancedLeaseInput(input: EnhancedLeaseUserInput): ValidationResult {
+    const errors: string[] = [];
+
+    // Landlord Information - Required fields
+    if (!input.landlordName?.trim()) errors.push('Landlord name is required');
+    if (!input.landlordAddress?.trim()) errors.push('Landlord address is required');
+    if (!input.landlordEmail?.trim()) errors.push('Landlord email is required');
+
+    // Tenant Information - Required fields
+    if (!input.tenantName?.trim()) errors.push('Tenant name is required');
+    if (!input.tenantAddress?.trim()) errors.push('Tenant address is required');
+    if (!input.tenantEmail?.trim()) errors.push('Tenant email is required');
+
+    // Property Details - Required fields
+    if (!input.propertyAddress?.trim()) errors.push('Property address is required');
+    if (!input.propertyDescription?.trim()) errors.push('Property description is required');
+    if (!input.propertyType) errors.push('Property type is required');
+    if (!input.propertySize?.trim()) errors.push('Property size is required');
+    if (!input.furnishingStatus) errors.push('Furnishing status is required');
+
+    // Lease Terms - Required fields
+    if (!input.leaseType) errors.push('Lease type is required');
+    if (!input.leaseTerm?.trim()) errors.push('Lease term is required');
+    if (!input.leaseStartDate?.trim()) errors.push('Lease start date is required');
+
+    // Financial Terms - Required fields
+    if (!input.monthlyRent?.trim()) errors.push('Monthly rent is required');
+    if (!input.rentPaymentDate?.trim()) errors.push('Rent payment date is required');
+    if (!input.rentPaymentMethod?.trim()) errors.push('Rent payment method is required');
+    if (!input.securityDeposit?.trim()) errors.push('Security deposit is required');
+
+    // Property Use - Required fields
+    if (!input.permittedUse?.trim()) errors.push('Permitted use description is required');
+    if (!input.sublettingPolicy) errors.push('Subletting policy is required');
+
+    // Maintenance and Repairs - Required fields
+    if (!input.landlordMaintenanceResponsibilities?.trim()) errors.push('Landlord maintenance responsibilities are required');
+    if (!input.tenantMaintenanceResponsibilities?.trim()) errors.push('Tenant maintenance responsibilities are required');
+    if (!input.repairNotificationProcess?.trim()) errors.push('Repair notification process is required');
+    if (!input.emergencyRepairProcedures?.trim()) errors.push('Emergency repair procedures are required');
+
+    // Utilities and Services - Required fields
+    if (!input.utilitiesIncluded?.trim()) errors.push('Utilities included description is required');
+    if (!input.utilitiesPaidByTenant?.trim()) errors.push('Utilities paid by tenant description is required');
+
+    // Insurance and Liability - Required fields
+    if (!input.landlordInsuranceRequirements?.trim()) errors.push('Landlord insurance requirements are required');
+    if (!input.liabilityAllocation?.trim()) errors.push('Liability allocation is required');
+    if (!input.propertyDamageResponsibility?.trim()) errors.push('Property damage responsibility is required');
+
+    // Entry and Inspection - Required fields
+    if (!input.landlordEntryRights?.trim()) errors.push('Landlord entry rights are required');
+    if (!input.noticeRequirements?.trim()) errors.push('Notice requirements are required');
+
+    // Termination and Default - Required fields
+    if (!input.terminationConditions?.trim()) errors.push('Termination conditions are required');
+    if (!input.noticePeriodsForTermination?.trim()) errors.push('Notice periods for termination are required');
+    if (!input.defaultRemedies?.trim()) errors.push('Default remedies are required');
+    if (!input.evictionProcedures?.trim()) errors.push('Eviction procedures are required');
+
+    // Base document fields
+    if (!input.effectiveDate?.trim()) errors.push('Effective date is required');
+
+    // Email format validation
+    if (input.landlordEmail && !emailRegex.test(input.landlordEmail)) {
+      errors.push('Invalid landlord email format');
+    }
+    if (input.tenantEmail && !emailRegex.test(input.tenantEmail)) {
+      errors.push('Invalid tenant email format');
+    }
+
+    // Phone format validation (optional fields)
+    if (input.landlordPhone && !phoneRegex.test(input.landlordPhone)) {
+      errors.push('Invalid landlord phone format (use Kenya format: +254... or 07.../01...)');
+    }
+    if (input.tenantPhone && !phoneRegex.test(input.tenantPhone)) {
+      errors.push('Invalid tenant phone format (use Kenya format: +254... or 07.../01...)');
+    }
+
+    // Property type validation
+    if (input.propertyType && !['residential', 'commercial', 'industrial', 'mixed_use'].includes(input.propertyType)) {
+      errors.push('Property type must be residential, commercial, industrial, or mixed_use');
+    }
+
+    // Furnishing status validation
+    if (input.furnishingStatus && !['furnished', 'semi_furnished', 'unfurnished'].includes(input.furnishingStatus)) {
+      errors.push('Furnishing status must be furnished, semi_furnished, or unfurnished');
+    }
+
+    // Lease type validation
+    if (input.leaseType && !['fixed_term', 'periodic', 'at_will'].includes(input.leaseType)) {
+      errors.push('Lease type must be fixed_term, periodic, or at_will');
+    }
+
+    // Subletting policy validation
+    if (input.sublettingPolicy && !['prohibited', 'with_consent', 'freely_permitted'].includes(input.sublettingPolicy)) {
+      errors.push('Subletting policy must be prohibited, with_consent, or freely_permitted');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
   static validateDocumentInput(documentType: DocumentType, userInput: DocumentUserInput): ValidationResult {
     switch (documentType) {
       case DocumentType.SALES_PURCHASE_AGREEMENT:
@@ -371,6 +477,9 @@ export class DocumentValidators {
       
       case DocumentType.NON_COMPETE_AGREEMENT:
         return this.validateNonCompeteInput(userInput as NonCompeteUserInput);
+      
+      case DocumentType.ENHANCED_LEASE_AGREEMENT:
+        return this.validateEnhancedLeaseInput(userInput as EnhancedLeaseUserInput);
       
       default:
         return {

@@ -42,6 +42,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Independent Contractor Agreement'
       case DocumentType.NON_COMPETE_AGREEMENT:
         return 'Non-Compete Agreement'
+      case DocumentType.ENHANCED_LEASE_AGREEMENT:
+        return 'Enhanced Lease Agreement'
       default:
         return 'Legal Document'
     }
@@ -63,6 +65,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Engage independent contractors with proper classification'
       case DocumentType.NON_COMPETE_AGREEMENT:
         return 'Restrict competitive activities during and after employment'
+      case DocumentType.ENHANCED_LEASE_AGREEMENT:
+        return 'Comprehensive rental agreements for residential and commercial properties'
       default:
         return 'Generate a professional legal document'
     }
@@ -300,6 +304,91 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           // Severability
           { key: 'severabilityProvisions', label: 'Severability Provisions', type: 'textarea', required: true },
           { key: 'modificationRights', label: 'Modification Rights (Optional)', type: 'textarea', required: false },
+          
+          ...basicFields
+        ]
+
+      case DocumentType.ENHANCED_LEASE_AGREEMENT:
+        return [
+          // Landlord Information
+          { key: 'landlordName', label: 'Landlord Name', type: 'text', required: true },
+          { key: 'landlordAddress', label: 'Landlord Address', type: 'textarea', required: true },
+          { key: 'landlordEmail', label: 'Landlord Email', type: 'email', required: true },
+          { key: 'landlordPhone', label: 'Landlord Phone (Optional)', type: 'text', required: false },
+          { key: 'landlordIdNumber', label: 'Landlord ID Number (Optional)', type: 'text', required: false },
+          
+          // Tenant Information
+          { key: 'tenantName', label: 'Tenant Name', type: 'text', required: true },
+          { key: 'tenantAddress', label: 'Tenant Address', type: 'textarea', required: true },
+          { key: 'tenantEmail', label: 'Tenant Email', type: 'email', required: true },
+          { key: 'tenantPhone', label: 'Tenant Phone (Optional)', type: 'text', required: false },
+          { key: 'tenantIdNumber', label: 'Tenant ID Number (Optional)', type: 'text', required: false },
+          { key: 'tenantOccupation', label: 'Tenant Occupation (Optional)', type: 'text', required: false },
+          
+          // Property Details
+          { key: 'propertyAddress', label: 'Property Address', type: 'textarea', required: true },
+          { key: 'propertyDescription', label: 'Property Description', type: 'textarea', required: true },
+          { key: 'propertyType', label: 'Property Type', type: 'select', required: true, options: ['residential', 'commercial', 'industrial', 'mixed_use'] },
+          { key: 'propertySize', label: 'Property Size', type: 'text', required: true },
+          { key: 'furnishingStatus', label: 'Furnishing Status', type: 'select', required: true, options: ['furnished', 'semi_furnished', 'unfurnished'] },
+          { key: 'furnishingDetails', label: 'Furnishing Details (Optional)', type: 'textarea', required: false },
+          
+          // Lease Terms
+          { key: 'leaseType', label: 'Lease Type', type: 'select', required: true, options: ['fixed_term', 'periodic', 'at_will'] },
+          { key: 'leaseTerm', label: 'Lease Term', type: 'text', required: true },
+          { key: 'leaseStartDate', label: 'Lease Start Date', type: 'date', required: true },
+          { key: 'leaseEndDate', label: 'Lease End Date (Optional)', type: 'date', required: false },
+          { key: 'renewalOptions', label: 'Renewal Options (Optional)', type: 'textarea', required: false },
+          
+          // Financial Terms
+          { key: 'monthlyRent', label: 'Monthly Rent', type: 'text', required: true },
+          { key: 'rentPaymentDate', label: 'Rent Payment Date', type: 'text', required: true },
+          { key: 'rentPaymentMethod', label: 'Rent Payment Method', type: 'text', required: true },
+          { key: 'securityDeposit', label: 'Security Deposit', type: 'text', required: true },
+          { key: 'advanceRentPayment', label: 'Advance Rent Payment (Optional)', type: 'text', required: false },
+          { key: 'lateFees', label: 'Late Fees (Optional)', type: 'text', required: false },
+          { key: 'rentReviewClause', label: 'Rent Review Clause (Optional)', type: 'textarea', required: false },
+          
+          // Property Use
+          { key: 'permittedUse', label: 'Permitted Use', type: 'textarea', required: true },
+          { key: 'occupancyLimits', label: 'Occupancy Limits (Optional)', type: 'text', required: false },
+          { key: 'businessUseRestrictions', label: 'Business Use Restrictions (Optional)', type: 'textarea', required: false },
+          { key: 'sublettingPolicy', label: 'Subletting Policy', type: 'select', required: true, options: ['prohibited', 'with_consent', 'freely_permitted'] },
+          
+          // Maintenance and Repairs
+          { key: 'landlordMaintenanceResponsibilities', label: 'Landlord Maintenance Responsibilities', type: 'textarea', required: true },
+          { key: 'tenantMaintenanceResponsibilities', label: 'Tenant Maintenance Responsibilities', type: 'textarea', required: true },
+          { key: 'repairNotificationProcess', label: 'Repair Notification Process', type: 'textarea', required: true },
+          { key: 'emergencyRepairProcedures', label: 'Emergency Repair Procedures', type: 'textarea', required: true },
+          
+          // Utilities and Services
+          { key: 'utilitiesIncluded', label: 'Utilities Included', type: 'textarea', required: true },
+          { key: 'utilitiesPaidByTenant', label: 'Utilities Paid by Tenant', type: 'textarea', required: true },
+          { key: 'serviceCharges', label: 'Service Charges (Optional)', type: 'textarea', required: false },
+          { key: 'internetAndCableProvision', label: 'Internet and Cable Provision (Optional)', type: 'textarea', required: false },
+          
+          // Insurance and Liability
+          { key: 'landlordInsuranceRequirements', label: 'Landlord Insurance Requirements', type: 'textarea', required: true },
+          { key: 'tenantInsuranceRequirements', label: 'Tenant Insurance Requirements (Optional)', type: 'textarea', required: false },
+          { key: 'liabilityAllocation', label: 'Liability Allocation', type: 'textarea', required: true },
+          { key: 'propertyDamageResponsibility', label: 'Property Damage Responsibility', type: 'textarea', required: true },
+          
+          // Entry and Inspection
+          { key: 'landlordEntryRights', label: 'Landlord Entry Rights', type: 'textarea', required: true },
+          { key: 'inspectionSchedule', label: 'Inspection Schedule (Optional)', type: 'textarea', required: false },
+          { key: 'noticeRequirements', label: 'Notice Requirements', type: 'textarea', required: true },
+          
+          // Termination and Default
+          { key: 'terminationConditions', label: 'Termination Conditions', type: 'textarea', required: true },
+          { key: 'noticePeriodsForTermination', label: 'Notice Periods for Termination', type: 'textarea', required: true },
+          { key: 'defaultRemedies', label: 'Default Remedies', type: 'textarea', required: true },
+          { key: 'evictionProcedures', label: 'Eviction Procedures', type: 'textarea', required: true },
+          
+          // Special Provisions
+          { key: 'petPolicy', label: 'Pet Policy (Optional)', type: 'textarea', required: false },
+          { key: 'parkingProvisions', label: 'Parking Provisions (Optional)', type: 'textarea', required: false },
+          { key: 'securityMeasures', label: 'Security Measures (Optional)', type: 'textarea', required: false },
+          { key: 'alterationsPolicy', label: 'Alterations Policy (Optional)', type: 'textarea', required: false },
           
           ...basicFields
         ]
