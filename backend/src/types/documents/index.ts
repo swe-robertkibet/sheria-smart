@@ -4,6 +4,7 @@
 export * from './business/sales-purchase';
 export * from './business/distribution-agreement';
 export * from './business/partnership-agreement';
+export * from './business/service-agreement';
 
 // Employment & HR
 export * from './employment/enhanced-employment-contract';

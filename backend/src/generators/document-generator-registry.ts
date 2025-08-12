@@ -5,6 +5,7 @@ import { BaseDocumentGenerator } from './base/base-document-generator';
 import { SalesPurchaseGenerator } from './business/sales-purchase-generator';
 import { DistributionAgreementGenerator } from './business/distribution-agreement-generator';
 import { PartnershipAgreementGenerator } from './business/partnership-agreement-generator';
+import { ServiceAgreementGenerator } from './business/service-agreement-generator';
 
 // Employment generators
 import { EnhancedEmploymentContractGenerator } from './employment/enhanced-employment-generator';
@@ -72,6 +73,7 @@ export class DocumentGeneratorRegistry {
     this.generators.set(DocumentType.SALES_PURCHASE_AGREEMENT, new SalesPurchaseGenerator());
     this.generators.set(DocumentType.DISTRIBUTION_AGREEMENT, new DistributionAgreementGenerator());
     this.generators.set(DocumentType.PARTNERSHIP_AGREEMENT, new PartnershipAgreementGenerator());
+    this.generators.set(DocumentType.SERVICE_AGREEMENT, new ServiceAgreementGenerator());
     
     // Employment generators
     this.generators.set(DocumentType.EMPLOYMENT_CONTRACT, new EnhancedEmploymentContractGenerator());

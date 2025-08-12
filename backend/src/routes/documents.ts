@@ -122,6 +122,7 @@ router.post('/generate', authenticateToken, async (req: AuthenticatedRequest, re
       DocumentType.SALES_PURCHASE_AGREEMENT,
       DocumentType.DISTRIBUTION_AGREEMENT,
       DocumentType.PARTNERSHIP_AGREEMENT,
+      DocumentType.SERVICE_AGREEMENT,
       DocumentType.ENHANCED_EMPLOYMENT_CONTRACT,
       DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT
     ];

@@ -34,6 +34,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Distribution Agreement'
       case DocumentType.PARTNERSHIP_AGREEMENT:
         return 'Partnership Agreement'
+      case DocumentType.SERVICE_AGREEMENT:
+        return 'Service Agreement'
       case DocumentType.ENHANCED_EMPLOYMENT_CONTRACT:
         return 'Enhanced Employment Contract'
       case DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT:
@@ -51,6 +53,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Establish a distribution relationship between supplier and distributor'
       case DocumentType.PARTNERSHIP_AGREEMENT:
         return 'Define terms of business partnership between parties'
+      case DocumentType.SERVICE_AGREEMENT:
+        return 'Create professional service contracts and consulting agreements'
       case DocumentType.ENHANCED_EMPLOYMENT_CONTRACT:
         return 'Create a comprehensive employment contract with enhanced terms'
       case DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT:
@@ -165,6 +169,51 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           { key: 'assetDistribution', label: 'Asset Distribution', type: 'textarea', required: false },
           // NOTE: Partners array handling is simplified for now - would need dynamic form sections for full implementation
           { key: 'partnersInfo', label: 'Partners Information (JSON format for now)', type: 'textarea', required: true, placeholder: 'Enter partner details in JSON format with fields: partnerName, partnerAddress, partnerEmail, capitalContribution, contributionType, profitSharePercentage, lossSharePercentage' },
+          ...basicFields
+        ]
+
+      case DocumentType.SERVICE_AGREEMENT:
+        return [
+          // Service Provider Information
+          { key: 'serviceProviderName', label: 'Service Provider Name', type: 'text', required: true },
+          { key: 'serviceProviderAddress', label: 'Service Provider Address', type: 'textarea', required: true },
+          { key: 'serviceProviderEmail', label: 'Service Provider Email', type: 'email', required: true },
+          { key: 'serviceProviderPhone', label: 'Service Provider Phone', type: 'text', required: false },
+          { key: 'serviceProviderBusinessRegistration', label: 'Service Provider Business Registration', type: 'text', required: false },
+          
+          // Client Information
+          { key: 'clientName', label: 'Client Name', type: 'text', required: true },
+          { key: 'clientAddress', label: 'Client Address', type: 'textarea', required: true },
+          { key: 'clientEmail', label: 'Client Email', type: 'email', required: true },
+          { key: 'clientPhone', label: 'Client Phone', type: 'text', required: false },
+          
+          // Service Details
+          { key: 'scopeOfServices', label: 'Scope of Services', type: 'textarea', required: true },
+          { key: 'deliverablesDescription', label: 'Deliverables Description', type: 'textarea', required: true },
+          { key: 'serviceTimeline', label: 'Service Timeline', type: 'textarea', required: true },
+          { key: 'milestones', label: 'Project Milestones', type: 'textarea', required: false },
+          
+          // Financial Terms
+          { key: 'feeStructure', label: 'Fee Structure', type: 'textarea', required: true },
+          { key: 'paymentTerms', label: 'Payment Terms', type: 'textarea', required: true },
+          { key: 'expenseReimbursement', label: 'Expense Reimbursement', type: 'textarea', required: false },
+          
+          // Intellectual Property
+          { key: 'intellectualPropertyOwnership', label: 'Intellectual Property Ownership', type: 'textarea', required: true },
+          { key: 'workProductRights', label: 'Work Product Rights', type: 'textarea', required: true },
+          { key: 'preExistingIPRights', label: 'Pre-existing IP Rights', type: 'textarea', required: false },
+          
+          // Legal Terms
+          { key: 'confidentialityRequirements', label: 'Confidentiality Requirements', type: 'textarea', required: true },
+          { key: 'independentContractorStatus', label: 'Independent Contractor Status', type: 'textarea', required: true },
+          { key: 'liabilityLimitations', label: 'Liability Limitations', type: 'textarea', required: true },
+          
+          // Termination
+          { key: 'terminationConditions', label: 'Termination Conditions', type: 'textarea', required: true },
+          { key: 'terminationNotice', label: 'Termination Notice Period', type: 'text', required: true },
+          { key: 'disputeResolution', label: 'Dispute Resolution', type: 'textarea', required: false },
+          { key: 'insuranceRequirements', label: 'Insurance Requirements', type: 'textarea', required: false },
+          
           ...basicFields
         ]
 

@@ -4,7 +4,8 @@ import {
   DistributionAgreementUserInput,
   PartnershipAgreementUserInput,
   EnhancedEmploymentContractUserInput,
-  IndependentContractorUserInput
+  IndependentContractorUserInput,
+  ServiceAgreementUserInput
 } from '../types/documents';
 
 export interface ValidationResult {
@@ -234,6 +235,51 @@ export class DocumentValidators {
     };
   }
 
+  static validateServiceAgreementInput(input: ServiceAgreementUserInput): ValidationResult {
+    const errors: string[] = [];
+
+    // Required fields validation
+    if (!input.serviceProviderName?.trim()) errors.push('Service provider name is required');
+    if (!input.serviceProviderAddress?.trim()) errors.push('Service provider address is required');
+    if (!input.serviceProviderEmail?.trim()) errors.push('Service provider email is required');
+    if (!input.clientName?.trim()) errors.push('Client name is required');
+    if (!input.clientAddress?.trim()) errors.push('Client address is required');
+    if (!input.clientEmail?.trim()) errors.push('Client email is required');
+    if (!input.scopeOfServices?.trim()) errors.push('Scope of services is required');
+    if (!input.deliverablesDescription?.trim()) errors.push('Deliverables description is required');
+    if (!input.serviceTimeline?.trim()) errors.push('Service timeline is required');
+    if (!input.feeStructure?.trim()) errors.push('Fee structure is required');
+    if (!input.paymentTerms?.trim()) errors.push('Payment terms are required');
+    if (!input.intellectualPropertyOwnership?.trim()) errors.push('Intellectual property ownership is required');
+    if (!input.workProductRights?.trim()) errors.push('Work product rights are required');
+    if (!input.confidentialityRequirements?.trim()) errors.push('Confidentiality requirements are required');
+    if (!input.independentContractorStatus?.trim()) errors.push('Independent contractor status is required');
+    if (!input.liabilityLimitations?.trim()) errors.push('Liability limitations are required');
+    if (!input.terminationConditions?.trim()) errors.push('Termination conditions are required');
+    if (!input.terminationNotice?.trim()) errors.push('Termination notice period is required');
+
+    // Email validation
+    if (input.serviceProviderEmail && !emailRegex.test(input.serviceProviderEmail)) {
+      errors.push('Invalid service provider email format');
+    }
+    if (input.clientEmail && !emailRegex.test(input.clientEmail)) {
+      errors.push('Invalid client email format');
+    }
+
+    // Phone validation (optional fields)
+    if (input.serviceProviderPhone && !phoneRegex.test(input.serviceProviderPhone)) {
+      errors.push('Invalid service provider phone format. Use format: +254XXXXXXXXX or 07XXXXXXXX');
+    }
+    if (input.clientPhone && !phoneRegex.test(input.clientPhone)) {
+      errors.push('Invalid client phone format. Use format: +254XXXXXXXXX or 07XXXXXXXX');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
   static validateDocumentInput(documentType: DocumentType, userInput: DocumentUserInput): ValidationResult {
     switch (documentType) {
       case DocumentType.SALES_PURCHASE_AGREEMENT:
@@ -251,6 +297,9 @@ export class DocumentValidators {
       
       case DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT:
         return this.validateIndependentContractorInput(userInput as IndependentContractorUserInput);
+      
+      case DocumentType.SERVICE_AGREEMENT:
+        return this.validateServiceAgreementInput(userInput as unknown as ServiceAgreementUserInput);
       
       default:
         return {

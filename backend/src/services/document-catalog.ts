@@ -35,9 +35,16 @@ export class DocumentCatalog {
       name: 'Service Agreement',
       category: DocumentCategory.BUSINESS_COMMERCIAL,
       description: 'Professional service contracts and agreements',
-      isActive: false,
+      isActive: true,
       complexity: 'Medium',
-      requiredFields: []
+      requiredFields: [
+        'serviceProviderName', 'serviceProviderAddress', 'serviceProviderEmail',
+        'clientName', 'clientAddress', 'clientEmail', 'scopeOfServices',
+        'deliverablesDescription', 'serviceTimeline', 'feeStructure', 'paymentTerms',
+        'intellectualPropertyOwnership', 'workProductRights', 'confidentialityRequirements',
+        'independentContractorStatus', 'liabilityLimitations', 'terminationConditions',
+        'terminationNotice', 'effectiveDate'
+      ]
     },
     [DocumentType.LEASE_AGREEMENT]: {
       name: 'Lease Agreement',
