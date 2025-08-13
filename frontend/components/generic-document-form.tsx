@@ -66,6 +66,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Trademark License Agreement'
       case DocumentType.PATENT_LICENSING_AGREEMENT:
         return 'Patent Licensing Agreement'
+      case DocumentType.ARTICLES_OF_ASSOCIATION:
+        return 'Articles of Association'
       default:
         return 'Legal Document'
     }
@@ -105,6 +107,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'License trademark usage while maintaining brand control'
       case DocumentType.PATENT_LICENSING_AGREEMENT:
         return 'License patented technology while protecting patent rights'
+      case DocumentType.ARTICLES_OF_ASSOCIATION:
+        return 'Internal rules and regulations governing company operations'
       default:
         return 'Generate a professional legal document'
     }
@@ -932,6 +936,78 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           { key: 'terminationConditions', label: 'Termination Conditions', type: 'textarea', required: false },
           { key: 'governingLaw', label: 'Governing Law', type: 'text', required: false },
           { key: 'disputeResolution', label: 'Dispute Resolution', type: 'textarea', required: false },
+          
+          ...basicFields
+        ]
+
+      case DocumentType.ARTICLES_OF_ASSOCIATION:
+        return [
+          // Company Information
+          { key: 'companyName', label: 'Company Name', type: 'text', required: true },
+          { key: 'companyAddress', label: 'Company Address', type: 'textarea', required: true },
+          { key: 'companyRegistrationNumber', label: 'Company Registration Number', type: 'text', required: false },
+          { key: 'companyType', label: 'Company Type', type: 'select', required: true, options: ['private', 'public', 'limited', 'unlimited'] },
+          { key: 'businessObjectives', label: 'Business Objectives', type: 'textarea', required: true },
+          
+          // Share Capital Structure
+          { key: 'authorizedShareCapital', label: 'Authorized Share Capital', type: 'text', required: true },
+          { key: 'shareNominalValue', label: 'Share Nominal Value', type: 'text', required: true },
+          { key: 'shareClasses', label: 'Share Classes', type: 'textarea', required: false },
+          { key: 'shareCapitalStructure', label: 'Share Capital Structure', type: 'textarea', required: true },
+          { key: 'initialShareAllocation', label: 'Initial Share Allocation', type: 'textarea', required: true },
+          
+          // Director Information
+          { key: 'directorPowers', label: 'Director Powers', type: 'textarea', required: true },
+          { key: 'directorQualifications', label: 'Director Qualifications', type: 'textarea', required: false },
+          { key: 'directorLimitations', label: 'Director Limitations', type: 'textarea', required: true },
+          { key: 'boardComposition', label: 'Board Composition', type: 'textarea', required: true },
+          { key: 'directorAppointmentProcedure', label: 'Director Appointment Procedure', type: 'textarea', required: true },
+          { key: 'directorRemovalProcedure', label: 'Director Removal Procedure', type: 'textarea', required: true },
+          
+          // Shareholder Rights
+          { key: 'shareholderRights', label: 'Shareholder Rights', type: 'textarea', required: true },
+          { key: 'votingRights', label: 'Voting Rights', type: 'textarea', required: true },
+          { key: 'shareholderMeetingRights', label: 'Shareholder Meeting Rights', type: 'textarea', required: true },
+          { key: 'informationRights', label: 'Information Rights', type: 'textarea', required: true },
+          { key: 'preemptionRights', label: 'Preemption Rights', type: 'textarea', required: false },
+          
+          // Meeting Procedures
+          { key: 'meetingProcedures', label: 'Meeting Procedures', type: 'textarea', required: true },
+          { key: 'boardMeetingProcedures', label: 'Board Meeting Procedures', type: 'textarea', required: true },
+          { key: 'generalMeetingProcedures', label: 'General Meeting Procedures', type: 'textarea', required: true },
+          { key: 'noticeRequirements', label: 'Notice Requirements', type: 'textarea', required: true },
+          { key: 'quorumRequirements', label: 'Quorum Requirements', type: 'textarea', required: true },
+          { key: 'votingProcedures', label: 'Voting Procedures', type: 'textarea', required: true },
+          
+          // Financial Provisions
+          { key: 'dividendRules', label: 'Dividend Rules', type: 'textarea', required: true },
+          { key: 'dividendDeclarationProcedure', label: 'Dividend Declaration Procedure', type: 'textarea', required: true },
+          { key: 'profitDistribution', label: 'Profit Distribution', type: 'textarea', required: true },
+          { key: 'reserveFunds', label: 'Reserve Funds', type: 'textarea', required: false },
+          
+          // Transfer and Ownership
+          { key: 'transferRestrictions', label: 'Transfer Restrictions', type: 'textarea', required: true },
+          { key: 'shareTransferProcedure', label: 'Share Transfer Procedure', type: 'textarea', required: true },
+          { key: 'transferApprovalRequirements', label: 'Transfer Approval Requirements', type: 'textarea', required: false },
+          { key: 'rightOfFirstRefusal', label: 'Right of First Refusal', type: 'textarea', required: false },
+          
+          // Company Operations
+          { key: 'auditRequirements', label: 'Audit Requirements', type: 'textarea', required: true },
+          { key: 'accountingStandards', label: 'Accounting Standards', type: 'textarea', required: true },
+          { key: 'financialReporting', label: 'Financial Reporting', type: 'textarea', required: true },
+          { key: 'recordKeeping', label: 'Record Keeping', type: 'textarea', required: true },
+          
+          // Amendment and Winding Up
+          { key: 'amendmentProcedures', label: 'Amendment Procedures', type: 'textarea', required: true },
+          { key: 'specialResolutionRequirements', label: 'Special Resolution Requirements', type: 'textarea', required: true },
+          { key: 'windingUpProcedures', label: 'Winding Up Procedures', type: 'textarea', required: true },
+          { key: 'assetDistribution', label: 'Asset Distribution', type: 'textarea', required: true },
+          
+          // Additional Provisions
+          { key: 'indemnityProvisions', label: 'Indemnity Provisions', type: 'textarea', required: false },
+          { key: 'conflictOfInterestRules', label: 'Conflict of Interest Rules', type: 'textarea', required: false },
+          { key: 'complianceRequirements', label: 'Compliance Requirements', type: 'textarea', required: false },
+          { key: 'additionalClauses', label: 'Additional Clauses', type: 'textarea', required: false },
           
           ...basicFields
         ]

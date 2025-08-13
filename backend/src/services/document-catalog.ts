@@ -246,9 +246,20 @@ export class DocumentCatalog {
       name: 'Articles of Association',
       category: DocumentCategory.CORPORATE_GOVERNANCE,
       description: 'Internal rules and regulations governing company operations',
-      isActive: false,
+      isActive: true,
       complexity: 'High',
-      requiredFields: []
+      requiredFields: [
+        'companyName', 'companyAddress', 'companyType', 'businessObjectives',
+        'authorizedShareCapital', 'shareNominalValue', 'shareCapitalStructure', 'initialShareAllocation',
+        'directorPowers', 'directorLimitations', 'boardComposition', 'directorAppointmentProcedure', 'directorRemovalProcedure',
+        'shareholderRights', 'votingRights', 'shareholderMeetingRights', 'informationRights',
+        'meetingProcedures', 'boardMeetingProcedures', 'generalMeetingProcedures', 'noticeRequirements', 'quorumRequirements', 'votingProcedures',
+        'dividendRules', 'dividendDeclarationProcedure', 'profitDistribution',
+        'transferRestrictions', 'shareTransferProcedure',
+        'auditRequirements', 'accountingStandards', 'financialReporting', 'recordKeeping',
+        'amendmentProcedures', 'specialResolutionRequirements', 'windingUpProcedures', 'assetDistribution',
+        'effectiveDate'
+      ]
     },
     [DocumentType.SHAREHOLDER_AGREEMENT]: {
       name: 'Shareholder Agreement',

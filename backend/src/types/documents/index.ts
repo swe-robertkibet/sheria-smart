@@ -24,6 +24,9 @@ export * from './intellectual-property/copyright-assignment';
 export * from './intellectual-property/trademark-license';
 export * from './intellectual-property/patent-licensing';
 
+// Corporate Governance
+export * from './corporate/articles-of-association';
+
 // Family Law (simplified interfaces for remaining categories)
 
 export interface PostnuptialUserInput {

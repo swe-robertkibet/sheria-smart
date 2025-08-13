@@ -27,6 +27,9 @@ import { CopyrightAssignmentGenerator } from './intellectual-property/copyright-
 import { TrademarkLicenseGenerator } from './intellectual-property/trademark-license-generator';
 import { PatentLicensingGenerator } from './intellectual-property/patent-licensing-generator';
 
+// Corporate Governance generators
+import { ArticlesOfAssociationGenerator } from './corporate/articles-of-association-generator';
+
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
   // Original documents
@@ -110,6 +113,9 @@ export class DocumentGeneratorRegistry {
     this.generators.set(DocumentType.COPYRIGHT_ASSIGNMENT_AGREEMENT, new CopyrightAssignmentGenerator());
     this.generators.set(DocumentType.TRADEMARK_LICENSE_AGREEMENT, new TrademarkLicenseGenerator());
     this.generators.set(DocumentType.PATENT_LICENSING_AGREEMENT, new PatentLicensingGenerator());
+    
+    // Corporate Governance generators
+    this.generators.set(DocumentType.ARTICLES_OF_ASSOCIATION, new ArticlesOfAssociationGenerator());
   }
 
   getGenerator(documentType: DocumentType): BaseDocumentGenerator | null {
