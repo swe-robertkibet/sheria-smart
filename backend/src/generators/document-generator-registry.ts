@@ -30,6 +30,7 @@ import { PatentLicensingGenerator } from './intellectual-property/patent-licensi
 // Corporate Governance generators
 import { ArticlesOfAssociationGenerator } from './corporate/articles-of-association-generator';
 import { ShareholderAgreementGenerator } from './corporate/shareholder-agreement-generator';
+import { BoardResolutionGenerator } from './corporate/board-resolution-generator';
 
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
@@ -118,6 +119,7 @@ export class DocumentGeneratorRegistry {
     // Corporate Governance generators
     this.generators.set(DocumentType.ARTICLES_OF_ASSOCIATION, new ArticlesOfAssociationGenerator());
     this.generators.set(DocumentType.SHAREHOLDER_AGREEMENT, new ShareholderAgreementGenerator());
+    this.generators.set(DocumentType.BOARD_RESOLUTION, new BoardResolutionGenerator());
   }
 
   getGenerator(documentType: DocumentType): BaseDocumentGenerator | null {

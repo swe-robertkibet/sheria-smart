@@ -285,9 +285,15 @@ export class DocumentCatalog {
       name: 'Board Resolution',
       category: DocumentCategory.CORPORATE_GOVERNANCE,
       description: 'Document formal board decisions and authorizations',
-      isActive: false,
+      isActive: true,
       complexity: 'Low',
-      requiredFields: []
+      requiredFields: [
+        'companyName', 'companyAddress', 'meetingDate', 'meetingTime', 'meetingLocation', 
+        'meetingType', 'meetingChairman', 'totalDirectors', 'directorsPresent', 
+        'quorumRequired', 'quorumMet', 'resolutionTitle', 'resolutionDescription', 
+        'resolutionType', 'votingResults', 'votesInFavor', 'implementationAuthority', 
+        'responsiblePersons', 'companySecretary', 'effectiveDate'
+      ]
     },
 
     // Litigation & Dispute Resolution (simplified for now)

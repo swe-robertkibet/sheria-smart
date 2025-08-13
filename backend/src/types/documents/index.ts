@@ -27,6 +27,7 @@ export * from './intellectual-property/patent-licensing';
 // Corporate Governance
 export * from './corporate/articles-of-association';
 export * from './corporate/shareholder-agreement';
+export * from './corporate/board-resolution';
 
 // Family Law (simplified interfaces for remaining categories)
 
@@ -124,17 +125,6 @@ export interface ShareholderAgreementUserInput {
   additionalTerms?: string;
 }
 
-export interface BoardResolutionUserInput {
-  companyName: string;
-  meetingDate: string;
-  directorsPresent: string;
-  resolutionType: string;
-  resolutionDescription: string;
-  votingResults: string;
-  implementationAuthority: string;
-  effectiveDate: string;
-  additionalTerms?: string;
-}
 
 // Litigation & Dispute Resolution
 export interface SettlementAgreementUserInput {

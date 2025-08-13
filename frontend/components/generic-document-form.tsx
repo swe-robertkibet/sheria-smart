@@ -70,6 +70,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Articles of Association'
       case DocumentType.SHAREHOLDER_AGREEMENT:
         return 'Shareholder Agreement'
+      case DocumentType.BOARD_RESOLUTION:
+        return 'Board Resolution'
       default:
         return 'Legal Document'
     }
@@ -113,6 +115,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Internal rules and regulations governing company operations'
       case DocumentType.SHAREHOLDER_AGREEMENT:
         return 'Define relationships and obligations between company shareholders'
+      case DocumentType.BOARD_RESOLUTION:
+        return 'Document formal board decisions and authorizations'
       default:
         return 'Generate a professional legal document'
     }
@@ -1118,6 +1122,57 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           ...basicFields
         ]
 
+      case DocumentType.BOARD_RESOLUTION:
+        return [
+          // Company Information
+          { key: 'companyName', label: 'Company Name', type: 'text', required: true },
+          { key: 'companyAddress', label: 'Company Address', type: 'textarea', required: true },
+          { key: 'companyRegistrationNumber', label: 'Company Registration Number', type: 'text', required: false },
+          { key: 'incorporationDate', label: 'Incorporation Date', type: 'date', required: false },
+          
+          // Meeting Details
+          { key: 'meetingDate', label: 'Meeting Date', type: 'date', required: true },
+          { key: 'meetingTime', label: 'Meeting Time', type: 'text', required: true },
+          { key: 'meetingLocation', label: 'Meeting Location', type: 'text', required: true },
+          { key: 'meetingType', label: 'Meeting Type', type: 'select', required: true, options: ['board', 'annual_general', 'extraordinary_general', 'special'] },
+          { key: 'meetingChairman', label: 'Meeting Chairman', type: 'text', required: true },
+          
+          // Directors and Attendance
+          { key: 'totalDirectors', label: 'Total Number of Directors', type: 'text', required: true },
+          { key: 'directorsPresent', label: 'Directors Present', type: 'textarea', required: true },
+          { key: 'directorsAbsent', label: 'Directors Absent', type: 'textarea', required: false },
+          { key: 'quorumRequired', label: 'Quorum Required', type: 'text', required: true },
+          { key: 'quorumMet', label: 'Quorum Met', type: 'select', required: true, options: ['yes', 'no'] },
+          
+          // Resolution Details
+          { key: 'resolutionTitle', label: 'Resolution Title', type: 'text', required: true },
+          { key: 'resolutionDescription', label: 'Resolution Description', type: 'textarea', required: true },
+          { key: 'resolutionType', label: 'Resolution Type', type: 'select', required: true, options: ['ordinary', 'special', 'unanimous'] },
+          { key: 'votingResults', label: 'Voting Results Summary', type: 'textarea', required: true },
+          { key: 'votesInFavor', label: 'Votes in Favor', type: 'text', required: true },
+          { key: 'votesAgainst', label: 'Votes Against', type: 'text', required: false },
+          { key: 'abstentions', label: 'Abstentions', type: 'text', required: false },
+          
+          // Implementation and Authority
+          { key: 'implementationAuthority', label: 'Implementation Authority', type: 'textarea', required: true },
+          { key: 'implementationDeadline', label: 'Implementation Deadline', type: 'date', required: false },
+          { key: 'responsiblePersons', label: 'Responsible Persons', type: 'textarea', required: true },
+          { key: 'reportingRequirements', label: 'Reporting Requirements', type: 'textarea', required: false },
+          
+          // Secretary and Certification
+          { key: 'companySecretary', label: 'Company Secretary Name', type: 'text', required: true },
+          { key: 'secretaryAddress', label: 'Secretary Address', type: 'textarea', required: false },
+          { key: 'witnessName', label: 'Witness Name', type: 'text', required: false },
+          { key: 'witnessAddress', label: 'Witness Address', type: 'textarea', required: false },
+          { key: 'filingRequirements', label: 'Filing Requirements', type: 'textarea', required: false },
+          
+          // Additional Information
+          { key: 'previousResolutions', label: 'Related Previous Resolutions', type: 'textarea', required: false },
+          { key: 'governingLaw', label: 'Governing Law', type: 'text', required: false },
+          { key: 'additionalProvisions', label: 'Additional Provisions', type: 'textarea', required: false },
+          
+          ...basicFields
+        ]
       default:
         return [
           { key: 'party1Name', label: 'Party 1 Name', type: 'text', required: true },
