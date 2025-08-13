@@ -11,6 +11,7 @@ import { ArrowLeft, Loader2, FileText, Download } from "lucide-react"
 import { useScrollToTop } from "@/hooks/use-scroll-to-top"
 import { DocumentType, DocumentFormat } from "@/types/document"
 import { PasteButton } from "@/components/ui/paste-button"
+import { FieldReference } from "@/components/ui/field-reference"
 import { mapFieldNames, type FieldMappingResult } from "@/lib/field-mapping"
 
 interface GenericDocumentFormProps {
@@ -718,6 +719,11 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
                 <p className="text-green-800 text-sm">{pasteSuccess}</p>
               </div>
             )}
+            
+            {/* Field Reference */}
+            <div className="mt-4">
+              <FieldReference fields={getRequiredFields()} />
+            </div>
           </div>
           <div className="grid gap-6 md:grid-cols-2">
             {fields.map((field) => (
