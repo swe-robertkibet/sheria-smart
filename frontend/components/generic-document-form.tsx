@@ -11,6 +11,7 @@ import { ArrowLeft, Loader2, FileText, Download } from "lucide-react"
 import { useScrollToTop } from "@/hooks/use-scroll-to-top"
 import { DocumentType, DocumentFormat } from "@/types/document"
 import { PasteButton } from "@/components/ui/paste-button"
+import { mapFieldNames, type FieldMappingResult } from "@/lib/field-mapping"
 
 interface GenericDocumentFormProps {
   onBack: () => void
@@ -25,6 +26,7 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
   const [selectedFormats, setSelectedFormats] = useState<DocumentFormat[]>([DocumentFormat.PDF])
   const [pasteError, setPasteError] = useState<string | null>(null)
   const [pasteSuccess, setPasteSuccess] = useState<string | null>(null)
+  const [mappingResult, setMappingResult] = useState<FieldMappingResult | null>(null)
 
   // Reset scroll position when component mounts
   useScrollToTop()
@@ -509,40 +511,56 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
   const handlePasteData = (pastedData: Record<string, any>) => {
     setPasteError(null)
     setPasteSuccess(null)
+    setMappingResult(null)
     
     const requiredFields = getRequiredFields()
     const validFieldKeys = requiredFields.map(field => field.key)
     
-    let matchedFields = 0
-    let totalFields = 0
-    const newFormData = { ...formData }
+    // Use smart field mapping
+    const result = mapFieldNames(pastedData, validFieldKeys)
+    setMappingResult(result)
     
-    // Process each field in the pasted data
-    Object.entries(pastedData).forEach(([key, value]) => {
-      totalFields++
-      // Check if this key matches any of our form fields
-      if (validFieldKeys.includes(key)) {
-        newFormData[key] = value
-        matchedFields++
-      }
-    })
-    
-    // Update form data
+    // Update form data with mapped fields
+    const newFormData = { ...formData, ...result.mappedData }
     setFormData(newFormData)
     
-    // Provide user feedback
-    if (matchedFields === 0) {
-      setPasteError(`No matching fields found. Please ensure your JSON keys match the form field names.`)
-    } else if (matchedFields < totalFields) {
-      setPasteSuccess(`Successfully filled ${matchedFields} fields. ${totalFields - matchedFields} fields were not matched and skipped.`)
+    // Provide detailed user feedback
+    if (result.matchedFields === 0) {
+      const topSuggestions = result.suggestions
+        .sort((a, b) => b.confidence - a.confidence)
+        .slice(0, 3)
+        .map(s => `"${s.provided}" → "${s.suggested}"`)
+        .join(', ')
+      
+      setPasteError(
+        `No fields could be matched automatically. ${
+          topSuggestions 
+            ? `Try renaming these fields: ${topSuggestions}` 
+            : 'Please check the field reference below for correct field names.'
+        }`
+      )
     } else {
-      setPasteSuccess(`Successfully filled all ${matchedFields} fields from clipboard!`)
+      // Success message with details
+      let message = `Successfully filled ${result.matchedFields} field${result.matchedFields > 1 ? 's' : ''}!`
+      
+      if (result.totalFields > result.matchedFields) {
+        message += ` ${result.totalFields - result.matchedFields} field${result.totalFields - result.matchedFields > 1 ? 's were' : ' was'} skipped.`
+      }
+      
+      // Add smart mapping info if any fields were auto-converted
+      const autoConverted = result.suggestions.filter(s => s.confidence >= 0.7).length
+      if (autoConverted > 0) {
+        message += ` ${autoConverted} field${autoConverted > 1 ? 's were' : ' was'} automatically converted from human-readable format.`
+      }
+      
+      setPasteSuccess(message)
     }
     
-    // Clear success message after 4 seconds
+    // Clear messages after 6 seconds
     setTimeout(() => {
       setPasteSuccess(null)
-    }, 4000)
+      setPasteError(null)
+    }, 6000)
   }
 
   const handlePasteError = (errorMessage: string) => {
