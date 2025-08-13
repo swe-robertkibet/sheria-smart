@@ -89,6 +89,7 @@ export function FieldReference({ fields, className }: FieldReferenceProps) {
             {/* Quick Actions */}
             <div className="flex flex-wrap gap-2">
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={copyAllFieldNames}
@@ -98,6 +99,7 @@ export function FieldReference({ fields, className }: FieldReferenceProps) {
                 {copiedSection === 'all' ? 'Copied!' : 'Copy All Fields'}
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={copyRequiredFieldNames}
@@ -115,6 +117,7 @@ export function FieldReference({ fields, className }: FieldReferenceProps) {
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-medium text-gray-800">{category}</h4>
                     <Button
+                      type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => copyCategoryFields(categoryFields, category)}

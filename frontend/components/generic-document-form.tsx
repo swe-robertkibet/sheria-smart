@@ -586,6 +586,12 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         .filter(field => {
           const value = formData[field.key]
           if (field.required) {
+            // Handle radio button fields specifically
+            if (field.type === 'radio') {
+              // For radio buttons, check if a valid option is selected
+              const options = (field as any).options || []
+              return !value || !options.includes(value)
+            }
             // Handle string values
             if (typeof value === 'string') {
               return !value.trim()
