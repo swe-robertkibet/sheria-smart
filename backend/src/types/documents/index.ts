@@ -26,6 +26,7 @@ export * from './intellectual-property/patent-licensing';
 
 // Corporate Governance
 export * from './corporate/articles-of-association';
+export * from './corporate/shareholder-agreement';
 
 // Family Law (simplified interfaces for remaining categories)
 

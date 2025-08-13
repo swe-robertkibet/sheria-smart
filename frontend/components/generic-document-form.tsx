@@ -68,6 +68,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Patent Licensing Agreement'
       case DocumentType.ARTICLES_OF_ASSOCIATION:
         return 'Articles of Association'
+      case DocumentType.SHAREHOLDER_AGREEMENT:
+        return 'Shareholder Agreement'
       default:
         return 'Legal Document'
     }
@@ -109,6 +111,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'License patented technology while protecting patent rights'
       case DocumentType.ARTICLES_OF_ASSOCIATION:
         return 'Internal rules and regulations governing company operations'
+      case DocumentType.SHAREHOLDER_AGREEMENT:
+        return 'Define relationships and obligations between company shareholders'
       default:
         return 'Generate a professional legal document'
     }
@@ -1008,6 +1012,108 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           { key: 'conflictOfInterestRules', label: 'Conflict of Interest Rules', type: 'textarea', required: false },
           { key: 'complianceRequirements', label: 'Compliance Requirements', type: 'textarea', required: false },
           { key: 'additionalClauses', label: 'Additional Clauses', type: 'textarea', required: false },
+          
+          ...basicFields
+        ]
+
+      case DocumentType.SHAREHOLDER_AGREEMENT:
+        return [
+          // Company Information
+          { key: 'companyName', label: 'Company Name', type: 'text', required: true },
+          { key: 'companyAddress', label: 'Company Address', type: 'textarea', required: true },
+          { key: 'companyRegistrationNumber', label: 'Company Registration Number', type: 'text', required: false },
+          { key: 'companyBusinessType', label: 'Company Business Type', type: 'text', required: true },
+          { key: 'incorporationDate', label: 'Incorporation Date', type: 'date', required: false },
+          
+          // Share Capital Information
+          { key: 'authorizedShareCapital', label: 'Authorized Share Capital', type: 'text', required: true },
+          { key: 'shareholdingPercentages', label: 'Shareholding Percentages Summary', type: 'textarea', required: true },
+          { key: 'totalSharesIssued', label: 'Total Shares Issued', type: 'text', required: true },
+          { key: 'shareClasses', label: 'Share Classes', type: 'textarea', required: false },
+          { key: 'shareNominalValue', label: 'Share Nominal Value', type: 'text', required: true },
+          { key: 'paidUpCapital', label: 'Paid-Up Capital', type: 'text', required: true },
+          
+          // Shareholder 1 Information
+          { key: 'shareholder1Name', label: 'Shareholder 1 Name', type: 'text', required: true },
+          { key: 'shareholder1Address', label: 'Shareholder 1 Address', type: 'textarea', required: true },
+          { key: 'shareholder1Email', label: 'Shareholder 1 Email', type: 'email', required: false },
+          { key: 'shareholder1Percentage', label: 'Shareholder 1 Percentage', type: 'text', required: true },
+          { key: 'shareholder1Shares', label: 'Shareholder 1 Number of Shares', type: 'text', required: true },
+          
+          // Shareholder 2 Information
+          { key: 'shareholder2Name', label: 'Shareholder 2 Name', type: 'text', required: true },
+          { key: 'shareholder2Address', label: 'Shareholder 2 Address', type: 'textarea', required: true },
+          { key: 'shareholder2Email', label: 'Shareholder 2 Email', type: 'email', required: false },
+          { key: 'shareholder2Percentage', label: 'Shareholder 2 Percentage', type: 'text', required: true },
+          { key: 'shareholder2Shares', label: 'Shareholder 2 Number of Shares', type: 'text', required: true },
+          
+          // Shareholder 3 Information (Optional)
+          { key: 'shareholder3Name', label: 'Shareholder 3 Name (Optional)', type: 'text', required: false },
+          { key: 'shareholder3Address', label: 'Shareholder 3 Address (Optional)', type: 'textarea', required: false },
+          { key: 'shareholder3Email', label: 'Shareholder 3 Email (Optional)', type: 'email', required: false },
+          { key: 'shareholder3Percentage', label: 'Shareholder 3 Percentage (Optional)', type: 'text', required: false },
+          { key: 'shareholder3Shares', label: 'Shareholder 3 Number of Shares (Optional)', type: 'text', required: false },
+          
+          // Board and Management
+          { key: 'boardRepresentation', label: 'Board Representation', type: 'textarea', required: true },
+          { key: 'boardSize', label: 'Board Size', type: 'text', required: true },
+          { key: 'directorAppointmentRights', label: 'Director Appointment Rights', type: 'textarea', required: true },
+          { key: 'managementStructure', label: 'Management Structure', type: 'textarea', required: true },
+          { key: 'votingAgreements', label: 'Voting Agreements', type: 'textarea', required: true },
+          { key: 'quorumRequirements', label: 'Quorum Requirements', type: 'textarea', required: true },
+          { key: 'chairmanAppointment', label: 'Chairman Appointment', type: 'textarea', required: false },
+          
+          // Transfer Restrictions
+          { key: 'transferRestrictions', label: 'Transfer Restrictions', type: 'textarea', required: true },
+          { key: 'rightOfFirstRefusal', label: 'Right of First Refusal', type: 'textarea', required: true },
+          { key: 'tagAlongRights', label: 'Tag-Along Rights', type: 'textarea', required: false },
+          { key: 'dragAlongRights', label: 'Drag-Along Rights', type: 'textarea', required: false },
+          { key: 'transferApprovalProcess', label: 'Transfer Approval Process', type: 'textarea', required: true },
+          { key: 'valuationForTransfers', label: 'Valuation for Transfers', type: 'textarea', required: true },
+          { key: 'restrictedTransferees', label: 'Restricted Transferees', type: 'textarea', required: false },
+          
+          // Information Rights
+          { key: 'informationRights', label: 'Information Rights', type: 'textarea', required: true },
+          { key: 'financialReporting', label: 'Financial Reporting', type: 'textarea', required: true },
+          { key: 'inspectionRights', label: 'Inspection Rights', type: 'textarea', required: true },
+          { key: 'boardMeetingRights', label: 'Board Meeting Rights', type: 'textarea', required: true },
+          { key: 'auditRights', label: 'Audit Rights', type: 'textarea', required: false },
+          { key: 'recordAccessRights', label: 'Record Access Rights', type: 'textarea', required: true },
+          
+          // Financing and Dividends
+          { key: 'dividendPolicy', label: 'Dividend Policy', type: 'textarea', required: true },
+          { key: 'preemptionRights', label: 'Preemption Rights', type: 'textarea', required: true },
+          { key: 'antiDilutionProvisions', label: 'Anti-Dilution Provisions', type: 'textarea', required: false },
+          { key: 'capitalCallProcedures', label: 'Capital Call Procedures', type: 'textarea', required: false },
+          { key: 'liquidationPreferences', label: 'Liquidation Preferences', type: 'textarea', required: false },
+          { key: 'distributionPolicy', label: 'Distribution Policy', type: 'textarea', required: true },
+          
+          // Exit Mechanisms
+          { key: 'exitMechanisms', label: 'Exit Mechanisms', type: 'textarea', required: true },
+          { key: 'buyoutTriggers', label: 'Buyout Triggers', type: 'textarea', required: false },
+          { key: 'valuationMethods', label: 'Valuation Methods', type: 'textarea', required: true },
+          { key: 'compulsoryTransferEvents', label: 'Compulsory Transfer Events', type: 'textarea', required: false },
+          { key: 'retirementProvisions', label: 'Retirement Provisions', type: 'textarea', required: false },
+          { key: 'deathDisabilityProvisions', label: 'Death and Disability Provisions', type: 'textarea', required: false },
+          
+          // Dispute Resolution and Governance
+          { key: 'disputeResolution', label: 'Dispute Resolution', type: 'textarea', required: true },
+          { key: 'deadlockResolution', label: 'Deadlock Resolution', type: 'textarea', required: true },
+          { key: 'governingLaw', label: 'Governing Law', type: 'text', required: false },
+          { key: 'arbitrationProvisions', label: 'Arbitration Provisions', type: 'textarea', required: false },
+          
+          // Restrictive Covenants
+          { key: 'nonCompeteRestrictions', label: 'Non-Compete Restrictions', type: 'textarea', required: false },
+          { key: 'confidentialityObligations', label: 'Confidentiality Obligations', type: 'textarea', required: true },
+          { key: 'nonSolicitationClauses', label: 'Non-Solicitation Clauses', type: 'textarea', required: false },
+          { key: 'businessOpportunityRights', label: 'Business Opportunity Rights', type: 'textarea', required: false },
+          
+          // Additional Terms
+          { key: 'amendmentProcedures', label: 'Amendment Procedures', type: 'textarea', required: true },
+          { key: 'terminationConditions', label: 'Termination Conditions', type: 'textarea', required: true },
+          { key: 'successorObligations', label: 'Successor Obligations', type: 'textarea', required: false },
+          { key: 'entireAgreementClause', label: 'Entire Agreement Clause', type: 'textarea', required: false },
+          { key: 'severabilityProvisions', label: 'Severability Provisions', type: 'textarea', required: false },
           
           ...basicFields
         ]

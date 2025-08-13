@@ -265,9 +265,21 @@ export class DocumentCatalog {
       name: 'Shareholder Agreement',
       category: DocumentCategory.CORPORATE_GOVERNANCE,
       description: 'Define relationships and obligations between company shareholders',
-      isActive: false,
+      isActive: true,
       complexity: 'High',
-      requiredFields: []
+      requiredFields: [
+        'companyName', 'companyAddress', 'companyBusinessType', 'authorizedShareCapital',
+        'shareholdingPercentages', 'totalSharesIssued', 'shareNominalValue', 'paidUpCapital',
+        'shareholder1Name', 'shareholder1Address', 'shareholder1Percentage', 'shareholder1Shares',
+        'shareholder2Name', 'shareholder2Address', 'shareholder2Percentage', 'shareholder2Shares',
+        'boardRepresentation', 'boardSize', 'directorAppointmentRights', 'managementStructure', 'votingAgreements', 'quorumRequirements',
+        'transferRestrictions', 'rightOfFirstRefusal', 'transferApprovalProcess', 'valuationForTransfers',
+        'informationRights', 'financialReporting', 'inspectionRights', 'boardMeetingRights', 'recordAccessRights',
+        'dividendPolicy', 'preemptionRights', 'distributionPolicy',
+        'exitMechanisms', 'valuationMethods',
+        'disputeResolution', 'deadlockResolution', 'confidentialityObligations',
+        'amendmentProcedures', 'terminationConditions', 'effectiveDate'
+      ]
     },
     [DocumentType.BOARD_RESOLUTION]: {
       name: 'Board Resolution',

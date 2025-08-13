@@ -29,6 +29,7 @@ import { PatentLicensingGenerator } from './intellectual-property/patent-licensi
 
 // Corporate Governance generators
 import { ArticlesOfAssociationGenerator } from './corporate/articles-of-association-generator';
+import { ShareholderAgreementGenerator } from './corporate/shareholder-agreement-generator';
 
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
@@ -116,6 +117,7 @@ export class DocumentGeneratorRegistry {
     
     // Corporate Governance generators
     this.generators.set(DocumentType.ARTICLES_OF_ASSOCIATION, new ArticlesOfAssociationGenerator());
+    this.generators.set(DocumentType.SHAREHOLDER_AGREEMENT, new ShareholderAgreementGenerator());
   }
 
   getGenerator(documentType: DocumentType): BaseDocumentGenerator | null {
