@@ -11,3 +11,5 @@ generated-docs-screenshots
 
 # TypeScript compiled files in source (should not exist but extra safety)
 src/**/*.js
+
+*.txt

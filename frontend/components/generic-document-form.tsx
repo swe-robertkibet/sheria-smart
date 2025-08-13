@@ -60,6 +60,12 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Postnuptial Agreement'
       case DocumentType.CHILD_CUSTODY_SUPPORT_AGREEMENT:
         return 'Child Custody & Support Agreement'
+      case DocumentType.COPYRIGHT_ASSIGNMENT_AGREEMENT:
+        return 'Copyright Assignment Agreement'
+      case DocumentType.TRADEMARK_LICENSE_AGREEMENT:
+        return 'Trademark License Agreement'
+      case DocumentType.PATENT_LICENSING_AGREEMENT:
+        return 'Patent Licensing Agreement'
       default:
         return 'Legal Document'
     }
@@ -93,6 +99,12 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Modify financial and property arrangements after marriage'
       case DocumentType.CHILD_CUSTODY_SUPPORT_AGREEMENT:
         return 'Define custody arrangements and child support obligations'
+      case DocumentType.COPYRIGHT_ASSIGNMENT_AGREEMENT:
+        return 'Transfer copyright ownership from creator to assignee'
+      case DocumentType.TRADEMARK_LICENSE_AGREEMENT:
+        return 'License trademark usage while maintaining brand control'
+      case DocumentType.PATENT_LICENSING_AGREEMENT:
+        return 'License patented technology while protecting patent rights'
       default:
         return 'Generate a professional legal document'
     }
@@ -767,6 +779,159 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           { key: 'voluntaryAgreementAcknowledgment', label: 'Voluntary Agreement', type: 'checkbox', required: false },
           { key: 'independentLegalAdviceConfirmation', label: 'Independent Legal Advice Confirmation', type: 'textarea', required: true },
           { key: 'courtJurisdictionForEnforcement', label: 'Court Jurisdiction for Enforcement', type: 'textarea', required: true },
+          
+          ...basicFields
+        ]
+
+      case DocumentType.COPYRIGHT_ASSIGNMENT_AGREEMENT:
+        return [
+          // Author Information
+          { key: 'authorName', label: 'Author/Creator Name', type: 'text', required: true },
+          { key: 'authorAddress', label: 'Author Address', type: 'textarea', required: true },
+          { key: 'authorEmail', label: 'Author Email', type: 'email', required: false },
+          { key: 'authorPhone', label: 'Author Phone', type: 'text', required: false },
+          
+          // Assignee Information
+          { key: 'assigneeName', label: 'Assignee Name', type: 'text', required: true },
+          { key: 'assigneeAddress', label: 'Assignee Address', type: 'textarea', required: true },
+          { key: 'assigneeEmail', label: 'Assignee Email', type: 'email', required: false },
+          { key: 'assigneePhone', label: 'Assignee Phone', type: 'text', required: false },
+          
+          // Work Details
+          { key: 'workDescription', label: 'Work Description', type: 'textarea', required: true },
+          { key: 'workTitle', label: 'Work Title', type: 'text', required: true },
+          { key: 'creationDate', label: 'Creation Date', type: 'date', required: false },
+          { key: 'copyrightRegistrationNumber', label: 'Copyright Registration Number', type: 'text', required: false },
+          
+          // Assignment Terms
+          { key: 'assignmentScope', label: 'Assignment Scope', type: 'select', required: true, options: ['exclusive', 'non-exclusive'] },
+          { key: 'consideration', label: 'Consideration/Payment', type: 'textarea', required: true },
+          { key: 'territory', label: 'Territory', type: 'text', required: true },
+          { key: 'duration', label: 'Duration', type: 'text', required: true },
+          
+          // Rights and Warranties
+          { key: 'moralRightsWaiver', label: 'Moral Rights', type: 'select', required: true, options: ['waived', 'retained'] },
+          { key: 'warrantyProvisions', label: 'Warranty Provisions', type: 'textarea', required: true },
+          { key: 'indemnificationTerms', label: 'Indemnification Terms', type: 'textarea', required: false },
+          
+          // Additional Terms
+          { key: 'terminationConditions', label: 'Termination Conditions', type: 'textarea', required: false },
+          { key: 'governingLaw', label: 'Governing Law', type: 'text', required: false },
+          { key: 'disputeResolution', label: 'Dispute Resolution', type: 'textarea', required: false },
+          
+          ...basicFields
+        ]
+
+      case DocumentType.TRADEMARK_LICENSE_AGREEMENT:
+        return [
+          // Licensor Information
+          { key: 'licensorName', label: 'Licensor Name', type: 'text', required: true },
+          { key: 'licensorAddress', label: 'Licensor Address', type: 'textarea', required: true },
+          { key: 'licensorEmail', label: 'Licensor Email', type: 'email', required: false },
+          { key: 'licensorPhone', label: 'Licensor Phone', type: 'text', required: false },
+          { key: 'licensorBusinessRegistration', label: 'Licensor Business Registration', type: 'text', required: false },
+          
+          // Licensee Information
+          { key: 'licenseeName', label: 'Licensee Name', type: 'text', required: true },
+          { key: 'licenseeAddress', label: 'Licensee Address', type: 'textarea', required: true },
+          { key: 'licenseeEmail', label: 'Licensee Email', type: 'email', required: false },
+          { key: 'licenseePhone', label: 'Licensee Phone', type: 'text', required: false },
+          { key: 'licenseeBusinessRegistration', label: 'Licensee Business Registration', type: 'text', required: false },
+          
+          // Trademark Details
+          { key: 'trademarkDescription', label: 'Trademark Description', type: 'textarea', required: true },
+          { key: 'trademarkRegistrationNumber', label: 'Trademark Registration Number', type: 'text', required: false },
+          { key: 'trademarkClasses', label: 'Trademark Classes', type: 'text', required: false },
+          { key: 'registrationDate', label: 'Registration Date', type: 'date', required: false },
+          { key: 'registrationJurisdiction', label: 'Registration Jurisdiction', type: 'text', required: false },
+          
+          // License Terms
+          { key: 'licensedProducts', label: 'Licensed Products', type: 'textarea', required: true },
+          { key: 'licensedServices', label: 'Licensed Services', type: 'textarea', required: false },
+          { key: 'territory', label: 'Territory', type: 'text', required: true },
+          { key: 'exclusivity', label: 'Exclusivity', type: 'select', required: true, options: ['exclusive', 'non-exclusive'] },
+          { key: 'licenseDuration', label: 'License Duration', type: 'text', required: true },
+          
+          // Financial Terms
+          { key: 'royaltyStructure', label: 'Royalty Structure', type: 'textarea', required: true },
+          { key: 'minimumRoyalties', label: 'Minimum Royalties', type: 'text', required: false },
+          { key: 'paymentTerms', label: 'Payment Terms', type: 'textarea', required: true },
+          { key: 'reportingRequirements', label: 'Reporting Requirements', type: 'textarea', required: false },
+          
+          // Quality and Control
+          { key: 'qualityControlStandards', label: 'Quality Control Standards', type: 'textarea', required: true },
+          { key: 'approvalRequirements', label: 'Approval Requirements', type: 'textarea', required: false },
+          { key: 'inspectionRights', label: 'Inspection Rights', type: 'textarea', required: false },
+          
+          // Marketing and Promotion
+          { key: 'marketingObligations', label: 'Marketing Obligations', type: 'textarea', required: true },
+          { key: 'advertisingRequirements', label: 'Advertising Requirements', type: 'textarea', required: false },
+          { key: 'promotionalMaterials', label: 'Promotional Materials', type: 'textarea', required: false },
+          
+          // Legal and Compliance
+          { key: 'infringementProcedures', label: 'Infringement Procedures', type: 'textarea', required: false },
+          { key: 'terminationConditions', label: 'Termination Conditions', type: 'textarea', required: false },
+          { key: 'governingLaw', label: 'Governing Law', type: 'text', required: false },
+          { key: 'disputeResolution', label: 'Dispute Resolution', type: 'textarea', required: false },
+          
+          ...basicFields
+        ]
+
+      case DocumentType.PATENT_LICENSING_AGREEMENT:
+        return [
+          // Patent Owner Information
+          { key: 'patentOwnerName', label: 'Patent Owner Name', type: 'text', required: true },
+          { key: 'patentOwnerAddress', label: 'Patent Owner Address', type: 'textarea', required: true },
+          { key: 'patentOwnerEmail', label: 'Patent Owner Email', type: 'email', required: false },
+          { key: 'patentOwnerPhone', label: 'Patent Owner Phone', type: 'text', required: false },
+          { key: 'patentOwnerBusinessRegistration', label: 'Patent Owner Business Registration', type: 'text', required: false },
+          
+          // Licensee Information
+          { key: 'licenseeName', label: 'Licensee Name', type: 'text', required: true },
+          { key: 'licenseeAddress', label: 'Licensee Address', type: 'textarea', required: true },
+          { key: 'licenseeEmail', label: 'Licensee Email', type: 'email', required: false },
+          { key: 'licenseePhone', label: 'Licensee Phone', type: 'text', required: false },
+          { key: 'licenseeBusinessRegistration', label: 'Licensee Business Registration', type: 'text', required: false },
+          
+          // Patent Details
+          { key: 'patentDescription', label: 'Patent Description', type: 'textarea', required: true },
+          { key: 'patentNumber', label: 'Patent Number', type: 'text', required: false },
+          { key: 'patentTitle', label: 'Patent Title', type: 'text', required: true },
+          { key: 'patentClaims', label: 'Patent Claims', type: 'textarea', required: false },
+          { key: 'filingDate', label: 'Filing Date', type: 'date', required: false },
+          { key: 'grantDate', label: 'Grant Date', type: 'date', required: false },
+          { key: 'patentJurisdiction', label: 'Patent Jurisdiction', type: 'text', required: false },
+          
+          // License Terms
+          { key: 'licensedTechnology', label: 'Licensed Technology', type: 'textarea', required: true },
+          { key: 'fieldOfUse', label: 'Field of Use', type: 'textarea', required: true },
+          { key: 'territory', label: 'Territory', type: 'text', required: true },
+          { key: 'exclusivity', label: 'Exclusivity', type: 'select', required: true, options: ['exclusive', 'non-exclusive', 'sole'] },
+          { key: 'licenseDuration', label: 'License Duration', type: 'text', required: true },
+          
+          // Financial Terms
+          { key: 'royaltyStructure', label: 'Royalty Structure', type: 'textarea', required: true },
+          { key: 'minimumRoyalties', label: 'Minimum Royalties', type: 'text', required: false },
+          { key: 'paymentTerms', label: 'Payment Terms', type: 'textarea', required: true },
+          { key: 'reportingRequirements', label: 'Reporting Requirements', type: 'textarea', required: false },
+          
+          // Technical and Development
+          { key: 'improvementRights', label: 'Improvement Rights', type: 'textarea', required: false },
+          { key: 'technologyTransfer', label: 'Technology Transfer', type: 'textarea', required: false },
+          { key: 'technicalSupport', label: 'Technical Support', type: 'textarea', required: false },
+          { key: 'trainingProvisions', label: 'Training Provisions', type: 'textarea', required: false },
+          
+          // Legal and Compliance
+          { key: 'patentProsecution', label: 'Patent Prosecution', type: 'textarea', required: false },
+          { key: 'enforcementObligations', label: 'Enforcement Obligations', type: 'textarea', required: false },
+          { key: 'infringementProcedures', label: 'Infringement Procedures', type: 'textarea', required: false },
+          { key: 'validityWarranties', label: 'Validity Warranties', type: 'textarea', required: false },
+          { key: 'indemnificationTerms', label: 'Indemnification Terms', type: 'textarea', required: false },
+          
+          // Additional Terms
+          { key: 'terminationConditions', label: 'Termination Conditions', type: 'textarea', required: false },
+          { key: 'governingLaw', label: 'Governing Law', type: 'text', required: false },
+          { key: 'disputeResolution', label: 'Dispute Resolution', type: 'textarea', required: false },
           
           ...basicFields
         ]

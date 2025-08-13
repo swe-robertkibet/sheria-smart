@@ -2,6 +2,7 @@ import express from 'express';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import DocumentOrchestrator from '../services/document-orchestrator';
 import DocumentCatalog from '../services/document-catalog';
+import { documentGeneratorRegistry } from '../generators/document-generator-registry';
 import { 
   DocumentType, 
   DocumentFormat, 
@@ -115,24 +116,9 @@ router.post('/generate', authenticateToken, async (req: AuthenticatedRequest, re
 
     // Email validation not needed - authenticated user's email is already validated during OAuth
 
-    // Check if the document type is supported by either legacy or new generator
-    const supportedTypes = [
-      DocumentType.SALES_PURCHASE_AGREEMENT,
-      DocumentType.DISTRIBUTION_AGREEMENT,
-      DocumentType.PARTNERSHIP_AGREEMENT,
-      DocumentType.SERVICE_AGREEMENT,
-      DocumentType.ENHANCED_EMPLOYMENT_CONTRACT,
-      DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT,
-      DocumentType.NON_COMPETE_AGREEMENT,
-      DocumentType.ENHANCED_LEASE_AGREEMENT,
-      DocumentType.SALE_OF_LAND_AGREEMENT,
-      DocumentType.PROPERTY_MANAGEMENT_AGREEMENT,
-      DocumentType.PRENUPTIAL_AGREEMENT,
-      DocumentType.POSTNUPTIAL_AGREEMENT,
-      DocumentType.CHILD_CUSTODY_SUPPORT_AGREEMENT
-    ];
-    
-    if (!supportedTypes.includes(documentType)) {
+    // Check if the document type is supported using the document generator registry
+    if (!documentGeneratorRegistry.isDocumentTypeSupported(documentType)) {
+      const supportedTypes = documentGeneratorRegistry.getSupportedDocumentTypes();
       return res.status(400).json({ 
         error: `Document type ${documentType} is not yet supported`,
         supportedTypes

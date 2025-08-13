@@ -205,25 +205,40 @@ export class DocumentCatalog {
       name: 'Copyright Assignment Agreement',
       category: DocumentCategory.INTELLECTUAL_PROPERTY,
       description: 'Transfer copyright ownership from creator to assignee',
-      isActive: false,
+      isActive: true,
       complexity: 'Medium',
-      requiredFields: []
+      requiredFields: [
+        'authorName', 'authorAddress', 'assigneeName', 'assigneeAddress',
+        'workDescription', 'workTitle', 'assignmentScope', 'consideration', 
+        'territory', 'duration', 'moralRightsWaiver', 'warrantyProvisions', 
+        'effectiveDate'
+      ]
     },
     [DocumentType.TRADEMARK_LICENSE_AGREEMENT]: {
       name: 'Trademark License Agreement',
       category: DocumentCategory.INTELLECTUAL_PROPERTY,
       description: 'License trademark usage while maintaining brand control',
-      isActive: false,
+      isActive: true,
       complexity: 'Medium',
-      requiredFields: []
+      requiredFields: [
+        'licensorName', 'licensorAddress', 'licenseeName', 'licenseeAddress',
+        'trademarkDescription', 'licensedProducts', 'territory', 'exclusivity',
+        'licenseDuration', 'royaltyStructure', 'paymentTerms', 'qualityControlStandards',
+        'marketingObligations', 'effectiveDate'
+      ]
     },
     [DocumentType.PATENT_LICENSING_AGREEMENT]: {
       name: 'Patent Licensing Agreement',
       category: DocumentCategory.INTELLECTUAL_PROPERTY,
       description: 'License patented technology while protecting patent rights',
-      isActive: false,
+      isActive: true,
       complexity: 'High',
-      requiredFields: []
+      requiredFields: [
+        'patentOwnerName', 'patentOwnerAddress', 'licenseeName', 'licenseeAddress',
+        'patentDescription', 'patentTitle', 'licensedTechnology', 'fieldOfUse',
+        'territory', 'exclusivity', 'licenseDuration', 'royaltyStructure',
+        'paymentTerms', 'effectiveDate'
+      ]
     },
 
     // Corporate Governance (simplified for now)

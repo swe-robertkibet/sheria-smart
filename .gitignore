@@ -30,3 +30,6 @@ backend/build/
 backend/package-lock.json
 
 LEGAL_DOCUMENTS_EXPANSION.md
+
+
+*.txt

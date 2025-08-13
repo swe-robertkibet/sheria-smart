@@ -19,6 +19,11 @@ export * from './property/property-management';
 // Family Law
 export * from './family/prenuptial';
 
+// Intellectual Property
+export * from './intellectual-property/copyright-assignment';
+export * from './intellectual-property/trademark-license';
+export * from './intellectual-property/patent-licensing';
+
 // Family Law (simplified interfaces for remaining categories)
 
 export interface PostnuptialUserInput {
@@ -55,20 +60,7 @@ export interface ChildCustodyUserInput {
   additionalTerms?: string;
 }
 
-// Intellectual Property
-export interface CopyrightAssignmentUserInput {
-  authorName: string;
-  assigneeName: string;
-  authorAddress: string;
-  assigneeAddress: string;
-  workDescription: string;
-  assignmentScope: 'exclusive' | 'non-exclusive';
-  consideration: string;
-  territory: string;
-  duration: string;
-  effectiveDate: string;
-  additionalTerms?: string;
-}
+// Intellectual Property (moved to dedicated files)
 
 export interface TrademarkLicenseUserInput {
   licensorName: string;

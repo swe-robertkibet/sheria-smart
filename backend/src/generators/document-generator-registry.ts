@@ -22,6 +22,11 @@ import { PrenuptialGenerator } from './family/prenuptial-generator';
 import { PostnuptialGenerator } from './family/postnuptial-generator';
 import { ChildCustodyGenerator } from './family/child-custody-generator';
 
+// Intellectual Property generators
+import { CopyrightAssignmentGenerator } from './intellectual-property/copyright-assignment-generator';
+import { TrademarkLicenseGenerator } from './intellectual-property/trademark-license-generator';
+import { PatentLicensingGenerator } from './intellectual-property/patent-licensing-generator';
+
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
   // Original documents
@@ -100,6 +105,11 @@ export class DocumentGeneratorRegistry {
     this.generators.set(DocumentType.PRENUPTIAL_AGREEMENT, new PrenuptialGenerator());
     this.generators.set(DocumentType.POSTNUPTIAL_AGREEMENT, new PostnuptialGenerator());
     this.generators.set(DocumentType.CHILD_CUSTODY_SUPPORT_AGREEMENT, new ChildCustodyGenerator());
+    
+    // Intellectual Property generators
+    this.generators.set(DocumentType.COPYRIGHT_ASSIGNMENT_AGREEMENT, new CopyrightAssignmentGenerator());
+    this.generators.set(DocumentType.TRADEMARK_LICENSE_AGREEMENT, new TrademarkLicenseGenerator());
+    this.generators.set(DocumentType.PATENT_LICENSING_AGREEMENT, new PatentLicensingGenerator());
   }
 
   getGenerator(documentType: DocumentType): BaseDocumentGenerator | null {

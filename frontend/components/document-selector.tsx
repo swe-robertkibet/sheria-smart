@@ -224,11 +224,6 @@ export function DocumentSelector({
               {categories
                 .find((cat) => cat.id === selectedCategory)
                 ?.documents
-                // Temporarily hide legacy document types as requested
-                .filter(doc => ![
-                  DocumentType.LEASE_AGREEMENT, // Hide legacy, keep Enhanced Lease Agreement
-                  DocumentType.EMPLOYMENT_CONTRACT // Hide legacy, keep Enhanced Employment Contract
-                ].includes(doc.id))
                 .map((docType) => {
                   const Icon = getDocumentIcon(docType.id);
                   const colorClass = getDocumentColor(docType.id);
@@ -304,16 +299,6 @@ export function DocumentSelector({
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {categories
-                // Temporarily hide these categories as requested
-                .filter(
-                  (category) =>
-                    ![
-                      DocumentCategory.INTELLECTUAL_PROPERTY,
-                      DocumentCategory.CORPORATE_GOVERNANCE,
-                      DocumentCategory.LITIGATION_DISPUTE,
-                      DocumentCategory.REGULATORY_COMPLIANCE,
-                    ].includes(category.id)
-                )
                 .map((category) => {
                   const Icon = getCategoryIcon(category.id);
                   const activeDocuments = category.documents.filter(
