@@ -710,13 +710,70 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
             {/* Paste Feedback Messages */}
             {pasteError && (
               <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-red-800 text-sm">{pasteError}</p>
+                <div className="space-y-2">
+                  <p className="text-red-800 text-sm font-medium">{pasteError}</p>
+                  
+                  {/* Show suggestions if available */}
+                  {mappingResult && mappingResult.suggestions.length > 0 && (
+                    <div className="mt-3 p-2 bg-red-100 rounded border">
+                      <p className="text-red-700 text-xs font-medium mb-2">Suggested field name corrections:</p>
+                      <div className="space-y-1">
+                        {mappingResult.suggestions.slice(0, 5).map((suggestion, index) => (
+                          <div key={index} className="text-xs text-red-600 font-mono">
+                            <span className="bg-red-200 px-1 rounded">"{suggestion.provided}"</span>
+                            {' → '}
+                            <span className="bg-green-200 px-1 rounded text-green-800">"{suggestion.suggested}"</span>
+                            <span className="text-red-500 ml-2">({Math.round(suggestion.confidence * 100)}% match)</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
             
             {pasteSuccess && (
               <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3">
-                <p className="text-green-800 text-sm">{pasteSuccess}</p>
+                <div className="space-y-2">
+                  <p className="text-green-800 text-sm font-medium">{pasteSuccess}</p>
+                  
+                  {/* Show mapping details if available */}
+                  {mappingResult && mappingResult.suggestions.length > 0 && (
+                    <div className="mt-3 p-2 bg-green-100 rounded border">
+                      <p className="text-green-700 text-xs font-medium mb-2">Auto-converted field names:</p>
+                      <div className="space-y-1">
+                        {mappingResult.suggestions
+                          .filter(s => s.confidence >= 0.7)
+                          .slice(0, 5)
+                          .map((suggestion, index) => (
+                            <div key={index} className="text-xs text-green-600 font-mono">
+                              <span className="bg-blue-200 px-1 rounded">"{suggestion.provided}"</span>
+                              {' → '}
+                              <span className="bg-green-200 px-1 rounded">"{suggestion.suggested}"</span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Show skipped fields if any */}
+                  {mappingResult && mappingResult.unmatchedFields.length > 0 && (
+                    <div className="mt-3 p-2 bg-yellow-100 rounded border">
+                      <p className="text-yellow-700 text-xs font-medium mb-2">Skipped fields (not found):</p>
+                      <div className="text-xs text-yellow-600 font-mono">
+                        {mappingResult.unmatchedFields.slice(0, 10).map((field, index) => (
+                          <span key={index} className="bg-yellow-200 px-1 rounded mr-1 mb-1 inline-block">
+                            "{field}"
+                          </span>
+                        ))}
+                        {mappingResult.unmatchedFields.length > 10 && (
+                          <span className="text-yellow-500">...and {mappingResult.unmatchedFields.length - 10} more</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
             
