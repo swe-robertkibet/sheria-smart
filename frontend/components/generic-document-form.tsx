@@ -72,6 +72,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Shareholder Agreement'
       case DocumentType.BOARD_RESOLUTION:
         return 'Board Resolution'
+      case DocumentType.SETTLEMENT_AGREEMENT:
+        return 'Settlement Agreement'
       default:
         return 'Legal Document'
     }
@@ -117,6 +119,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Define relationships and obligations between company shareholders'
       case DocumentType.BOARD_RESOLUTION:
         return 'Document formal board decisions and authorizations'
+      case DocumentType.SETTLEMENT_AGREEMENT:
+        return 'Resolve disputes and avoid continued litigation through comprehensive settlement terms'
       default:
         return 'Generate a professional legal document'
     }
@@ -1173,6 +1177,116 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           
           ...basicFields
         ]
+
+      case DocumentType.SETTLEMENT_AGREEMENT:
+        return [
+          // Disputing Party 1 Information
+          { key: 'disputeParty1Name', label: 'Party 1 Name', type: 'text', required: true },
+          { key: 'disputeParty1Address', label: 'Party 1 Address', type: 'textarea', required: true },
+          { key: 'disputeParty1Email', label: 'Party 1 Email', type: 'email', required: true },
+          { key: 'disputeParty1Phone', label: 'Party 1 Phone', type: 'text', required: false },
+          { key: 'disputeParty1LegalRep', label: 'Party 1 Legal Representative', type: 'text', required: false },
+          { key: 'disputeParty1LegalRepAddress', label: 'Party 1 Legal Rep Address', type: 'textarea', required: false },
+
+          // Disputing Party 2 Information
+          { key: 'disputeParty2Name', label: 'Party 2 Name', type: 'text', required: true },
+          { key: 'disputeParty2Address', label: 'Party 2 Address', type: 'textarea', required: true },
+          { key: 'disputeParty2Email', label: 'Party 2 Email', type: 'email', required: true },
+          { key: 'disputeParty2Phone', label: 'Party 2 Phone', type: 'text', required: false },
+          { key: 'disputeParty2LegalRep', label: 'Party 2 Legal Representative', type: 'text', required: false },
+          { key: 'disputeParty2LegalRepAddress', label: 'Party 2 Legal Rep Address', type: 'textarea', required: false },
+
+          // Additional Parties
+          { key: 'additionalParties', label: 'Additional Parties (if applicable)', type: 'textarea', required: false },
+
+          // Dispute Background and Description
+          { key: 'disputeDescription', label: 'Dispute Description', type: 'textarea', required: true },
+          { key: 'disputeBackground', label: 'Dispute Background', type: 'textarea', required: true },
+          { key: 'disputeOriginDate', label: 'Dispute Origin Date', type: 'date', required: false },
+          { key: 'disputeLocation', label: 'Dispute Location', type: 'text', required: false },
+          { key: 'disputeSubjectMatter', label: 'Subject Matter of Dispute', type: 'textarea', required: true },
+          { key: 'claimsAndCounterclaims', label: 'Claims and Counterclaims', type: 'textarea', required: true },
+          { key: 'legalProceedingsCaseNumber', label: 'Legal Proceedings Case Number', type: 'text', required: false },
+          { key: 'courtJurisdiction', label: 'Court Jurisdiction', type: 'text', required: false },
+
+          // Settlement Terms and Agreements
+          { key: 'settlementTerms', label: 'Settlement Terms', type: 'textarea', required: true },
+          { key: 'settlementDescription', label: 'Settlement Description', type: 'textarea', required: true },
+          { key: 'settlementConsideration', label: 'Settlement Consideration', type: 'textarea', required: true },
+
+          // Payment Provisions
+          { key: 'settlementAmount', label: 'Settlement Amount', type: 'text', required: false },
+          { key: 'paymentStructure', label: 'Payment Structure', type: 'textarea', required: false },
+          { key: 'paymentSchedule', label: 'Payment Schedule', type: 'textarea', required: false },
+          { key: 'paymentMethod', label: 'Payment Method', type: 'select', required: false, options: ['bank_transfer', 'cheque', 'cash', 'other'] },
+          { key: 'paymentDueDate', label: 'Payment Due Date', type: 'date', required: false },
+          { key: 'latePaymentPenalties', label: 'Late Payment Penalties', type: 'textarea', required: false },
+
+          // Non-Monetary Settlement Terms
+          { key: 'nonMonetaryTerms', label: 'Non-Monetary Terms', type: 'textarea', required: false },
+          { key: 'performanceObligations', label: 'Performance Obligations', type: 'textarea', required: true },
+          { key: 'performanceDeadlines', label: 'Performance Deadlines', type: 'textarea', required: false },
+          { key: 'deliverables', label: 'Deliverables', type: 'textarea', required: false },
+          { key: 'complianceRequirements', label: 'Compliance Requirements', type: 'textarea', required: false },
+
+          // Release of Claims
+          { key: 'releaseOfClaimsScope', label: 'Release of Claims Scope', type: 'textarea', required: true },
+          { key: 'mutualRelease', label: 'Mutual Release', type: 'select', required: false, options: ['yes', 'no'] },
+          { key: 'reservedRights', label: 'Reserved Rights', type: 'textarea', required: false },
+          { key: 'excludedClaims', label: 'Excluded Claims', type: 'textarea', required: false },
+          { key: 'releaseCoverage', label: 'Release Coverage', type: 'select', required: true, options: ['specific', 'broad', 'mutual'] },
+          { key: 'thirdPartyReleases', label: 'Third Party Releases', type: 'textarea', required: false },
+
+          // Confidentiality and Non-Disclosure
+          { key: 'confidentialityProvisions', label: 'Confidentiality Provisions', type: 'textarea', required: true },
+          { key: 'confidentialityDuration', label: 'Confidentiality Duration', type: 'text', required: false },
+          { key: 'publicDisclosureRestrictions', label: 'Public Disclosure Restrictions', type: 'textarea', required: false },
+          { key: 'mediaStatementRestrictions', label: 'Media Statement Restrictions', type: 'textarea', required: false },
+          { key: 'nonDisparagement', label: 'Non-Disparagement Clause', type: 'select', required: false, options: ['yes', 'no'] },
+          { key: 'nonDisparagementTerms', label: 'Non-Disparagement Terms', type: 'textarea', required: false },
+
+          // Compliance and Monitoring
+          { key: 'complianceMonitoring', label: 'Compliance Monitoring', type: 'textarea', required: false },
+          { key: 'reportingRequirements', label: 'Reporting Requirements', type: 'textarea', required: false },
+          { key: 'auditRights', label: 'Audit Rights', type: 'textarea', required: false },
+          { key: 'oversightMechanisms', label: 'Oversight Mechanisms', type: 'textarea', required: false },
+
+          // Default and Enforcement
+          { key: 'defaultConsequences', label: 'Default Consequences', type: 'textarea', required: true },
+          { key: 'breachRemedyProcedures', label: 'Breach Remedy Procedures', type: 'textarea', required: true },
+          { key: 'enforcementMechanisms', label: 'Enforcement Mechanisms', type: 'textarea', required: true },
+          { key: 'liquidatedDamages', label: 'Liquidated Damages', type: 'textarea', required: false },
+          { key: 'specificPerformanceRights', label: 'Specific Performance Rights', type: 'textarea', required: false },
+          { key: 'accelerationClauses', label: 'Acceleration Clauses', type: 'textarea', required: false },
+
+          // Dispute Resolution for Future Issues
+          { key: 'futureDisputeResolution', label: 'Future Dispute Resolution', type: 'textarea', required: false },
+          { key: 'mediationRequirements', label: 'Mediation Requirements', type: 'textarea', required: false },
+          { key: 'arbitrationProvisions', label: 'Arbitration Provisions', type: 'textarea', required: false },
+
+          // Legal and Administrative
+          { key: 'governingLaw', label: 'Governing Law', type: 'text', required: false },
+          { key: 'jurisdiction', label: 'Jurisdiction', type: 'text', required: false },
+          { key: 'legalCosts', label: 'Legal Costs Allocation', type: 'textarea', required: false },
+          { key: 'attorneyFeesAllocation', label: 'Attorney Fees Allocation', type: 'textarea', required: false },
+
+          // Execution and Effectiveness
+          { key: 'executionRequirements', label: 'Execution Requirements', type: 'textarea', required: false },
+          { key: 'effectivenessConditions', label: 'Effectiveness Conditions', type: 'textarea', required: false },
+          { key: 'approvalRequirements', label: 'Approval Requirements', type: 'textarea', required: false },
+          { key: 'courtApprovalRequired', label: 'Court Approval Required', type: 'select', required: false, options: ['yes', 'no'] },
+
+          // Miscellaneous Provisions
+          { key: 'entireAgreementClause', label: 'Entire Agreement Clause', type: 'textarea', required: false },
+          { key: 'amendmentProcedures', label: 'Amendment Procedures', type: 'textarea', required: false },
+          { key: 'severabilityProvisions', label: 'Severability Provisions', type: 'textarea', required: false },
+          { key: 'successorObligations', label: 'Successor Obligations', type: 'textarea', required: false },
+          { key: 'noticeRequirements', label: 'Notice Requirements', type: 'textarea', required: false },
+          { key: 'interpretationRules', label: 'Interpretation Rules', type: 'textarea', required: false },
+
+          ...basicFields
+        ]
+
       default:
         return [
           { key: 'party1Name', label: 'Party 1 Name', type: 'text', required: true },

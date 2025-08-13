@@ -301,9 +301,17 @@ export class DocumentCatalog {
       name: 'Settlement Agreement',
       category: DocumentCategory.LITIGATION_DISPUTE,
       description: 'Resolve disputes and avoid continued litigation',
-      isActive: false,
+      isActive: true,
       complexity: 'Medium',
-      requiredFields: []
+      requiredFields: [
+        'disputeParty1Name', 'disputeParty1Address', 'disputeParty1Email',
+        'disputeParty2Name', 'disputeParty2Address', 'disputeParty2Email',
+        'disputeDescription', 'disputeBackground', 'disputeSubjectMatter', 'claimsAndCounterclaims',
+        'settlementTerms', 'settlementDescription', 'settlementConsideration',
+        'performanceObligations', 'releaseOfClaimsScope', 'releaseCoverage',
+        'confidentialityProvisions', 'defaultConsequences', 'breachRemedyProcedures',
+        'enforcementMechanisms', 'effectiveDate'
+      ]
     },
     [DocumentType.ARBITRATION_AGREEMENT]: {
       name: 'Arbitration Agreement',

@@ -29,6 +29,9 @@ export * from './corporate/articles-of-association';
 export * from './corporate/shareholder-agreement';
 export * from './corporate/board-resolution';
 
+// Litigation & Dispute Resolution
+export * from './litigation/settlement-agreement';
+
 // Family Law (simplified interfaces for remaining categories)
 
 export interface PostnuptialUserInput {
