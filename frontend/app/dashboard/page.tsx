@@ -29,6 +29,7 @@ export default function DashboardPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const router = useRouter()
   const { user, logout, isLoading, isAuthenticated, authError, isValidatingToken, loadingContext, clearAuthError } = useAuth()
   
@@ -103,12 +104,21 @@ export default function DashboardPage() {
     setCurrentView("dashboard")
     setCurrentSessionId(null)
     setSelectedDocumentType(null)
+    setSelectedCategory(null)
   }
 
-  const handleSelectDocument = (documentType: DocumentType) => {
+  const handleSelectDocument = (documentType: DocumentType, category: string) => {
     setSelectedDocumentType(documentType)
+    setSelectedCategory(category)
     // Navigate to generic document form for all document types (NDA removed)
     setCurrentView("document-form")
+  }
+
+  const handleBackToDocuments = () => {
+    // Go back to the document list for the selected category
+    setCurrentView("documents")
+    setSelectedDocumentType(null)
+    // Keep selectedCategory to maintain category context
   }
 
   const handleSessionSelect = (sessionId: string) => {
@@ -187,13 +197,19 @@ export default function DashboardPage() {
   }
 
   if (currentView === "documents") {
-    return <DocumentSelector onBack={handleBackToDashboard} onSelectDocument={handleSelectDocument} />
+    return (
+      <DocumentSelector 
+        onBack={handleBackToDashboard} 
+        onSelectDocument={handleSelectDocument}
+        initialCategory={selectedCategory as any}
+      />
+    )
   }
 
   // NDA form removed - document type has been discontinued
 
   if (currentView === "document-form" && selectedDocumentType) {
-    return <GenericDocumentForm onBack={handleBackToDashboard} documentType={selectedDocumentType} />
+    return <GenericDocumentForm onBack={handleBackToDocuments} documentType={selectedDocumentType} />
   }
 
   return (

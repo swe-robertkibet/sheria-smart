@@ -8,12 +8,13 @@ import { DocumentType, DocumentCategory, DocumentTypeInfo, DocumentCategoryInfo 
 
 interface DocumentSelectorProps {
   onBack: () => void
-  onSelectDocument: (documentType: DocumentType) => void
+  onSelectDocument: (documentType: DocumentType, category: DocumentCategory) => void
+  initialCategory?: DocumentCategory | null
 }
 
-export function DocumentSelector({ onBack, onSelectDocument }: DocumentSelectorProps) {
+export function DocumentSelector({ onBack, onSelectDocument, initialCategory }: DocumentSelectorProps) {
   const [categories, setCategories] = useState<DocumentCategoryInfo[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<DocumentCategory | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<DocumentCategory | null>(initialCategory || null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -117,8 +118,8 @@ export function DocumentSelector({ onBack, onSelectDocument }: DocumentSelectorP
   }
 
   const handleCreateDocument = (documentType: DocumentType, isActive: boolean) => {
-    if (isActive) {
-      onSelectDocument(documentType)
+    if (isActive && selectedCategory) {
+      onSelectDocument(documentType, selectedCategory)
     }
   }
 
