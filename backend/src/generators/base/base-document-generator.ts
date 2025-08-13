@@ -91,7 +91,7 @@ export abstract class BaseDocumentGenerator {
 
     // Helper function to add text with word wrapping
     const addText = (text: string, font = timesRomanFont, size = fontSize, isBold = false, isSignature = false) => {
-      // For signature sections, preserve line breaks to match DOCX formatting
+      // For signature sections, preserve line breaks but also apply word wrapping to long lines
       if (isSignature) {
         const lines = text.split('\n');
         for (const line of lines) {
@@ -104,15 +104,83 @@ export abstract class BaseDocumentGenerator {
           }
           
           if (cleanedLine || line.trim() === '') {
-            page.drawText(cleanedLine, {
-              x: margin,
-              y: yPosition,
-              size: size,
-              font: font,
-              color: rgb(0, 0, 0),
-            });
+            // Apply word wrapping even for signature sections if line is too long
+            let testWidth: number;
+            try {
+              testWidth = font.widthOfTextAtSize(cleanedLine, size);
+            } catch (error) {
+              console.warn('Error calculating text width for signature line');
+              testWidth = 0;
+            }
+            
+            if (testWidth > width - 2 * margin && cleanedLine.length > 0) {
+              // Apply word wrapping to this line
+              const words = cleanedLine.split(' ');
+              let currentLine = '';
+              
+              for (const word of words) {
+                const testLine = currentLine + word + ' ';
+                let wordTestWidth: number;
+                
+                try {
+                  wordTestWidth = font.widthOfTextAtSize(testLine, size);
+                } catch (error) {
+                  console.warn('Error calculating text width for word:', word);
+                  continue;
+                }
+                
+                if (wordTestWidth > width - 2 * margin && currentLine.length > 0) {
+                  // Draw current line and start new line
+                  const finalLine = currentLine.trim();
+                  if (finalLine) {
+                    page.drawText(finalLine, {
+                      x: margin,
+                      y: yPosition,
+                      size: size,
+                      font: font,
+                      color: rgb(0, 0, 0),
+                    });
+                  }
+                  yPosition -= lineHeight;
+                  currentLine = word + ' ';
+                  
+                  // Check if we need a new page
+                  if (yPosition < margin) {
+                    page = pdfDoc.addPage();
+                    yPosition = height - margin;
+                  }
+                } else {
+                  currentLine = testLine;
+                }
+              }
+              
+              // Draw remaining text in current line
+              if (currentLine.trim().length > 0) {
+                const finalLine = currentLine.trim();
+                page.drawText(finalLine, {
+                  x: margin,
+                  y: yPosition,
+                  size: size,
+                  font: font,
+                  color: rgb(0, 0, 0),
+                });
+                yPosition -= lineHeight;
+              }
+            } else {
+              // Line fits, draw as is
+              page.drawText(cleanedLine, {
+                x: margin,
+                y: yPosition,
+                size: size,
+                font: font,
+                color: rgb(0, 0, 0),
+              });
+              yPosition -= lineHeight;
+            }
+          } else {
+            // Empty line
+            yPosition -= lineHeight;
           }
-          yPosition -= lineHeight;
         }
         yPosition -= 5; // Extra spacing after signature section
         return;
