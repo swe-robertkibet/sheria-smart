@@ -16,23 +16,10 @@ export * from './property/enhanced-lease';
 export * from './property/sale-of-land';
 export * from './property/property-management';
 
+// Family Law
+export * from './family/prenuptial';
+
 // Family Law (simplified interfaces for remaining categories)
-export interface PrenuptialUserInput {
-  prospectiveSpouseName1: string;
-  prospectiveSpouseName2: string;
-  prospectiveSpouse1Address: string;
-  prospectiveSpouse2Address: string;
-  prospectiveSpouse1Email: string;
-  prospectiveSpouse2Email: string;
-  intendedMarriageDate: string;
-  currentAssets1: string;
-  currentAssets2: string;
-  propertyArrangements: string;
-  spousalSupportProvisions: string;
-  inheritanceRights: string;
-  effectiveDate: string;
-  additionalTerms?: string;
-}
 
 export interface PostnuptialUserInput {
   spouseName1: string;

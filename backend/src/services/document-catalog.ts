@@ -169,7 +169,7 @@ export class DocumentCatalog {
       name: 'Property Management Agreement',
       category: DocumentCategory.PROPERTY_REAL_ESTATE,
       description: 'Engage property management services for real estate assets',
-      isActive: false,
+      isActive: true,
       complexity: 'Medium',
       requiredFields: []
     },
@@ -179,7 +179,7 @@ export class DocumentCatalog {
       name: 'Prenuptial Agreement',
       category: DocumentCategory.FAMILY_LAW,
       description: 'Define financial and property arrangements before marriage',
-      isActive: false,
+      isActive: true,
       complexity: 'High',
       requiredFields: []
     },

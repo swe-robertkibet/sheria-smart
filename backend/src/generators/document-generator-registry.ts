@@ -15,6 +15,10 @@ import { NonCompeteGenerator } from './employment/non-compete-generator';
 // Property generators
 import { EnhancedLeaseGenerator } from './property/enhanced-lease-generator';
 import { SaleOfLandGenerator } from './property/sale-of-land-generator';
+import { PropertyManagementGenerator } from './property/property-management-generator';
+
+// Family Law generators
+import { PrenuptialGenerator } from './family/prenuptial-generator';
 
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
@@ -88,6 +92,10 @@ export class DocumentGeneratorRegistry {
     // Property generators
     this.generators.set(DocumentType.ENHANCED_LEASE_AGREEMENT, new EnhancedLeaseGenerator());
     this.generators.set(DocumentType.SALE_OF_LAND_AGREEMENT, new SaleOfLandGenerator());
+    this.generators.set(DocumentType.PROPERTY_MANAGEMENT_AGREEMENT, new PropertyManagementGenerator());
+    
+    // Family Law generators
+    this.generators.set(DocumentType.PRENUPTIAL_AGREEMENT, new PrenuptialGenerator());
   }
 
   getGenerator(documentType: DocumentType): BaseDocumentGenerator | null {

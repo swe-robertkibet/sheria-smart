@@ -52,6 +52,10 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Enhanced Lease Agreement'
       case DocumentType.SALE_OF_LAND_AGREEMENT:
         return 'Sale of Land Agreement'
+      case DocumentType.PROPERTY_MANAGEMENT_AGREEMENT:
+        return 'Property Management Agreement'
+      case DocumentType.PRENUPTIAL_AGREEMENT:
+        return 'Prenuptial Agreement'
       default:
         return 'Legal Document'
     }
@@ -77,6 +81,10 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Comprehensive rental agreements for residential and commercial properties'
       case DocumentType.SALE_OF_LAND_AGREEMENT:
         return 'Contracts for the purchase and sale of real property'
+      case DocumentType.PROPERTY_MANAGEMENT_AGREEMENT:
+        return 'Engage property management services for real estate assets'
+      case DocumentType.PRENUPTIAL_AGREEMENT:
+        return 'Define financial and property arrangements before marriage'
       default:
         return 'Generate a professional legal document'
     }
@@ -481,6 +489,119 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           { key: 'reservedRights', label: 'Reserved Rights (Optional)', type: 'textarea', required: false },
           { key: 'easementsAndRights', label: 'Easements and Rights (Optional)', type: 'textarea', required: false },
           { key: 'environmentalCompliance', label: 'Environmental Compliance (Optional)', type: 'textarea', required: false },
+          
+          ...basicFields
+        ]
+
+      case DocumentType.PROPERTY_MANAGEMENT_AGREEMENT:
+        return [
+          // Property Owner Information
+          { key: 'ownerName', label: 'Property Owner Name', type: 'text', required: true },
+          { key: 'ownerAddress', label: 'Property Owner Address', type: 'textarea', required: true },
+          { key: 'ownerEmail', label: 'Property Owner Email', type: 'email', required: true },
+          { key: 'ownerPhone', label: 'Property Owner Phone (Optional)', type: 'text', required: false },
+          { key: 'ownerIdNumber', label: 'Property Owner ID Number (Optional)', type: 'text', required: false },
+          
+          // Property Manager Information
+          { key: 'managerName', label: 'Property Manager Name', type: 'text', required: true },
+          { key: 'managerAddress', label: 'Property Manager Address', type: 'textarea', required: true },
+          { key: 'managerEmail', label: 'Property Manager Email', type: 'email', required: true },
+          { key: 'managerPhone', label: 'Property Manager Phone (Optional)', type: 'text', required: false },
+          { key: 'managerBusinessRegistration', label: 'Property Manager Business Registration', type: 'text', required: true },
+          { key: 'managerLicenseNumber', label: 'Property Manager License Number (Optional)', type: 'text', required: false },
+          
+          // Management Services
+          { key: 'servicesScope', label: 'Scope of Management Services', type: 'textarea', required: true },
+          { key: 'tenantScreeningServices', label: 'Tenant Screening Services', type: 'checkbox', required: false },
+          { key: 'rentCollectionServices', label: 'Rent Collection Services', type: 'checkbox', required: false },
+          { key: 'maintenanceManagement', label: 'Maintenance Management', type: 'checkbox', required: false },
+          { key: 'propertyInspections', label: 'Property Inspections', type: 'checkbox', required: false },
+          { key: 'legalComplianceManagement', label: 'Legal Compliance Management', type: 'checkbox', required: false },
+          { key: 'financialReporting', label: 'Financial Reporting', type: 'checkbox', required: false },
+          { key: 'tenancyManagement', label: 'Tenancy Management', type: 'checkbox', required: false },
+          
+          // Fee Structure
+          { key: 'managementFeeType', label: 'Management Fee Type', type: 'select', required: true, options: ['percentage', 'fixed_monthly', 'per_unit', 'commission_based'] },
+          { key: 'managementFeeRate', label: 'Management Fee Rate/Amount', type: 'text', required: true },
+          { key: 'setupFees', label: 'Setup Fees (Optional)', type: 'text', required: false },
+          { key: 'renewalFees', label: 'Renewal Fees (Optional)', type: 'text', required: false },
+          
+          // Financial Management
+          { key: 'rentCollectionSchedule', label: 'Rent Collection Schedule', type: 'textarea', required: true },
+          { key: 'securityDepositHandling', label: 'Security Deposit Handling', type: 'textarea', required: true },
+          { key: 'expenseReimbursementProcess', label: 'Expense Reimbursement Process', type: 'textarea', required: true },
+          
+          // Authority and Limitations
+          { key: 'managerAuthority', label: 'Manager Authority', type: 'textarea', required: true },
+          { key: 'authorityLimitations', label: 'Authority Limitations', type: 'textarea', required: true },
+          { key: 'expenditureAuthorizationLimits', label: 'Expenditure Authorization Limits', type: 'text', required: true },
+          
+          // Termination
+          { key: 'terminationConditions', label: 'Termination Conditions', type: 'textarea', required: true },
+          { key: 'terminationNoticePeriod', label: 'Termination Notice Period', type: 'text', required: true },
+          { key: 'handoverProcedures', label: 'Handover Procedures', type: 'textarea', required: true },
+          
+          ...basicFields
+        ]
+
+      case DocumentType.PRENUPTIAL_AGREEMENT:
+        return [
+          // Prospective Spouse 1 Information
+          { key: 'prospectiveSpouse1Name', label: 'Prospective Spouse 1 Name', type: 'text', required: true },
+          { key: 'prospectiveSpouse1Address', label: 'Prospective Spouse 1 Address', type: 'textarea', required: true },
+          { key: 'prospectiveSpouse1Email', label: 'Prospective Spouse 1 Email', type: 'email', required: true },
+          { key: 'prospectiveSpouse1Phone', label: 'Prospective Spouse 1 Phone (Optional)', type: 'text', required: false },
+          { key: 'prospectiveSpouse1IdNumber', label: 'Prospective Spouse 1 ID Number (Optional)', type: 'text', required: false },
+          
+          // Prospective Spouse 2 Information
+          { key: 'prospectiveSpouse2Name', label: 'Prospective Spouse 2 Name', type: 'text', required: true },
+          { key: 'prospectiveSpouse2Address', label: 'Prospective Spouse 2 Address', type: 'textarea', required: true },
+          { key: 'prospectiveSpouse2Email', label: 'Prospective Spouse 2 Email', type: 'email', required: true },
+          { key: 'prospectiveSpouse2Phone', label: 'Prospective Spouse 2 Phone (Optional)', type: 'text', required: false },
+          { key: 'prospectiveSpouse2IdNumber', label: 'Prospective Spouse 2 ID Number (Optional)', type: 'text', required: false },
+          
+          // Marriage Details
+          { key: 'intendedMarriageDate', label: 'Intended Marriage Date', type: 'date', required: true },
+          { key: 'marriageLocation', label: 'Marriage Location (Optional)', type: 'text', required: false },
+          
+          // Financial Information
+          { key: 'spouse1CurrentAssets', label: 'Spouse 1 Current Assets', type: 'textarea', required: true },
+          { key: 'spouse2CurrentAssets', label: 'Spouse 2 Current Assets', type: 'textarea', required: true },
+          { key: 'spouse1CurrentLiabilities', label: 'Spouse 1 Current Liabilities', type: 'textarea', required: true },
+          { key: 'spouse2CurrentLiabilities', label: 'Spouse 2 Current Liabilities', type: 'textarea', required: true },
+          { key: 'spouse1CurrentIncome', label: 'Spouse 1 Current Income', type: 'text', required: true },
+          { key: 'spouse2CurrentIncome', label: 'Spouse 2 Current Income', type: 'text', required: true },
+          
+          // Property Arrangements
+          { key: 'separatePropertyDefinition', label: 'Separate Property Definition', type: 'textarea', required: true },
+          { key: 'maritalPropertyDefinition', label: 'Marital Property Definition', type: 'textarea', required: true },
+          { key: 'propertyAcquisitionRules', label: 'Property Acquisition Rules', type: 'textarea', required: true },
+          
+          // Support and Inheritance
+          { key: 'spousalSupportWaiver', label: 'Spousal Support Waiver', type: 'checkbox', required: false },
+          { key: 'spousalSupportTerms', label: 'Spousal Support Terms (if not waived)', type: 'textarea', required: false },
+          { key: 'inheritanceRightsWaiver', label: 'Inheritance Rights Waiver', type: 'checkbox', required: false },
+          { key: 'inheritanceRightsArrangements', label: 'Inheritance Rights Arrangements (if not waived)', type: 'textarea', required: false },
+          
+          // Business Interests
+          { key: 'spouse1BusinessInterests', label: 'Spouse 1 Business Interests', type: 'textarea', required: true },
+          { key: 'spouse2BusinessInterests', label: 'Spouse 2 Business Interests', type: 'textarea', required: true },
+          { key: 'businessInterestProtection', label: 'Business Interest Protection', type: 'textarea', required: true },
+          
+          // Legal Representation
+          { key: 'spouse1LegalRepresentation', label: 'Spouse 1 Has Legal Representation', type: 'checkbox', required: false },
+          { key: 'spouse2LegalRepresentation', label: 'Spouse 2 Has Legal Representation', type: 'checkbox', required: false },
+          { key: 'independentLegalAdviceConfirmation', label: 'Independent Legal Advice Confirmation', type: 'textarea', required: true },
+          
+          // Disclosure and Fairness
+          { key: 'fullFinancialDisclosure', label: 'Full Financial Disclosure Provided', type: 'checkbox', required: true },
+          { key: 'voluntaryExecution', label: 'Voluntary Execution Confirmed', type: 'checkbox', required: true },
+          { key: 'fairnessAtExecution', label: 'Fairness at Execution', type: 'textarea', required: true },
+          
+          // Modification and Enforcement
+          { key: 'modificationProcedures', label: 'Modification Procedures', type: 'textarea', required: true },
+          { key: 'enforceabilityProvisions', label: 'Enforceability Provisions', type: 'textarea', required: true },
+          { key: 'disputeResolutionMechanism', label: 'Dispute Resolution Mechanism', type: 'textarea', required: true },
           
           ...basicFields
         ]

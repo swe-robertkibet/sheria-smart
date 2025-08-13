@@ -125,7 +125,9 @@ router.post('/generate', authenticateToken, async (req: AuthenticatedRequest, re
       DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT,
       DocumentType.NON_COMPETE_AGREEMENT,
       DocumentType.ENHANCED_LEASE_AGREEMENT,
-      DocumentType.SALE_OF_LAND_AGREEMENT
+      DocumentType.SALE_OF_LAND_AGREEMENT,
+      DocumentType.PROPERTY_MANAGEMENT_AGREEMENT,
+      DocumentType.PRENUPTIAL_AGREEMENT
     ];
     
     if (!supportedTypes.includes(documentType)) {
