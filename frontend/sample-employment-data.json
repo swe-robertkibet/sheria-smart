@@ -1,0 +1,20 @@
+{
+  "employeeName": "Sarah Johnson",
+  "employeeAddress": "789 Corporate Plaza\nNairobi, Kenya",
+  "employeeEmail": "sarah.johnson@example.com",
+  "employeeIdNumber": "11223344",
+  "employerName": "Tech Solutions Ltd",
+  "employerAddress": "100 Business Park\nWestlands, Nairobi",
+  "employerEmail": "hr@techsolutions.co.ke",
+  "employerBusinessRegistration": "BN/12345/2020",
+  "jobTitle": "Senior Software Developer",
+  "jobDescription": "Responsible for developing and maintaining web applications, leading technical projects, and mentoring junior developers",
+  "department": "Engineering",
+  "employmentType": "permanent",
+  "startDate": "2025-02-01",
+  "basicSalary": "KES 250,000 per month",
+  "salaryPaymentFrequency": "monthly",
+  "benefitsPackage": "Medical insurance, dental cover, annual leave (21 days), sick leave (14 days), professional development allowance",
+  "effectiveDate": "2025-02-01",
+  "additionalTerms": "Employee entitled to work-from-home arrangements up to 2 days per week. Annual performance review in December."
+}

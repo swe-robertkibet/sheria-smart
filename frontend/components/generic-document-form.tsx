@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Loader2, FileText, Download } from "lucide-react"
 import { useScrollToTop } from "@/hooks/use-scroll-to-top"
 import { DocumentType, DocumentFormat } from "@/types/document"
+import { PasteButton } from "@/components/ui/paste-button"
 
 interface GenericDocumentFormProps {
   onBack: () => void
@@ -22,6 +23,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
   const [success, setSuccess] = useState<string | null>(null)
   const [formData, setFormData] = useState<Record<string, any>>({})
   const [selectedFormats, setSelectedFormats] = useState<DocumentFormat[]>([DocumentFormat.PDF])
+  const [pasteError, setPasteError] = useState<string | null>(null)
+  const [pasteSuccess, setPasteSuccess] = useState<string | null>(null)
 
   // Reset scroll position when component mounts
   useScrollToTop()
@@ -503,6 +506,55 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
     }
   }
 
+  const handlePasteData = (pastedData: Record<string, any>) => {
+    setPasteError(null)
+    setPasteSuccess(null)
+    
+    const requiredFields = getRequiredFields()
+    const validFieldKeys = requiredFields.map(field => field.key)
+    
+    let matchedFields = 0
+    let totalFields = 0
+    const newFormData = { ...formData }
+    
+    // Process each field in the pasted data
+    Object.entries(pastedData).forEach(([key, value]) => {
+      totalFields++
+      // Check if this key matches any of our form fields
+      if (validFieldKeys.includes(key)) {
+        newFormData[key] = value
+        matchedFields++
+      }
+    })
+    
+    // Update form data
+    setFormData(newFormData)
+    
+    // Provide user feedback
+    if (matchedFields === 0) {
+      setPasteError(`No matching fields found. Please ensure your JSON keys match the form field names.`)
+    } else if (matchedFields < totalFields) {
+      setPasteSuccess(`Successfully filled ${matchedFields} fields. ${totalFields - matchedFields} fields were not matched and skipped.`)
+    } else {
+      setPasteSuccess(`Successfully filled all ${matchedFields} fields from clipboard!`)
+    }
+    
+    // Clear success message after 4 seconds
+    setTimeout(() => {
+      setPasteSuccess(null)
+    }, 4000)
+  }
+
+  const handlePasteError = (errorMessage: string) => {
+    setPasteError(errorMessage)
+    setPasteSuccess(null)
+    
+    // Clear error message after 5 seconds
+    setTimeout(() => {
+      setPasteError(null)
+    }, 5000)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -616,6 +668,39 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
       {/* Form */}
       <main className="container mx-auto px-6 py-12 max-w-4xl">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Paste Button Section */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-[#2D3748] mb-2">Quick Fill from Clipboard</h3>
+                <p className="text-sm text-[#718096]">
+                  Have your form data ready in JSON format? Click the button below to automatically fill all matching fields.
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                <PasteButton
+                  onPaste={handlePasteData}
+                  onError={handlePasteError}
+                  size="lg"
+                  variant="default"
+                  className="bg-[#7C9885] hover:bg-[#7C9885]/90 text-white"
+                />
+              </div>
+            </div>
+            
+            {/* Paste Feedback Messages */}
+            {pasteError && (
+              <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-red-800 text-sm">{pasteError}</p>
+              </div>
+            )}
+            
+            {pasteSuccess && (
+              <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3">
+                <p className="text-green-800 text-sm">{pasteSuccess}</p>
+              </div>
+            )}
+          </div>
           <div className="grid gap-6 md:grid-cols-2">
             {fields.map((field) => (
               <div key={field.key} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
