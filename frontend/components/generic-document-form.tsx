@@ -56,6 +56,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Property Management Agreement'
       case DocumentType.PRENUPTIAL_AGREEMENT:
         return 'Prenuptial Agreement'
+      case DocumentType.POSTNUPTIAL_AGREEMENT:
+        return 'Postnuptial Agreement'
       default:
         return 'Legal Document'
     }
@@ -85,6 +87,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Engage property management services for real estate assets'
       case DocumentType.PRENUPTIAL_AGREEMENT:
         return 'Define financial and property arrangements before marriage'
+      case DocumentType.POSTNUPTIAL_AGREEMENT:
+        return 'Modify financial and property arrangements after marriage'
       default:
         return 'Generate a professional legal document'
     }
@@ -576,6 +580,78 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           { key: 'separatePropertyDefinition', label: 'Separate Property Definition', type: 'textarea', required: true },
           { key: 'maritalPropertyDefinition', label: 'Marital Property Definition', type: 'textarea', required: true },
           { key: 'propertyAcquisitionRules', label: 'Property Acquisition Rules', type: 'textarea', required: true },
+          
+          // Support and Inheritance
+          { key: 'spousalSupportWaiver', label: 'Spousal Support Waiver', type: 'checkbox', required: false },
+          { key: 'spousalSupportTerms', label: 'Spousal Support Terms (if not waived)', type: 'textarea', required: false },
+          { key: 'inheritanceRightsWaiver', label: 'Inheritance Rights Waiver', type: 'checkbox', required: false },
+          { key: 'inheritanceRightsArrangements', label: 'Inheritance Rights Arrangements (if not waived)', type: 'textarea', required: false },
+          
+          // Business Interests
+          { key: 'spouse1BusinessInterests', label: 'Spouse 1 Business Interests', type: 'textarea', required: true },
+          { key: 'spouse2BusinessInterests', label: 'Spouse 2 Business Interests', type: 'textarea', required: true },
+          { key: 'businessInterestProtection', label: 'Business Interest Protection', type: 'textarea', required: true },
+          
+          // Legal Representation
+          { key: 'spouse1LegalRepresentation', label: 'Spouse 1 Has Legal Representation', type: 'checkbox', required: false },
+          { key: 'spouse2LegalRepresentation', label: 'Spouse 2 Has Legal Representation', type: 'checkbox', required: false },
+          { key: 'independentLegalAdviceConfirmation', label: 'Independent Legal Advice Confirmation', type: 'textarea', required: true },
+          
+          // Disclosure and Fairness
+          { key: 'fullFinancialDisclosure', label: 'Full Financial Disclosure Provided', type: 'checkbox', required: true },
+          { key: 'voluntaryExecution', label: 'Voluntary Execution Confirmed', type: 'checkbox', required: true },
+          { key: 'fairnessAtExecution', label: 'Fairness at Execution', type: 'textarea', required: true },
+          
+          // Modification and Enforcement
+          { key: 'modificationProcedures', label: 'Modification Procedures', type: 'textarea', required: true },
+          { key: 'enforceabilityProvisions', label: 'Enforceability Provisions', type: 'textarea', required: true },
+          { key: 'disputeResolutionMechanism', label: 'Dispute Resolution Mechanism', type: 'textarea', required: true },
+          
+          ...basicFields
+        ]
+
+      case DocumentType.POSTNUPTIAL_AGREEMENT:
+        return [
+          // Married Spouse 1 Information
+          { key: 'spouse1Name', label: 'Spouse 1 Name', type: 'text', required: true },
+          { key: 'spouse1Address', label: 'Spouse 1 Address', type: 'textarea', required: true },
+          { key: 'spouse1Email', label: 'Spouse 1 Email', type: 'email', required: true },
+          { key: 'spouse1Phone', label: 'Spouse 1 Phone (Optional)', type: 'text', required: false },
+          { key: 'spouse1IdNumber', label: 'Spouse 1 ID Number (Optional)', type: 'text', required: false },
+          
+          // Married Spouse 2 Information
+          { key: 'spouse2Name', label: 'Spouse 2 Name', type: 'text', required: true },
+          { key: 'spouse2Address', label: 'Spouse 2 Address', type: 'textarea', required: true },
+          { key: 'spouse2Email', label: 'Spouse 2 Email', type: 'email', required: true },
+          { key: 'spouse2Phone', label: 'Spouse 2 Phone (Optional)', type: 'text', required: false },
+          { key: 'spouse2IdNumber', label: 'Spouse 2 ID Number (Optional)', type: 'text', required: false },
+          
+          // Marriage Details
+          { key: 'marriageDate', label: 'Marriage Date', type: 'date', required: true },
+          { key: 'marriageLocation', label: 'Marriage Location (Optional)', type: 'text', required: false },
+          { key: 'reasonForPostnuptialAgreement', label: 'Reason for Postnuptial Agreement', type: 'textarea', required: true },
+          
+          // Pre-Marriage Financial Information
+          { key: 'spouse1PreMaritalAssets', label: 'Spouse 1 Pre-Marital Assets', type: 'textarea', required: true },
+          { key: 'spouse2PreMaritalAssets', label: 'Spouse 2 Pre-Marital Assets', type: 'textarea', required: true },
+          { key: 'spouse1PreMaritalLiabilities', label: 'Spouse 1 Pre-Marital Liabilities', type: 'textarea', required: true },
+          { key: 'spouse2PreMaritalLiabilities', label: 'Spouse 2 Pre-Marital Liabilities', type: 'textarea', required: true },
+          
+          // Current Financial Information
+          { key: 'spouse1CurrentAssets', label: 'Spouse 1 Current Assets', type: 'textarea', required: true },
+          { key: 'spouse2CurrentAssets', label: 'Spouse 2 Current Assets', type: 'textarea', required: true },
+          { key: 'spouse1CurrentLiabilities', label: 'Spouse 1 Current Liabilities', type: 'textarea', required: true },
+          { key: 'spouse2CurrentLiabilities', label: 'Spouse 2 Current Liabilities', type: 'textarea', required: true },
+          { key: 'maritalAssetsAcquired', label: 'Marital Assets Acquired During Marriage', type: 'textarea', required: true },
+          { key: 'spouse1CurrentIncome', label: 'Spouse 1 Current Income', type: 'text', required: true },
+          { key: 'spouse2CurrentIncome', label: 'Spouse 2 Current Income', type: 'text', required: true },
+          { key: 'changedCircumstances', label: 'Changed Circumstances Since Marriage', type: 'textarea', required: true },
+          
+          // Property Arrangements
+          { key: 'separatePropertyDefinition', label: 'Separate Property Definition', type: 'textarea', required: true },
+          { key: 'maritalPropertyDefinition', label: 'Marital Property Definition', type: 'textarea', required: true },
+          { key: 'propertyAcquisitionRules', label: 'Property Acquisition Rules', type: 'textarea', required: true },
+          { key: 'premaritalPropertyTransformation', label: 'Pre-Marital Property Transformation Rules', type: 'textarea', required: true },
           
           // Support and Inheritance
           { key: 'spousalSupportWaiver', label: 'Spousal Support Waiver', type: 'checkbox', required: false },

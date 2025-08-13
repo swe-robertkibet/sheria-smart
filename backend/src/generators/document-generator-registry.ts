@@ -19,6 +19,7 @@ import { PropertyManagementGenerator } from './property/property-management-gene
 
 // Family Law generators
 import { PrenuptialGenerator } from './family/prenuptial-generator';
+import { PostnuptialGenerator } from './family/postnuptial-generator';
 
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
@@ -96,6 +97,7 @@ export class DocumentGeneratorRegistry {
     
     // Family Law generators
     this.generators.set(DocumentType.PRENUPTIAL_AGREEMENT, new PrenuptialGenerator());
+    this.generators.set(DocumentType.POSTNUPTIAL_AGREEMENT, new PostnuptialGenerator());
   }
 
   getGenerator(documentType: DocumentType): BaseDocumentGenerator | null {

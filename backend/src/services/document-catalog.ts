@@ -187,7 +187,7 @@ export class DocumentCatalog {
       name: 'Postnuptial Agreement',
       category: DocumentCategory.FAMILY_LAW,
       description: 'Modify financial arrangements during marriage',
-      isActive: false,
+      isActive: true,
       complexity: 'High',
       requiredFields: []
     },
