@@ -128,7 +128,8 @@ router.post('/generate', authenticateToken, async (req: AuthenticatedRequest, re
       DocumentType.SALE_OF_LAND_AGREEMENT,
       DocumentType.PROPERTY_MANAGEMENT_AGREEMENT,
       DocumentType.PRENUPTIAL_AGREEMENT,
-      DocumentType.POSTNUPTIAL_AGREEMENT
+      DocumentType.POSTNUPTIAL_AGREEMENT,
+      DocumentType.CHILD_CUSTODY_SUPPORT_AGREEMENT
     ];
     
     if (!supportedTypes.includes(documentType)) {

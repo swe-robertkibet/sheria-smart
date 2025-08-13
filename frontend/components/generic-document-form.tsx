@@ -58,6 +58,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Prenuptial Agreement'
       case DocumentType.POSTNUPTIAL_AGREEMENT:
         return 'Postnuptial Agreement'
+      case DocumentType.CHILD_CUSTODY_SUPPORT_AGREEMENT:
+        return 'Child Custody & Support Agreement'
       default:
         return 'Legal Document'
     }
@@ -89,6 +91,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Define financial and property arrangements before marriage'
       case DocumentType.POSTNUPTIAL_AGREEMENT:
         return 'Modify financial and property arrangements after marriage'
+      case DocumentType.CHILD_CUSTODY_SUPPORT_AGREEMENT:
+        return 'Define custody arrangements and child support obligations'
       default:
         return 'Generate a professional legal document'
     }
@@ -678,6 +682,91 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           { key: 'modificationProcedures', label: 'Modification Procedures', type: 'textarea', required: true },
           { key: 'enforceabilityProvisions', label: 'Enforceability Provisions', type: 'textarea', required: true },
           { key: 'disputeResolutionMechanism', label: 'Dispute Resolution Mechanism', type: 'textarea', required: true },
+          
+          ...basicFields
+        ]
+      case DocumentType.CHILD_CUSTODY_SUPPORT_AGREEMENT:
+        return [
+          // Parent/Guardian 1 Information
+          { key: 'parent1Name', label: 'Parent/Guardian 1 Name', type: 'text', required: true },
+          { key: 'parent1Address', label: 'Parent/Guardian 1 Address', type: 'textarea', required: true },
+          { key: 'parent1Email', label: 'Parent/Guardian 1 Email', type: 'email', required: true },
+          { key: 'parent1Phone', label: 'Parent/Guardian 1 Phone (Optional)', type: 'text', required: false },
+          { key: 'parent1IdNumber', label: 'Parent/Guardian 1 ID Number (Optional)', type: 'text', required: false },
+          { key: 'parent1Occupation', label: 'Parent/Guardian 1 Occupation (Optional)', type: 'text', required: false },
+          { key: 'parent1MonthlyIncome', label: 'Parent/Guardian 1 Monthly Income', type: 'text', required: true },
+          { key: 'parent1FinancialStatus', label: 'Parent/Guardian 1 Financial Status', type: 'textarea', required: true },
+          
+          // Parent/Guardian 2 Information
+          { key: 'parent2Name', label: 'Parent/Guardian 2 Name', type: 'text', required: true },
+          { key: 'parent2Address', label: 'Parent/Guardian 2 Address', type: 'textarea', required: true },
+          { key: 'parent2Email', label: 'Parent/Guardian 2 Email', type: 'email', required: true },
+          { key: 'parent2Phone', label: 'Parent/Guardian 2 Phone (Optional)', type: 'text', required: false },
+          { key: 'parent2IdNumber', label: 'Parent/Guardian 2 ID Number (Optional)', type: 'text', required: false },
+          { key: 'parent2Occupation', label: 'Parent/Guardian 2 Occupation (Optional)', type: 'text', required: false },
+          { key: 'parent2MonthlyIncome', label: 'Parent/Guardian 2 Monthly Income', type: 'text', required: true },
+          { key: 'parent2FinancialStatus', label: 'Parent/Guardian 2 Financial Status', type: 'textarea', required: true },
+          
+          // Child/Children Information
+          { key: 'childrenDetails', label: 'Children Details (Names, Ages, Birthdates)', type: 'textarea', required: true },
+          { key: 'numberOfChildren', label: 'Number of Children', type: 'number', required: true },
+          { key: 'childrenCurrentLivingArrangement', label: 'Current Living Arrangement', type: 'textarea', required: true },
+          { key: 'childrenSchoolInformation', label: 'School Information', type: 'textarea', required: true },
+          { key: 'childrenSpecialNeeds', label: 'Special Needs (Optional)', type: 'textarea', required: false },
+          { key: 'reasonForCustodyAgreement', label: 'Reason for Custody Agreement', type: 'textarea', required: true },
+          
+          // Physical Custody Arrangements
+          { key: 'primaryPhysicalCustodyParent', label: 'Primary Physical Custody Parent', type: 'text', required: true },
+          { key: 'physicalCustodySchedule', label: 'Physical Custody Schedule', type: 'textarea', required: true },
+          { key: 'weekdaySchedule', label: 'Weekday Schedule', type: 'textarea', required: true },
+          { key: 'weekendSchedule', label: 'Weekend Schedule', type: 'textarea', required: true },
+          { key: 'holidaySchedule', label: 'Holiday Schedule', type: 'textarea', required: true },
+          { key: 'pickupDropoffLocations', label: 'Pickup/Drop-off Locations', type: 'textarea', required: true },
+          { key: 'transportationResponsibilities', label: 'Transportation Responsibilities', type: 'textarea', required: true },
+          
+          // Legal Custody and Decision Making
+          { key: 'legalCustodyArrangement', label: 'Legal Custody Arrangement', type: 'select', required: true, options: ['joint', 'sole_parent1', 'sole_parent2'] },
+          { key: 'educationalDecisionMaking', label: 'Educational Decision Making', type: 'textarea', required: true },
+          { key: 'medicalDecisionMaking', label: 'Medical Decision Making', type: 'textarea', required: true },
+          { key: 'majorDecisionConsultation', label: 'Major Decision Consultation Requirements', type: 'textarea', required: true },
+          { key: 'emergencyDecisionProcedures', label: 'Emergency Decision Procedures', type: 'textarea', required: true },
+          
+          // Child Support Provisions
+          { key: 'childSupportAmount', label: 'Child Support Amount', type: 'text', required: true },
+          { key: 'childSupportPayingParent', label: 'Child Support Paying Parent', type: 'text', required: true },
+          { key: 'childSupportFrequency', label: 'Child Support Payment Frequency', type: 'select', required: true, options: ['monthly', 'bi-weekly', 'weekly'] },
+          { key: 'childSupportPaymentMethod', label: 'Child Support Payment Method', type: 'textarea', required: true },
+          { key: 'childSupportCalculationBasis', label: 'Child Support Calculation Basis', type: 'textarea', required: true },
+          { key: 'medicalInsuranceResponsibility', label: 'Medical Insurance Responsibility', type: 'textarea', required: true },
+          { key: 'medicalExpenseSharing', label: 'Medical Expense Sharing', type: 'textarea', required: true },
+          { key: 'educationalExpenseSharing', label: 'Educational Expense Sharing', type: 'textarea', required: true },
+          
+          // Communication and Contact
+          { key: 'communicationBetweenParents', label: 'Communication Between Parents', type: 'textarea', required: true },
+          { key: 'communicationWithChildren', label: 'Parent-Child Communication', type: 'textarea', required: true },
+          { key: 'emergencyContactProcedures', label: 'Emergency Contact Procedures', type: 'textarea', required: true },
+          
+          // Travel and Relocation
+          { key: 'travelPermissionRequirements', label: 'Travel Permission Requirements', type: 'textarea', required: true },
+          { key: 'relocationNoticeRequirements', label: 'Relocation Notice Requirements', type: 'textarea', required: true },
+          { key: 'relocationApprovalProcess', label: 'Relocation Approval Process', type: 'textarea', required: true },
+          
+          // Safety and Supervision
+          { key: 'childSafetyProvisions', label: 'Child Safety Provisions', type: 'textarea', required: true },
+          
+          // Modification and Dispute Resolution
+          { key: 'modificationProcedures', label: 'Modification Procedures', type: 'textarea', required: true },
+          { key: 'modificationRequirements', label: 'Modification Requirements', type: 'textarea', required: true },
+          { key: 'mediationRequirement', label: 'Mediation Required Before Court', type: 'checkbox', required: false },
+          { key: 'disputeResolutionMechanism', label: 'Dispute Resolution Mechanism', type: 'textarea', required: true },
+          { key: 'enforcementMechanisms', label: 'Enforcement Mechanisms', type: 'textarea', required: true },
+          
+          // Additional Provisions
+          { key: 'childTaxExemptionAllocation', label: 'Child Tax Exemption Allocation', type: 'textarea', required: true },
+          { key: 'bestInterestOfChildAcknowledgment', label: 'Best Interest of Child Acknowledgment', type: 'textarea', required: true },
+          { key: 'voluntaryAgreementAcknowledgment', label: 'Voluntary Agreement', type: 'checkbox', required: false },
+          { key: 'independentLegalAdviceConfirmation', label: 'Independent Legal Advice Confirmation', type: 'textarea', required: true },
+          { key: 'courtJurisdictionForEnforcement', label: 'Court Jurisdiction for Enforcement', type: 'textarea', required: true },
           
           ...basicFields
         ]

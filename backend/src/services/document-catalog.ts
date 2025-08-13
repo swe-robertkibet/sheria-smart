@@ -195,7 +195,7 @@ export class DocumentCatalog {
       name: 'Child Custody & Support Agreement',
       category: DocumentCategory.FAMILY_LAW,
       description: 'Define custody arrangements and child support obligations',
-      isActive: false,
+      isActive: true,
       complexity: 'Medium',
       requiredFields: []
     },
