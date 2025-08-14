@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { 
   DocumentGenerationRequest, 
@@ -338,10 +339,19 @@ export class DocumentOrchestrator {
   async deleteDocumentFiles(filePaths: string[]): Promise<void> {
     for (const filePath of filePaths) {
       try {
-        const filename = path.basename(filePath);
-        await DocumentGeneratorService.deleteDocument(filename);
-      } catch (error) {
-        console.error('Error deleting document file:', error);
+        // Check if file exists before attempting deletion
+        await fs.access(filePath);
+        // File exists, proceed with deletion using full path
+        await fs.unlink(filePath);
+        console.log(`✓ FILE CLEANUP: Successfully deleted ${path.basename(filePath)}`);
+      } catch (error: any) {
+        if (error.code === 'ENOENT') {
+          // File doesn't exist (already deleted or moved), this is not an error
+          console.log(`ℹ️ FILE CLEANUP: File already deleted or not found: ${path.basename(filePath)}`);
+        } else {
+          // Other errors (permission, etc.) should be logged as warnings
+          console.warn(`⚠️ FILE CLEANUP: Could not delete ${path.basename(filePath)}:`, error.message);
+        }
       }
     }
   }

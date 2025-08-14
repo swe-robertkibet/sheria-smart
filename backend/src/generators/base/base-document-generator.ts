@@ -435,10 +435,22 @@ export abstract class BaseDocumentGenerator {
 
   async deleteDocument(filename: string): Promise<void> {
     try {
-      const filePath = path.join(this.outputDir, filename);
+      // Handle both absolute paths and filenames
+      const filePath = path.isAbsolute(filename) ? filename : path.join(this.outputDir, filename);
+      
+      // Check if file exists before attempting deletion
+      await fs.access(filePath);
+      // File exists, proceed with deletion
       await fs.unlink(filePath);
-    } catch (error) {
-      console.error('Error deleting document:', error);
+      console.log(`✓ BASE DOCUMENT CLEANUP: Successfully deleted ${path.basename(filePath)}`);
+    } catch (error: any) {
+      if (error.code === 'ENOENT') {
+        // File doesn't exist (already deleted or moved), this is not an error
+        console.log(`ℹ️ BASE DOCUMENT CLEANUP: File already deleted or not found: ${path.basename(filename)}`);
+      } else {
+        // Other errors (permission, etc.) should be logged as warnings
+        console.warn(`⚠️ BASE DOCUMENT CLEANUP: Could not delete ${path.basename(filename)}:`, error.message);
+      }
     }
   }
 }
