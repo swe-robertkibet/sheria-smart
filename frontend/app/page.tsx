@@ -20,6 +20,7 @@ import {
   Mic,
   Globe,
   Wifi,
+  Scale,
 } from "lucide-react"
 import Image from "next/image"
 import { TypewriterText } from "@/components/typewriter-text"
@@ -458,32 +459,108 @@ export default function HomePage() {
       <section id="use-cases" className="py-20 px-6 bg-white overflow-x-hidden">
         <div className="container mx-auto max-w-7xl">
           <ScrollReveal>
-            <h2 className="text-4xl font-bold text-center text-[#2D3748] mb-16">Legal Help for Every Situation</h2>
+            <h2 className="text-4xl font-bold text-center text-[#2D3748] mb-16">Comprehensive Legal Solutions</h2>
+            <p className="text-center text-[#718096] text-lg mb-12 max-w-3xl mx-auto">
+              From AI-powered legal advice to professional document generation, we've got you covered
+            </p>
           </ScrollReveal>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: Home, title: "Tenancy Issues", bg: "from-[#C99383] to-[#B8826F]" },
-              { icon: Briefcase, title: "Employment Rights", bg: "from-[#7C9885] to-[#5D7A6B]" },
-              { icon: ShoppingCart, title: "Consumer Protection", bg: "from-[#F7DC6F] to-[#F4D03F]" },
-              { icon: FileCheck, title: "Contract Review", bg: "from-[#C99383]/70 to-[#B8826F]/70" },
-              { icon: Building, title: "Small Business Legal", bg: "from-[#7C9885]/70 to-[#5D7A6B]/70" },
-              { icon: Users, title: "Family Law Basics", bg: "from-[#F7DC6F]/70 to-[#F4D03F]/70" },
+              { 
+                icon: MessageCircle, 
+                title: "AI Legal Chat", 
+                description: "Get instant answers to legal questions",
+                bg: "from-[#7C9885] to-[#5D7A6B]",
+                action: "chat"
+              },
+              { 
+                icon: Scale, 
+                title: "Legal Analysis", 
+                description: "Detailed structured legal guidance",
+                bg: "from-[#C99383] to-[#B8826F]",
+                action: "analysis"
+              },
+              { 
+                icon: FileText, 
+                title: "Employment Documents", 
+                description: "Contracts, agreements & HR documents",
+                bg: "from-[#F7DC6F] to-[#F4D03F]",
+                action: "employment"
+              },
+              { 
+                icon: Home, 
+                title: "Property & Real Estate", 
+                description: "Lease agreements & property contracts",
+                bg: "from-[#7C9885]/80 to-[#5D7A6B]/80",
+                action: "property"
+              },
+              { 
+                icon: Briefcase, 
+                title: "Business Contracts", 
+                description: "Partnership, sales & commercial agreements",
+                bg: "from-[#C99383]/80 to-[#B8826F]/80",
+                action: "business"
+              },
+              { 
+                icon: Users, 
+                title: "Family Law Documents", 
+                description: "Prenuptial, postnuptial & custody agreements",
+                bg: "from-[#F7DC6F]/80 to-[#F4D03F]/80",
+                action: "family"
+              },
+              { 
+                icon: Building, 
+                title: "Corporate Governance", 
+                description: "Articles, shareholder agreements & resolutions",
+                bg: "from-[#7C9885]/60 to-[#5D7A6B]/60",
+                action: "corporate"
+              },
+              { 
+                icon: Shield, 
+                title: "Compliance Documents", 
+                description: "Data protection, AML & environmental compliance",
+                bg: "from-[#C99383]/60 to-[#B8826F]/60",
+                action: "compliance"
+              },
+              { 
+                icon: FileCheck, 
+                title: "Dispute Resolution", 
+                description: "Settlement, arbitration & mediation agreements",
+                bg: "from-[#F7DC6F]/60 to-[#F4D03F]/60",
+                action: "dispute"
+              },
             ].map((useCase, index) => (
               <ScrollReveal key={index} delay={index * 100}>
                 <Card
                   className={`bg-gradient-to-br ${useCase.bg} border-0 transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl cursor-pointer group`}
+                  onClick={() => {
+                    if (useCase.action === "chat" || useCase.action === "analysis") {
+                      if (isAuthenticated) {
+                        router.push("/dashboard")
+                      } else {
+                        router.push("/signup")
+                      }
+                    } else {
+                      if (isAuthenticated) {
+                        router.push("/dashboard")
+                      } else {
+                        router.push("/signup")
+                      }
+                    }
+                  }}
                 >
                   <CardContent className="p-8 text-center space-y-4">
                     <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
                       <useCase.icon className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-xl font-bold text-white">{useCase.title}</h3>
+                    <p className="text-white/90 text-sm leading-relaxed">{useCase.description}</p>
                     <Button
                       variant="outline"
                       className="border-white text-white hover:bg-white hover:text-[#2D3748] transition-all duration-300 bg-transparent"
                     >
-                      Get Help Now
+                      {isAuthenticated ? "Go to Dashboard" : "Get Started"}
                     </Button>
                   </CardContent>
                 </Card>
