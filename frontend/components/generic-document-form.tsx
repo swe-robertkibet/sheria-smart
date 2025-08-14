@@ -95,6 +95,8 @@ export function GenericDocumentForm({
         return "Data Protection Compliance Agreement";
       case DocumentType.ANTI_MONEY_LAUNDERING_COMPLIANCE:
         return "Anti-Money Laundering Compliance";
+      case DocumentType.ENVIRONMENTAL_COMPLIANCE_AGREEMENT:
+        return "Environmental Compliance Agreement";
       default:
         return "Legal Document";
     }
@@ -150,6 +152,8 @@ export function GenericDocumentForm({
         return "Ensure compliance with data protection and privacy laws including Kenya Data Protection Act 2019";
       case DocumentType.ANTI_MONEY_LAUNDERING_COMPLIANCE:
         return "Implement comprehensive AML compliance programs and procedures in accordance with Kenya regulations";
+      case DocumentType.ENVIRONMENTAL_COMPLIANCE_AGREEMENT:
+        return "Ensure comprehensive environmental compliance with EMCA 2015, NEMA regulations, and Kenya environmental standards";
       default:
         return "Generate a professional legal document";
     }
@@ -7412,6 +7416,221 @@ export function GenericDocumentForm({
             required: false,
           },
 
+          ...basicFields,
+        ];
+
+      case DocumentType.ENVIRONMENTAL_COMPLIANCE_AGREEMENT:
+        return [
+          // Company/Organization Information
+          { key: 'companyName', label: 'Company/Organization Name', type: 'text', required: true },
+          { key: 'companyAddress', label: 'Company Address', type: 'textarea', required: true },
+          { key: 'companyEmail', label: 'Company Email', type: 'email', required: false },
+          { key: 'companyPhone', label: 'Company Phone', type: 'text', required: false },
+          { key: 'companyBusinessRegistration', label: 'Business Registration Number', type: 'text', required: false },
+          { key: 'companyLicenseNumber', label: 'License Number', type: 'text', required: false },
+          { key: 'companyType', label: 'Company Type', type: 'select', required: true, options: [
+            'manufacturing', 'mining', 'agriculture', 'construction', 'energy', 'transport', 'waste_management', 'hospitality', 'other'
+          ]},
+          { key: 'industryCategory', label: 'Industry Category', type: 'text', required: false },
+          { key: 'operationalScope', label: 'Operational Scope', type: 'textarea', required: false },
+          
+          // Environmental Officer Information
+          { key: 'environmentalOfficerName', label: 'Environmental Officer Name', type: 'text', required: true },
+          { key: 'environmentalOfficerTitle', label: 'Environmental Officer Title', type: 'text', required: false },
+          { key: 'environmentalOfficerEmail', label: 'Environmental Officer Email', type: 'email', required: false },
+          { key: 'environmentalOfficerPhone', label: 'Environmental Officer Phone', type: 'text', required: false },
+          { key: 'environmentalOfficerQualifications', label: 'Environmental Officer Qualifications', type: 'textarea', required: false },
+          { key: 'environmentalOfficerExperience', label: 'Environmental Officer Experience', type: 'textarea', required: false },
+          { key: 'environmentalOfficerDesignationDate', label: 'Designation Date', type: 'date', required: false },
+          { key: 'environmentalOfficerCertification', label: 'Environmental Officer Certification', type: 'textarea', required: false },
+          
+          // Legal Framework and Compliance
+          { key: 'environmentalLegalFramework', label: 'Environmental Legal Framework', type: 'textarea', required: true },
+          { key: 'emcaComplianceRequirements', label: 'EMCA 2015 Compliance Requirements', type: 'textarea', required: false },
+          { key: 'nemaLicensingRequirements', label: 'NEMA Licensing Requirements', type: 'textarea', required: false },
+          { key: 'eiaRequirements', label: 'EIA Requirements', type: 'textarea', required: false },
+          { key: 'environmentalAuditRequirements', label: 'Environmental Audit Requirements', type: 'textarea', required: false },
+          { key: 'countyEnvironmentalRequirements', label: 'County Environmental Requirements', type: 'textarea', required: false },
+          { key: 'internationalStandardsCompliance', label: 'International Standards Compliance', type: 'textarea', required: false },
+          { key: 'sectorSpecificRegulations', label: 'Sector-Specific Regulations', type: 'textarea', required: false },
+          
+          // Environmental Management System (EMS)
+          { key: 'environmentalManagementSystem', label: 'Environmental Management System', type: 'textarea', required: true },
+          { key: 'environmentalPolicyStatement', label: 'Environmental Policy Statement', type: 'textarea', required: false },
+          { key: 'environmentalObjectivesTargets', label: 'Environmental Objectives & Targets', type: 'textarea', required: false },
+          { key: 'environmentalManagementPrograms', label: 'Environmental Management Programs', type: 'textarea', required: false },
+          { key: 'environmentalProceduresDocumentation', label: 'Environmental Procedures Documentation', type: 'textarea', required: false },
+          { key: 'environmentalResponsibilities', label: 'Environmental Responsibilities', type: 'textarea', required: false },
+          { key: 'environmentalTrainingRequirements', label: 'Environmental Training Requirements', type: 'textarea', required: false },
+          
+          // Environmental Impact Assessment
+          { key: 'environmentalImpactAssessment', label: 'Environmental Impact Assessment', type: 'textarea', required: false },
+          { key: 'eiaStudyRequirements', label: 'EIA Study Requirements', type: 'textarea', required: false },
+          { key: 'environmentalImpactMitigation', label: 'Environmental Impact Mitigation', type: 'textarea', required: false },
+          { key: 'cumulativeImpactAssessment', label: 'Cumulative Impact Assessment', type: 'textarea', required: false },
+          { key: 'strategicEnvironmentalAssessment', label: 'Strategic Environmental Assessment', type: 'textarea', required: false },
+          { key: 'environmentalRiskAssessment', label: 'Environmental Risk Assessment', type: 'textarea', required: false },
+          
+          // Pollution Prevention and Control
+          { key: 'pollutionPreventionControl', label: 'Pollution Prevention & Control', type: 'textarea', required: true },
+          { key: 'airQualityManagement', label: 'Air Quality Management', type: 'textarea', required: false },
+          { key: 'waterPollutionControl', label: 'Water Pollution Control', type: 'textarea', required: false },
+          { key: 'soilContaminationPrevention', label: 'Soil Contamination Prevention', type: 'textarea', required: false },
+          { key: 'noisePollutonControl', label: 'Noise Pollution Control', type: 'textarea', required: false },
+          { key: 'lightPollutionManagement', label: 'Light Pollution Management', type: 'textarea', required: false },
+          { key: 'odorControlMeasures', label: 'Odor Control Measures', type: 'textarea', required: false },
+          { key: 'emissionControlSystems', label: 'Emission Control Systems', type: 'textarea', required: false },
+          
+          // Waste Management
+          { key: 'wasteManagementProcedures', label: 'Waste Management Procedures', type: 'textarea', required: true },
+          { key: 'wasteMinimizationStrategies', label: 'Waste Minimization Strategies', type: 'textarea', required: false },
+          { key: 'wasteSegregationProcedures', label: 'Waste Segregation Procedures', type: 'textarea', required: false },
+          { key: 'hazardousWasteManagement', label: 'Hazardous Waste Management', type: 'textarea', required: false },
+          { key: 'wasteStorageRequirements', label: 'Waste Storage Requirements', type: 'textarea', required: false },
+          { key: 'wasteTransportationProcedures', label: 'Waste Transportation Procedures', type: 'textarea', required: false },
+          { key: 'wasteDisposalMethods', label: 'Waste Disposal Methods', type: 'textarea', required: false },
+          { key: 'wasteRecyclingPrograms', label: 'Waste Recycling Programs', type: 'textarea', required: false },
+          { key: 'wasteAuditProcedures', label: 'Waste Audit Procedures', type: 'textarea', required: false },
+          
+          // Water Resource Management
+          { key: 'waterResourceManagement', label: 'Water Resource Management', type: 'textarea', required: false },
+          { key: 'waterConservationMeasures', label: 'Water Conservation Measures', type: 'textarea', required: false },
+          { key: 'waterQualityMonitoring', label: 'Water Quality Monitoring', type: 'textarea', required: false },
+          { key: 'waterUseEfficiency', label: 'Water Use Efficiency', type: 'textarea', required: false },
+          { key: 'waterRecyclingReuse', label: 'Water Recycling & Reuse', type: 'textarea', required: false },
+          { key: 'groundwaterProtection', label: 'Groundwater Protection', type: 'textarea', required: false },
+          { key: 'surfaceWaterProtection', label: 'Surface Water Protection', type: 'textarea', required: false },
+          { key: 'waterPermitCompliance', label: 'Water Permit Compliance', type: 'textarea', required: false },
+          
+          // Energy Management
+          { key: 'energyManagement', label: 'Energy Management', type: 'textarea', required: false },
+          { key: 'energyConservationMeasures', label: 'Energy Conservation Measures', type: 'textarea', required: false },
+          { key: 'energyEfficiencyPrograms', label: 'Energy Efficiency Programs', type: 'textarea', required: false },
+          { key: 'renewableEnergyInitiatives', label: 'Renewable Energy Initiatives', type: 'textarea', required: false },
+          { key: 'energyAuditRequirements', label: 'Energy Audit Requirements', type: 'textarea', required: false },
+          { key: 'carbonFootprintReduction', label: 'Carbon Footprint Reduction', type: 'textarea', required: false },
+          { key: 'climateChangeAdaptation', label: 'Climate Change Adaptation', type: 'textarea', required: false },
+          
+          // Biodiversity and Ecosystem Conservation
+          { key: 'biodiversityConservation', label: 'Biodiversity Conservation', type: 'textarea', required: false },
+          { key: 'ecosystemProtectionMeasures', label: 'Ecosystem Protection Measures', type: 'textarea', required: false },
+          { key: 'wildlifeProtection', label: 'Wildlife Protection', type: 'textarea', required: false },
+          { key: 'forestConservation', label: 'Forest Conservation', type: 'textarea', required: false },
+          { key: 'marineProtection', label: 'Marine Protection', type: 'textarea', required: false },
+          { key: 'habitatRestoration', label: 'Habitat Restoration', type: 'textarea', required: false },
+          { key: 'invasiveSpeciesManagement', label: 'Invasive Species Management', type: 'textarea', required: false },
+          
+          // Chemical and Hazardous Substances Management
+          { key: 'chemicalManagement', label: 'Chemical Management', type: 'textarea', required: false },
+          { key: 'hazardousSubstancesHandling', label: 'Hazardous Substances Handling', type: 'textarea', required: false },
+          { key: 'chemicalStorageRequirements', label: 'Chemical Storage Requirements', type: 'textarea', required: false },
+          { key: 'chemicalTransportSafety', label: 'Chemical Transport Safety', type: 'textarea', required: false },
+          { key: 'chemicalInventoryManagement', label: 'Chemical Inventory Management', type: 'textarea', required: false },
+          { key: 'materialSafetyDataSheets', label: 'Material Safety Data Sheets', type: 'textarea', required: false },
+          { key: 'chemicalEmergencyResponse', label: 'Chemical Emergency Response', type: 'textarea', required: false },
+          
+          // Environmental Monitoring and Reporting
+          { key: 'environmentalMonitoring', label: 'Environmental Monitoring', type: 'textarea', required: true },
+          { key: 'monitoringParameters', label: 'Monitoring Parameters', type: 'textarea', required: false },
+          { key: 'monitoringFrequency', label: 'Monitoring Frequency', type: 'text', required: false },
+          { key: 'monitoringMethods', label: 'Monitoring Methods', type: 'textarea', required: false },
+          { key: 'monitoringEquipmentRequirements', label: 'Monitoring Equipment Requirements', type: 'textarea', required: false },
+          { key: 'dataCollectionProcedures', label: 'Data Collection Procedures', type: 'textarea', required: false },
+          { key: 'laboratoryAnalysisRequirements', label: 'Laboratory Analysis Requirements', type: 'textarea', required: false },
+          { key: 'monitoringReportingTimelines', label: 'Monitoring Reporting Timelines', type: 'textarea', required: false },
+          
+          // Community Engagement and Relations
+          { key: 'communityEngagement', label: 'Community Engagement', type: 'textarea', required: true },
+          { key: 'stakeholderConsultationProcedures', label: 'Stakeholder Consultation Procedures', type: 'textarea', required: false },
+          { key: 'publicParticipationRequirements', label: 'Public Participation Requirements', type: 'textarea', required: false },
+          { key: 'communityGrievanceMechanisms', label: 'Community Grievance Mechanisms', type: 'textarea', required: false },
+          { key: 'corporateSocialResponsibility', label: 'Corporate Social Responsibility', type: 'textarea', required: false },
+          { key: 'communityDevelopmentPrograms', label: 'Community Development Programs', type: 'textarea', required: false },
+          { key: 'culturalHeritageProtection', label: 'Cultural Heritage Protection', type: 'textarea', required: false },
+          { key: 'landRightsConsiderations', label: 'Land Rights Considerations', type: 'textarea', required: false },
+          
+          // Environmental Training and Awareness
+          { key: 'environmentalTraining', label: 'Environmental Training', type: 'textarea', required: true },
+          { key: 'staffTrainingPrograms', label: 'Staff Training Programs', type: 'textarea', required: false },
+          { key: 'environmentalAwarenessPrograms', label: 'Environmental Awareness Programs', type: 'textarea', required: false },
+          { key: 'capacityBuildingInitiatives', label: 'Capacity Building Initiatives', type: 'textarea', required: false },
+          { key: 'trainingRecordKeeping', label: 'Training Record Keeping', type: 'textarea', required: false },
+          { key: 'environmentalEducationPrograms', label: 'Environmental Education Programs', type: 'textarea', required: false },
+          { key: 'communityAwarenessPrograms', label: 'Community Awareness Programs', type: 'textarea', required: false },
+          
+          // Emergency Response and Incident Management
+          { key: 'emergencyResponsePlan', label: 'Emergency Response Plan', type: 'textarea', required: false },
+          { key: 'environmentalIncidentManagement', label: 'Environmental Incident Management', type: 'textarea', required: false },
+          { key: 'spillResponseProcedures', label: 'Spill Response Procedures', type: 'textarea', required: false },
+          { key: 'fireEmergencyProcedures', label: 'Fire Emergency Procedures', type: 'textarea', required: false },
+          { key: 'evacuationProcedures', label: 'Evacuation Procedures', type: 'textarea', required: false },
+          { key: 'emergencyContactProcedures', label: 'Emergency Contact Procedures', type: 'textarea', required: false },
+          { key: 'incidentReportingProcedures', label: 'Incident Reporting Procedures', type: 'textarea', required: false },
+          { key: 'postIncidentInvestigation', label: 'Post-Incident Investigation', type: 'textarea', required: false },
+          
+          // Environmental Audit and Review
+          { key: 'environmentalAuditProcedures', label: 'Environmental Audit Procedures', type: 'textarea', required: false },
+          { key: 'internalAuditSchedule', label: 'Internal Audit Schedule', type: 'text', required: false },
+          { key: 'externalAuditRequirements', label: 'External Audit Requirements', type: 'textarea', required: false },
+          { key: 'auditFindingsManagement', label: 'Audit Findings Management', type: 'textarea', required: false },
+          { key: 'correctiveActionProcedures', label: 'Corrective Action Procedures', type: 'textarea', required: false },
+          { key: 'managementReviewProcedures', label: 'Management Review Procedures', type: 'textarea', required: false },
+          { key: 'continuousImprovementPrograms', label: 'Continuous Improvement Programs', type: 'textarea', required: false },
+          
+          // Compliance Monitoring and Enforcement
+          { key: 'complianceMonitoring', label: 'Compliance Monitoring', type: 'textarea', required: true },
+          { key: 'regulatoryInspectionProcedures', label: 'Regulatory Inspection Procedures', type: 'textarea', required: false },
+          { key: 'complianceReportingRequirements', label: 'Compliance Reporting Requirements', type: 'textarea', required: false },
+          { key: 'nonComplianceManagement', label: 'Non-Compliance Management', type: 'textarea', required: false },
+          { key: 'enforcementActionResponse', label: 'Enforcement Action Response', type: 'textarea', required: false },
+          { key: 'legalComplianceVerification', label: 'Legal Compliance Verification', type: 'textarea', required: false },
+          
+          // Environmental Performance Indicators
+          { key: 'environmentalPerformanceIndicators', label: 'Environmental Performance Indicators', type: 'textarea', required: false },
+          { key: 'kpiMonitoringProcedures', label: 'KPI Monitoring Procedures', type: 'textarea', required: false },
+          { key: 'performanceBenchmarking', label: 'Performance Benchmarking', type: 'textarea', required: false },
+          { key: 'improvementTargetSetting', label: 'Improvement Target Setting', type: 'textarea', required: false },
+          { key: 'performanceReporting', label: 'Performance Reporting', type: 'textarea', required: false },
+          
+          // Documentation and Record Keeping
+          { key: 'documentationRequirements', label: 'Documentation Requirements', type: 'textarea', required: true },
+          { key: 'recordKeepingProcedures', label: 'Record Keeping Procedures', type: 'textarea', required: false },
+          { key: 'documentControlSystems', label: 'Document Control Systems', type: 'textarea', required: false },
+          { key: 'dataManagementProcedures', label: 'Data Management Procedures', type: 'textarea', required: false },
+          { key: 'reportingFormats', label: 'Reporting Formats', type: 'textarea', required: false },
+          { key: 'archivalRequirements', label: 'Archival Requirements', type: 'textarea', required: false },
+          
+          // Governing Law and Jurisdiction
+          { key: 'governingLaw', label: 'Governing Law', type: 'text', required: false },
+          { key: 'regulatoryAuthorities', label: 'Regulatory Authorities', type: 'textarea', required: false },
+          { key: 'disputeResolutionMechanisms', label: 'Dispute Resolution Mechanisms', type: 'textarea', required: false },
+          { key: 'jurisdictionClauses', label: 'Jurisdiction Clauses', type: 'textarea', required: false },
+          { key: 'internationalAgreementsCompliance', label: 'International Agreements Compliance', type: 'textarea', required: false },
+          
+          // Implementation and Review
+          { key: 'implementationTimeline', label: 'Implementation Timeline', type: 'textarea', required: false },
+          { key: 'implementationPhasePlanning', label: 'Implementation Phase Planning', type: 'textarea', required: false },
+          { key: 'reviewSchedule', label: 'Review Schedule', type: 'text', required: false },
+          { key: 'updateProcedures', label: 'Update Procedures', type: 'textarea', required: false },
+          { key: 'stakeholderFeedbackIncorporation', label: 'Stakeholder Feedback Incorporation', type: 'textarea', required: false },
+          { key: 'adaptiveManagementApproach', label: 'Adaptive Management Approach', type: 'textarea', required: false },
+          
+          // Amendment and Termination
+          { key: 'amendmentProcedures', label: 'Amendment Procedures', type: 'textarea', required: false },
+          { key: 'terminationConditions', label: 'Termination Conditions', type: 'textarea', required: false },
+          { key: 'terminationNoticeRequirements', label: 'Termination Notice Requirements', type: 'text', required: false },
+          { key: 'postTerminationObligations', label: 'Post-Termination Obligations', type: 'textarea', required: false },
+          { key: 'handoverProcedures', label: 'Handover Procedures', type: 'textarea', required: false },
+          
+          // Signatures and Approvals
+          { key: 'signatureRequirements', label: 'Signature Requirements', type: 'textarea', required: false },
+          { key: 'witnessRequirements', label: 'Witness Requirements', type: 'textarea', required: false },
+          { key: 'notarizationRequirements', label: 'Notarization Requirements', type: 'textarea', required: false },
+          { key: 'boardApprovalDate', label: 'Board Approval Date', type: 'date', required: false },
+          { key: 'managementApprovalDate', label: 'Management Approval Date', type: 'date', required: false },
+          { key: 'nemaApprovalRequirements', label: 'NEMA Approval Requirements', type: 'textarea', required: false },
+          { key: 'countyGovernmentApproval', label: 'County Government Approval', type: 'textarea', required: false },
+          
           ...basicFields,
         ];
 

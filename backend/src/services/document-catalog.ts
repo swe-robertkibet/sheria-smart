@@ -375,9 +375,14 @@ export class DocumentCatalog {
       name: 'Environmental Compliance Agreement',
       category: DocumentCategory.REGULATORY_COMPLIANCE,
       description: 'Ensure compliance with environmental regulations and standards',
-      isActive: false,
+      isActive: true,
       complexity: 'High',
-      requiredFields: []
+      requiredFields: [
+        'companyName', 'companyAddress', 'companyType', 'environmentalOfficerName',
+        'environmentalLegalFramework', 'environmentalManagementSystem', 'pollutionPreventionControl',
+        'wasteManagementProcedures', 'environmentalMonitoring', 'communityEngagement',
+        'environmentalTraining', 'complianceMonitoring', 'documentationRequirements', 'effectiveDate'
+      ]
     }
   };
 
