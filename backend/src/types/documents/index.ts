@@ -36,6 +36,7 @@ export * from './litigation/mediation-agreement';
 
 // Regulatory & Compliance
 export * from './compliance/data-protection-compliance';
+export * from './compliance/anti-money-laundering';
 
 // Family Law (simplified interfaces for remaining categories)
 

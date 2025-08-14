@@ -362,9 +362,14 @@ export class DocumentCatalog {
       name: 'Anti-Money Laundering Compliance',
       category: DocumentCategory.REGULATORY_COMPLIANCE,
       description: 'Implement AML compliance programs and procedures',
-      isActive: false,
+      isActive: true,
       complexity: 'High',
-      requiredFields: []
+      requiredFields: [
+        'institutionName', 'institutionAddress', 'institutionType', 'complianceOfficerName',
+        'amlPolicyFramework', 'customerDueDiligenceProcedures', 'kycRequirements',
+        'transactionMonitoring', 'suspiciousActivityReporting', 'recordKeepingRequirements',
+        'trainingPrograms', 'riskAssessmentProcedures', 'reportingObligations', 'effectiveDate'
+      ]
     },
     [DocumentType.ENVIRONMENTAL_COMPLIANCE_AGREEMENT]: {
       name: 'Environmental Compliance Agreement',

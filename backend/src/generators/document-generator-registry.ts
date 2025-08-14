@@ -39,6 +39,7 @@ import { MediationAgreementGenerator } from './litigation/mediation-agreement-ge
 
 // Regulatory & Compliance generators
 import { DataProtectionComplianceGenerator } from './compliance/data-protection-compliance-generator';
+import { AntiMoneyLaunderingGenerator } from './compliance/anti-money-laundering-generator';
 
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
@@ -136,6 +137,7 @@ export class DocumentGeneratorRegistry {
     
     // Regulatory & Compliance generators
     this.generators.set(DocumentType.DATA_PROTECTION_COMPLIANCE_AGREEMENT, new DataProtectionComplianceGenerator());
+    this.generators.set(DocumentType.ANTI_MONEY_LAUNDERING_COMPLIANCE, new AntiMoneyLaunderingGenerator());
   }
 
   getGenerator(documentType: DocumentType): BaseDocumentGenerator | null {
