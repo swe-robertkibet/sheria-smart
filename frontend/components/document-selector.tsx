@@ -16,7 +16,7 @@ import {
   Scale,
   ChevronRight,
 } from "lucide-react";
-import { useScrollToTop } from "@/hooks/use-scroll-to-top";
+import { useScrollToTop, useScrollToTopOnChange } from "@/hooks/use-scroll-to-top";
 import {
   DocumentType,
   DocumentCategory,
@@ -46,6 +46,9 @@ export function DocumentSelector({
 
   // Reset scroll position when component mounts
   useScrollToTop();
+
+  // Reset scroll position when category selection changes
+  useScrollToTopOnChange([selectedCategory]);
 
   useEffect(() => {
     fetchCategories();
