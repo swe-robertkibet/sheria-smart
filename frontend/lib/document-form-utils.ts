@@ -22,13 +22,21 @@ export const processUserInput = (
 ): Record<string, any> => {
   let processedUserInput = { ...formData };
 
+  // Trim whitespace from all string values
+  Object.keys(processedUserInput).forEach(key => {
+    const value = processedUserInput[key];
+    if (typeof value === 'string') {
+      processedUserInput[key] = value.trim();
+    }
+  });
+
   // Handle Partnership Agreement partners array conversion
   if (
     documentType === DocumentType.PARTNERSHIP_AGREEMENT &&
-    formData.partnersInfo
+    processedUserInput.partnersInfo
   ) {
     try {
-      processedUserInput.partners = JSON.parse(formData.partnersInfo);
+      processedUserInput.partners = JSON.parse(processedUserInput.partnersInfo);
       delete processedUserInput.partnersInfo;
     } catch (error) {
       throw new Error(
