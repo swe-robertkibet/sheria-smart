@@ -35,6 +35,7 @@ import { BoardResolutionGenerator } from './corporate/board-resolution-generator
 // Litigation & Dispute Resolution generators
 import { SettlementAgreementGenerator } from './litigation/settlement-agreement-generator';
 import { ArbitrationAgreementGenerator } from './litigation/arbitration-agreement-generator';
+import { MediationAgreementGenerator } from './litigation/mediation-agreement-generator';
 
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
@@ -128,6 +129,7 @@ export class DocumentGeneratorRegistry {
     // Litigation & Dispute Resolution generators
     this.generators.set(DocumentType.SETTLEMENT_AGREEMENT, new SettlementAgreementGenerator());
     this.generators.set(DocumentType.ARBITRATION_AGREEMENT, new ArbitrationAgreementGenerator());
+    this.generators.set(DocumentType.MEDIATION_AGREEMENT, new MediationAgreementGenerator());
   }
 
   getGenerator(documentType: DocumentType): BaseDocumentGenerator | null {

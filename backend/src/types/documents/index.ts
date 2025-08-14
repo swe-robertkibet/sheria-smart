@@ -32,6 +32,7 @@ export * from './corporate/board-resolution';
 // Litigation & Dispute Resolution
 export * from './litigation/settlement-agreement';
 export * from './litigation/arbitration-agreement';
+export * from './litigation/mediation-agreement';
 
 // Family Law (simplified interfaces for remaining categories)
 

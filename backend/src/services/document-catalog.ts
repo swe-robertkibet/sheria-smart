@@ -335,9 +335,13 @@ export class DocumentCatalog {
       name: 'Mediation Agreement',
       category: DocumentCategory.LITIGATION_DISPUTE,
       description: 'Engage in structured mediation process for dispute resolution',
-      isActive: false,
-      complexity: 'Low',
-      requiredFields: []
+      isActive: true,
+      complexity: 'Medium',
+      requiredFields: [
+        'party1Name', 'party1Address', 'party2Name', 'party2Address',
+        'disputeDescription', 'mediatorSelection', 'mediationProcedures', 'costSharing',
+        'confidentialityProvisions', 'effectiveDate'
+      ]
     },
 
     // Regulatory & Compliance (simplified for now)

@@ -76,6 +76,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Settlement Agreement'
       case DocumentType.ARBITRATION_AGREEMENT:
         return 'Arbitration Agreement'
+      case DocumentType.MEDIATION_AGREEMENT:
+        return 'Mediation Agreement'
       default:
         return 'Legal Document'
     }
@@ -125,6 +127,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Resolve disputes and avoid continued litigation through comprehensive settlement terms'
       case DocumentType.ARBITRATION_AGREEMENT:
         return 'Require binding arbitration for dispute resolution'
+      case DocumentType.MEDIATION_AGREEMENT:
+        return 'Engage in structured mediation process for dispute resolution'
       default:
         return 'Generate a professional legal document'
     }
@@ -1405,6 +1409,105 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           { key: 'successorObligations', label: 'Successor Obligations', type: 'textarea', required: false },
           { key: 'noticeRequirements', label: 'Notice Requirements', type: 'textarea', required: false },
           { key: 'waiverProvisions', label: 'Waiver Provisions', type: 'textarea', required: false },
+          
+          ...basicFields
+        ]
+
+      case DocumentType.MEDIATION_AGREEMENT:
+        return [
+          // Party 1 Information
+          { key: 'party1Name', label: 'Party 1 Name', type: 'text', required: true },
+          { key: 'party1Address', label: 'Party 1 Address', type: 'textarea', required: true },
+          { key: 'party1Email', label: 'Party 1 Email', type: 'email', required: false },
+          { key: 'party1Phone', label: 'Party 1 Phone', type: 'text', required: false },
+          { key: 'party1LegalRep', label: 'Party 1 Legal Representative', type: 'text', required: false },
+          { key: 'party1LegalRepFirm', label: 'Party 1 Law Firm', type: 'text', required: false },
+          { key: 'party1LegalRepAddress', label: 'Party 1 Legal Rep Address', type: 'textarea', required: false },
+          
+          // Party 2 Information
+          { key: 'party2Name', label: 'Party 2 Name', type: 'text', required: true },
+          { key: 'party2Address', label: 'Party 2 Address', type: 'textarea', required: true },
+          { key: 'party2Email', label: 'Party 2 Email', type: 'email', required: false },
+          { key: 'party2Phone', label: 'Party 2 Phone', type: 'text', required: false },
+          { key: 'party2LegalRep', label: 'Party 2 Legal Representative', type: 'text', required: false },
+          { key: 'party2LegalRepFirm', label: 'Party 2 Law Firm', type: 'text', required: false },
+          { key: 'party2LegalRepAddress', label: 'Party 2 Legal Rep Address', type: 'textarea', required: false },
+          
+          // Dispute Background and Context
+          { key: 'disputeDescription', label: 'Dispute Description', type: 'textarea', required: true },
+          { key: 'disputeBackground', label: 'Dispute Background', type: 'textarea', required: false },
+          { key: 'disputeSubjectMatter', label: 'Dispute Subject Matter', type: 'textarea', required: false },
+          { key: 'disputeValue', label: 'Dispute Value', type: 'text', required: false },
+          { key: 'priorNegotiationAttempts', label: 'Prior Negotiation Attempts', type: 'textarea', required: false },
+          { key: 'urgencyFactors', label: 'Urgency Factors', type: 'textarea', required: false },
+          
+          // Mediation Process and Structure
+          { key: 'mediationObjectives', label: 'Mediation Objectives', type: 'textarea', required: false },
+          { key: 'mediationProcedures', label: 'Mediation Procedures', type: 'textarea', required: true },
+          { key: 'mediationTimeline', label: 'Mediation Timeline', type: 'text', required: false },
+          { key: 'mediationVenue', label: 'Mediation Venue', type: 'text', required: false },
+          { key: 'mediationLanguage', label: 'Mediation Language', type: 'text', required: false },
+          { key: 'sessionScheduling', label: 'Session Scheduling', type: 'textarea', required: false },
+          { key: 'documentDisclosure', label: 'Document Disclosure', type: 'textarea', required: false },
+          { key: 'preparatorySteps', label: 'Preparatory Steps', type: 'textarea', required: false },
+          
+          // Mediator Selection and Qualifications
+          { key: 'mediatorSelection', label: 'Mediator Selection', type: 'textarea', required: true },
+          { key: 'mediatorQualifications', label: 'Mediator Qualifications', type: 'textarea', required: false },
+          { key: 'mediatorAppointmentProcess', label: 'Mediator Appointment Process', type: 'textarea', required: false },
+          { key: 'mediatorChallengeProcess', label: 'Mediator Challenge Process', type: 'textarea', required: false },
+          { key: 'mediatorRemunerationRate', label: 'Mediator Remuneration Rate', type: 'text', required: false },
+          { key: 'alternativeMediatorProvisions', label: 'Alternative Mediator Provisions', type: 'textarea', required: false },
+          
+          // Cost Sharing and Financial Arrangements
+          { key: 'costSharing', label: 'Cost Sharing', type: 'textarea', required: true },
+          { key: 'mediatorFeeAllocation', label: 'Mediator Fee Allocation', type: 'select', required: false, options: ['equal_sharing', 'requesting_party', 'custom_allocation'] },
+          { key: 'venueAndFacilityCosts', label: 'Venue and Facility Costs', type: 'textarea', required: false },
+          { key: 'administrativeFees', label: 'Administrative Fees', type: 'textarea', required: false },
+          { key: 'paymentSchedule', label: 'Payment Schedule', type: 'textarea', required: false },
+          { key: 'currency', label: 'Currency', type: 'select', required: false, options: ['KES', 'USD', 'EUR', 'GBP', 'other'] },
+          
+          // Confidentiality and Non-Disclosure
+          { key: 'confidentialityLevel', label: 'Confidentiality Level', type: 'select', required: false, options: ['strict', 'standard', 'limited'] },
+          { key: 'confidentialityProvisions', label: 'Confidentiality Provisions', type: 'textarea', required: true },
+          { key: 'confidentialityScope', label: 'Confidentiality Scope', type: 'textarea', required: false },
+          { key: 'confidentialityExceptions', label: 'Confidentiality Exceptions', type: 'textarea', required: false },
+          { key: 'documentProtection', label: 'Document Protection', type: 'textarea', required: false },
+          { key: 'mediatorDisclosureRestrictions', label: 'Mediator Disclosure Restrictions', type: 'textarea', required: false },
+          
+          // Legal Framework and Compliance
+          { key: 'governingLaw', label: 'Governing Law', type: 'text', required: false },
+          { key: 'mediationRules', label: 'Mediation Rules', type: 'select', required: false, options: ['ad_hoc', 'ciarb_rules', 'ncia_rules', 'uncitral_conciliation', 'custom_rules'] },
+          { key: 'customRulesDescription', label: 'Custom Rules Description', type: 'textarea', required: false },
+          { key: 'legalRepresentationRights', label: 'Legal Representation Rights', type: 'textarea', required: false },
+          { key: 'complianceRequirements', label: 'Compliance Requirements', type: 'textarea', required: false },
+          
+          // Settlement and Outcome Provisions
+          { key: 'settlementAuthority', label: 'Settlement Authority', type: 'textarea', required: false },
+          { key: 'bindingSettlementProcess', label: 'Binding Settlement Process', type: 'textarea', required: false },
+          { key: 'partialSettlementProvisions', label: 'Partial Settlement Provisions', type: 'textarea', required: false },
+          { key: 'implementationProcedures', label: 'Implementation Procedures', type: 'textarea', required: false },
+          { key: 'postMediationObligations', label: 'Post-Mediation Obligations', type: 'textarea', required: false },
+          
+          // Termination and Alternative Procedures
+          { key: 'terminationConditions', label: 'Termination Conditions', type: 'textarea', required: false },
+          { key: 'terminationNoticeRequirements', label: 'Termination Notice Requirements', type: 'textarea', required: false },
+          { key: 'unsuccessfulMediationConsequences', label: 'Unsuccessful Mediation Consequences', type: 'textarea', required: false },
+          { key: 'alternativeDisputeResolution', label: 'Alternative Dispute Resolution', type: 'textarea', required: false },
+          { key: 'courtProceedingsRestrictions', label: 'Court Proceedings Restrictions', type: 'textarea', required: false },
+          
+          // General Provisions
+          { key: 'communicationProtocol', label: 'Communication Protocol', type: 'textarea', required: false },
+          { key: 'amendmentProcedures', label: 'Amendment Procedures', type: 'textarea', required: false },
+          { key: 'forceeMajeureProvisions', label: 'Force Majeure Provisions', type: 'textarea', required: false },
+          { key: 'noticeRequirements', label: 'Notice Requirements', type: 'textarea', required: false },
+          { key: 'jurisdiction', label: 'Jurisdiction', type: 'text', required: false },
+          
+          // Execution Details
+          { key: 'mediationCommencementDate', label: 'Mediation Commencement Date', type: 'date', required: false },
+          { key: 'signatureRequirements', label: 'Signature Requirements', type: 'textarea', required: false },
+          { key: 'witnessRequirements', label: 'Witness Requirements', type: 'textarea', required: false },
+          { key: 'notarizationRequirements', label: 'Notarization Required', type: 'select', required: false, options: ['yes', 'no'] },
           
           ...basicFields
         ]
