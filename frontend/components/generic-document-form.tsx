@@ -74,6 +74,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Board Resolution'
       case DocumentType.SETTLEMENT_AGREEMENT:
         return 'Settlement Agreement'
+      case DocumentType.ARBITRATION_AGREEMENT:
+        return 'Arbitration Agreement'
       default:
         return 'Legal Document'
     }
@@ -121,6 +123,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Document formal board decisions and authorizations'
       case DocumentType.SETTLEMENT_AGREEMENT:
         return 'Resolve disputes and avoid continued litigation through comprehensive settlement terms'
+      case DocumentType.ARBITRATION_AGREEMENT:
+        return 'Require binding arbitration for dispute resolution'
       default:
         return 'Generate a professional legal document'
     }
@@ -1284,6 +1288,124 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           { key: 'noticeRequirements', label: 'Notice Requirements', type: 'textarea', required: false },
           { key: 'interpretationRules', label: 'Interpretation Rules', type: 'textarea', required: false },
 
+          ...basicFields
+        ]
+
+      case DocumentType.ARBITRATION_AGREEMENT:
+        return [
+          // Party 1 Information
+          { key: 'party1Name', label: 'Party 1 Name', type: 'text', required: true },
+          { key: 'party1Address', label: 'Party 1 Address', type: 'textarea', required: true },
+          { key: 'party1Email', label: 'Party 1 Email', type: 'email', required: true },
+          { key: 'party1Phone', label: 'Party 1 Phone', type: 'text', required: false },
+          { key: 'party1LegalRep', label: 'Party 1 Legal Representative', type: 'text', required: false },
+          { key: 'party1LegalRepFirm', label: 'Party 1 Law Firm', type: 'text', required: false },
+          { key: 'party1LegalRepAddress', label: 'Party 1 Legal Rep Address', type: 'textarea', required: false },
+          
+          // Party 2 Information
+          { key: 'party2Name', label: 'Party 2 Name', type: 'text', required: true },
+          { key: 'party2Address', label: 'Party 2 Address', type: 'textarea', required: true },
+          { key: 'party2Email', label: 'Party 2 Email', type: 'email', required: true },
+          { key: 'party2Phone', label: 'Party 2 Phone', type: 'text', required: false },
+          { key: 'party2LegalRep', label: 'Party 2 Legal Representative', type: 'text', required: false },
+          { key: 'party2LegalRepFirm', label: 'Party 2 Law Firm', type: 'text', required: false },
+          { key: 'party2LegalRepAddress', label: 'Party 2 Legal Rep Address', type: 'textarea', required: false },
+          
+          // Additional Parties
+          { key: 'additionalParties', label: 'Additional Parties (if applicable)', type: 'textarea', required: false },
+          
+          // Agreement Form and Scope
+          { key: 'agreementType', label: 'Agreement Type', type: 'select', required: true, options: ['clause', 'separate_agreement'] },
+          { key: 'disputeScope', label: 'Dispute Scope', type: 'textarea', required: true },
+          { key: 'disputeCoverage', label: 'Dispute Coverage', type: 'select', required: true, options: ['arising_from_contract', 'arising_or_may_arise', 'all_disputes', 'specific_matters'] },
+          { key: 'specificMattersDescription', label: 'Specific Matters Description', type: 'textarea', required: false },
+          { key: 'contractualBasis', label: 'Contractual Basis', type: 'textarea', required: false },
+          { key: 'legalRelationshipContext', label: 'Legal Relationship Context', type: 'textarea', required: true },
+          
+          // Arbitration Institution and Rules
+          { key: 'arbitrationRules', label: 'Arbitration Rules', type: 'select', required: true, options: ['ncia_rules', 'ad_hoc', 'icc_rules', 'lcia_rules', 'uncitral_rules', 'custom_rules'] },
+          { key: 'customRulesDescription', label: 'Custom Rules Description', type: 'textarea', required: false },
+          { key: 'institutionalAdministration', label: 'Institutional Administration', type: 'select', required: false, options: ['yes', 'no'] },
+          { key: 'appointingAuthority', label: 'Appointing Authority', type: 'text', required: false },
+          
+          // Arbitrator Selection
+          { key: 'numberOfArbitrators', label: 'Number of Arbitrators', type: 'select', required: true, options: ['1', '3', 'parties_to_agree'] },
+          { key: 'arbitratorQualifications', label: 'Arbitrator Qualifications', type: 'textarea', required: true },
+          { key: 'arbitratorSelectionMethod', label: 'Arbitrator Selection Method', type: 'textarea', required: true },
+          { key: 'arbitratorAppointmentProcess', label: 'Arbitrator Appointment Process', type: 'textarea', required: true },
+          { key: 'arbitratorNationalityRestrictions', label: 'Arbitrator Nationality Restrictions', type: 'text', required: false },
+          { key: 'arbitratorLanguageRequirements', label: 'Arbitrator Language Requirements', type: 'text', required: false },
+          { key: 'arbitratorExpertiseRequired', label: 'Required Arbitrator Expertise', type: 'textarea', required: false },
+          { key: 'arbitratorChallengeProcess', label: 'Arbitrator Challenge Process', type: 'textarea', required: false },
+          { key: 'arbitratorIndependenceRequirements', label: 'Arbitrator Independence Requirements', type: 'textarea', required: true },
+          { key: 'emergencyArbitratorProvision', label: 'Emergency Arbitrator Provision', type: 'select', required: false, options: ['yes', 'no'] },
+          { key: 'emergencyArbitratorProcedures', label: 'Emergency Arbitrator Procedures', type: 'textarea', required: false },
+          
+          // Procedural Provisions
+          { key: 'arbitrationSeat', label: 'Arbitration Seat', type: 'text', required: true },
+          { key: 'arbitrationVenue', label: 'Arbitration Venue', type: 'text', required: false },
+          { key: 'procedureLanguage', label: 'Procedure Language', type: 'text', required: true },
+          { key: 'hearingLocation', label: 'Hearing Location', type: 'text', required: false },
+          { key: 'documentSubmissionLanguage', label: 'Document Submission Language', type: 'text', required: false },
+          { key: 'translationRequirements', label: 'Translation Requirements', type: 'textarea', required: false },
+          { key: 'timelineLimitations', label: 'Timeline Limitations', type: 'textarea', required: false },
+          { key: 'proceduralSchedule', label: 'Procedural Schedule', type: 'textarea', required: false },
+          { key: 'evidenceRules', label: 'Evidence Rules', type: 'textarea', required: false },
+          { key: 'documentDiscovery', label: 'Document Discovery', type: 'select', required: false, options: ['limited', 'extensive', 'none'] },
+          { key: 'witnessExamination', label: 'Witness Examination', type: 'select', required: false, options: ['written_only', 'oral_hearings', 'both'] },
+          { key: 'expertWitnessRights', label: 'Expert Witness Rights', type: 'select', required: false, options: ['yes', 'no'] },
+          { key: 'expertWitnessProcedures', label: 'Expert Witness Procedures', type: 'textarea', required: false },
+          
+          // Interim Measures
+          { key: 'interimMeasuresRights', label: 'Interim Measures Rights', type: 'select', required: false, options: ['yes', 'no'] },
+          { key: 'interimMeasuresProcedures', label: 'Interim Measures Procedures', type: 'textarea', required: false },
+          { key: 'courtInterimMeasures', label: 'Court Interim Measures', type: 'select', required: false, options: ['permitted', 'excluded'] },
+          
+          // Legal Framework
+          { key: 'governingLawSubstance', label: 'Governing Law (Substance)', type: 'text', required: true },
+          { key: 'governingLawProcedure', label: 'Governing Law (Procedure)', type: 'text', required: true },
+          { key: 'jurisdictionExclusion', label: 'Jurisdiction Exclusion', type: 'select', required: false, options: ['yes', 'no'] },
+          { key: 'courtJurisdictionExceptions', label: 'Court Jurisdiction Exceptions', type: 'textarea', required: false },
+          
+          // Costs and Fees
+          { key: 'costAllocation', label: 'Cost Allocation', type: 'select', required: true, options: ['equal_sharing', 'loser_pays', 'tribunal_discretion', 'custom_allocation'] },
+          { key: 'customCostAllocation', label: 'Custom Cost Allocation', type: 'textarea', required: false },
+          { key: 'advanceOnCosts', label: 'Advance on Costs', type: 'textarea', required: false },
+          { key: 'feePaymentResponsibility', label: 'Fee Payment Responsibility', type: 'textarea', required: true },
+          { key: 'legalCostsAllocation', label: 'Legal Costs Allocation', type: 'select', required: false, options: ['each_party_own', 'loser_pays', 'tribunal_discretion'] },
+          { key: 'currency', label: 'Currency', type: 'select', required: true, options: ['KES', 'USD', 'EUR', 'GBP', 'other'] },
+          { key: 'otherCurrency', label: 'Other Currency', type: 'text', required: false },
+          
+          // Confidentiality Provisions
+          { key: 'confidentialityLevel', label: 'Confidentiality Level', type: 'select', required: true, options: ['standard', 'enhanced', 'limited', 'custom'] },
+          { key: 'confidentialityScope', label: 'Confidentiality Scope', type: 'textarea', required: true },
+          { key: 'confidentialityDuration', label: 'Confidentiality Duration', type: 'text', required: false },
+          { key: 'confidentialityExceptions', label: 'Confidentiality Exceptions', type: 'textarea', required: false },
+          { key: 'publicationRights', label: 'Publication Rights', type: 'select', required: false, options: ['none', 'anonymized', 'with_consent'] },
+          
+          // Enforcement and Appeals
+          { key: 'awardFinality', label: 'Award Finality', type: 'select', required: true, options: ['final_binding', 'limited_appeals', 'custom_review'] },
+          { key: 'appealRights', label: 'Appeal Rights', type: 'textarea', required: false },
+          { key: 'awardEnforcementJurisdiction', label: 'Award Enforcement Jurisdiction', type: 'text', required: true },
+          { key: 'setAsideGrounds', label: 'Set Aside Grounds', type: 'textarea', required: false },
+          { key: 'recognitionProcedures', label: 'Recognition Procedures', type: 'textarea', required: false },
+          
+          // Special Provisions
+          { key: 'consolidationRights', label: 'Consolidation Rights', type: 'select', required: false, options: ['yes', 'no'] },
+          { key: 'consolidationProcedures', label: 'Consolidation Procedures', type: 'textarea', required: false },
+          { key: 'thirdPartyJoinder', label: 'Third Party Joinder', type: 'select', required: false, options: ['yes', 'no'] },
+          { key: 'thirdPartyProcedures', label: 'Third Party Procedures', type: 'textarea', required: false },
+          { key: 'multiPartyProcedures', label: 'Multi-Party Procedures', type: 'textarea', required: false },
+          { key: 'expeditedProcedures', label: 'Expedited Procedures', type: 'select', required: false, options: ['yes', 'no'] },
+          { key: 'expeditedCriteria', label: 'Expedited Criteria', type: 'textarea', required: false },
+          
+          // General Terms
+          { key: 'amendmentProcedures', label: 'Amendment Procedures', type: 'textarea', required: false },
+          { key: 'severabilityProvisions', label: 'Severability Provisions', type: 'textarea', required: false },
+          { key: 'successorObligations', label: 'Successor Obligations', type: 'textarea', required: false },
+          { key: 'noticeRequirements', label: 'Notice Requirements', type: 'textarea', required: false },
+          { key: 'waiverProvisions', label: 'Waiver Provisions', type: 'textarea', required: false },
+          
           ...basicFields
         ]
 

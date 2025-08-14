@@ -317,9 +317,19 @@ export class DocumentCatalog {
       name: 'Arbitration Agreement',
       category: DocumentCategory.LITIGATION_DISPUTE,
       description: 'Require binding arbitration for dispute resolution',
-      isActive: false,
+      isActive: true,
       complexity: 'Medium',
-      requiredFields: []
+      requiredFields: [
+        'party1Name', 'party1Address', 'party1Email',
+        'party2Name', 'party2Address', 'party2Email',
+        'agreementType', 'disputeScope', 'disputeCoverage', 'legalRelationshipContext',
+        'arbitrationRules', 'numberOfArbitrators', 'arbitratorQualifications',
+        'arbitratorSelectionMethod', 'arbitratorAppointmentProcess', 'arbitratorIndependenceRequirements',
+        'arbitrationSeat', 'procedureLanguage', 'governingLawSubstance', 'governingLawProcedure',
+        'costAllocation', 'feePaymentResponsibility', 'currency',
+        'confidentialityLevel', 'confidentialityScope',
+        'awardFinality', 'awardEnforcementJurisdiction', 'effectiveDate'
+      ]
     },
     [DocumentType.MEDIATION_AGREEMENT]: {
       name: 'Mediation Agreement',
