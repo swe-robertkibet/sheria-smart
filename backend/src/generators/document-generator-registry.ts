@@ -45,9 +45,7 @@ import { EnvironmentalComplianceGenerator } from './compliance/environmental-com
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
   // Original documents
-  [DocumentType.EMPLOYMENT_CONTRACT]: DocumentCategory.EMPLOYMENT_HR,
   [DocumentType.SERVICE_AGREEMENT]: DocumentCategory.BUSINESS_COMMERCIAL,
-  [DocumentType.LEASE_AGREEMENT]: DocumentCategory.PROPERTY_REAL_ESTATE,
   
   // Business & Commercial Contracts
   [DocumentType.SALES_PURCHASE_AGREEMENT]: DocumentCategory.BUSINESS_COMMERCIAL,
@@ -106,7 +104,6 @@ export class DocumentGeneratorRegistry {
     this.generators.set(DocumentType.SERVICE_AGREEMENT, new ServiceAgreementGenerator());
     
     // Employment generators
-    this.generators.set(DocumentType.EMPLOYMENT_CONTRACT, new EnhancedEmploymentContractGenerator());
     this.generators.set(DocumentType.ENHANCED_EMPLOYMENT_CONTRACT, new EnhancedEmploymentContractGenerator());
     this.generators.set(DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT, new IndependentContractorGenerator());
     this.generators.set(DocumentType.NON_COMPETE_AGREEMENT, new NonCompeteGenerator());

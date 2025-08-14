@@ -358,12 +358,8 @@ export class DocumentOrchestrator {
 
   private getDocumentTypeDisplayName(type: DocumentType): string {
     switch (type) {
-      case DocumentType.EMPLOYMENT_CONTRACT:
-        return 'Employment Contract';
       case DocumentType.SERVICE_AGREEMENT:
         return 'Service Agreement';
-      case DocumentType.LEASE_AGREEMENT:
-        return 'Lease Agreement';
       default:
         return 'Legal Document';
     }

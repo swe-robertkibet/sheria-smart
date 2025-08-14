@@ -12,10 +12,8 @@ export enum DocumentCategory {
 }
 
 export enum DocumentType {
-  // Original
-  EMPLOYMENT_CONTRACT = "EMPLOYMENT_CONTRACT",
+  // Original (kept for backward compatibility)
   SERVICE_AGREEMENT = "SERVICE_AGREEMENT",
-  LEASE_AGREEMENT = "LEASE_AGREEMENT",
   
   // Business & Commercial Contracts
   SALES_PURCHASE_AGREEMENT = "SALES_PURCHASE_AGREEMENT",

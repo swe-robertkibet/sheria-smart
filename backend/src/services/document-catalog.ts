@@ -10,14 +10,6 @@ import { documentGeneratorRegistry } from '../generators/document-generator-regi
 export class DocumentCatalog {
   private static documentTypeMetadata: Record<DocumentType, Omit<DocumentTypeInfo, 'id'>> = {
     // Original documents
-    [DocumentType.EMPLOYMENT_CONTRACT]: {
-      name: 'Employment Contract',
-      category: DocumentCategory.EMPLOYMENT_HR,
-      description: 'Employment agreements compliant with Kenyan labor law',
-      isActive: false,
-      complexity: 'Medium',
-      requiredFields: []
-    },
     [DocumentType.SERVICE_AGREEMENT]: {
       name: 'Service Agreement',
       category: DocumentCategory.BUSINESS_COMMERCIAL,
@@ -32,14 +24,6 @@ export class DocumentCatalog {
         'independentContractorStatus', 'liabilityLimitations', 'terminationConditions',
         'terminationNotice', 'effectiveDate'
       ]
-    },
-    [DocumentType.LEASE_AGREEMENT]: {
-      name: 'Lease Agreement',
-      category: DocumentCategory.PROPERTY_REAL_ESTATE,
-      description: 'Residential and commercial property rental agreements',
-      isActive: false,
-      complexity: 'Medium',
-      requiredFields: []
     },
 
     // Business & Commercial Contracts

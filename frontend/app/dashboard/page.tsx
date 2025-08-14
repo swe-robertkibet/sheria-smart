@@ -2,21 +2,14 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { MessageCircle, FileText, User, LogOut, ChevronDown, Menu, X, Scale, Loader2 } from "lucide-react"
-import Image from "next/image"
+import { MessageCircle, FileText, Scale, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { ChatInterface } from "@/components/chat-interface"
 import { StructuredChatInterface } from "@/components/structured-chat-interface"
-import { DocumentSelector } from "@/components/document-selector"
+import { EnhancedDocumentSelector } from "@/components/enhanced-document-selector"
 import { GenericDocumentForm } from "@/components/generic-document-form"
+import { EnhancedHeader } from "@/components/enhanced-header"
+import { AIChatBubble } from "@/components/ai-chat-bubble"
 import { ChatSidebar, ChatSidebarRef } from "@/components/chat-sidebar"
 import { useAuth } from "@/contexts/auth-context"
 import { AuthLoading } from "@/components/auth-loading"
@@ -25,11 +18,11 @@ import { DocumentType } from "@/types/document"
 
 export default function DashboardPage() {
   const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "structured-chat" | "documents" | "document-form">("dashboard")
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
+  const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(undefined)
   const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | null>(null)
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined)
+  const [searchQuery, setSearchQuery] = useState<string>("")
   const router = useRouter()
   const { user, logout, isLoading, isAuthenticated, authError, isValidatingToken, loadingContext, clearAuthError } = useAuth()
   
@@ -42,10 +35,6 @@ export default function DashboardPage() {
     window.scrollTo(0, 0)
   }, [currentView])
 
-  const handleLogout = async () => {
-    await logout()
-    router.push("/")
-  }
 
   const handleRetryAuth = () => {
     clearAuthError()
@@ -87,12 +76,12 @@ export default function DashboardPage() {
   }
 
   const handleStartChat = () => {
-    setCurrentSessionId(null)
+    setCurrentSessionId(undefined)
     setCurrentView("chat")
   }
 
   const handleStartStructuredChat = () => {
-    setCurrentSessionId(null)
+    setCurrentSessionId(undefined)
     setCurrentView("structured-chat")
   }
 
@@ -102,9 +91,9 @@ export default function DashboardPage() {
 
   const handleBackToDashboard = () => {
     setCurrentView("dashboard")
-    setCurrentSessionId(null)
+    setCurrentSessionId(undefined)
     setSelectedDocumentType(null)
-    setSelectedCategory(null)
+    setSelectedCategory(undefined)
   }
 
   const handleSelectDocument = (documentType: DocumentType, category: string) => {
@@ -128,7 +117,7 @@ export default function DashboardPage() {
   }
 
   const handleNewChat = () => {
-    setCurrentSessionId(null)
+    setCurrentSessionId(undefined)
     // Keep the current view - don't change it when starting a new chat
     setIsSidebarOpen(false) // Close sidebar on mobile
   }
@@ -198,10 +187,13 @@ export default function DashboardPage() {
 
   if (currentView === "documents") {
     return (
-      <DocumentSelector 
+      <EnhancedDocumentSelector 
         onBack={handleBackToDashboard} 
         onSelectDocument={handleSelectDocument}
+        onNavigateToChat={handleStartChat}
+        onNavigateToAnalysis={handleStartStructuredChat}
         initialCategory={selectedCategory as any}
+        initialSearchQuery={searchQuery}
       />
     )
   }
@@ -212,84 +204,40 @@ export default function DashboardPage() {
     return <GenericDocumentForm onBack={handleBackToDocuments} documentType={selectedDocumentType} />
   }
 
+  const handleNavigate = (view: "dashboard" | "documents" | "chat" | "analysis") => {
+    switch (view) {
+      case "dashboard":
+        handleBackToDashboard();
+        break;
+      case "documents":
+        handleCreateDocument();
+        break;
+      case "chat":
+        handleStartChat();
+        break;
+      case "analysis":
+        handleStartStructuredChat();
+        break;
+    }
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    // If not in documents view, navigate there
+    if (currentView !== "documents" && currentView !== "document-form") {
+      setCurrentView("documents");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Minimal Top Bar */}
-      <header className="bg-white border-b border-[#F5F5F5] h-15 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <Image
-              src="/sheria-smart-ico.png"
-              alt="Sheria Smart Icon"
-              width={24}
-              height={24}
-              className="h-6 w-6"
-            />
-            <div className="text-xl font-bold">
-              <span className="text-[#7C9885]">Sheria</span>
-              <span className="text-[#C99383]"> Smart</span>
-            </div>
-          </div>
-
-          {/* Mobile Menu Button and Sidebar Toggle */}
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
-          </div>
-
-          {/* User Menu - Desktop */}
-          <div className="hidden md:block">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center space-x-2">
-                  <Avatar className="w-8 h-8 bg-[#7C9885]">
-                    {user.picture ? (
-                      <AvatarImage src={user.picture} alt={user.name} />
-                    ) : null}
-                    <AvatarFallback className="text-white font-semibold">
-                      {user.name?.charAt(0) || user.email.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-[#2D3748]">{user.name || user.email}</span>
-                  <ChevronDown className="w-4 h-4 text-[#718096]" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem>
-                  <User className="w-4 h-4 mr-2" />
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-[#F5F5F5] p-4 space-y-2">
-            <Button variant="ghost" className="w-full justify-start">
-              <User className="w-4 h-4 mr-2" />
-              Profile
-            </Button>
-            <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
-        )}
-      </header>
+      {/* Enhanced Header */}
+      <EnhancedHeader 
+        currentView={currentView}
+        onNavigate={handleNavigate}
+        onSearch={handleSearch}
+        showSearch={currentView === "documents" || currentView === "document-form"}
+      />
 
       {/* Main Dashboard Content */}
       <main className="container mx-auto px-6 py-16 max-w-4xl">
@@ -383,31 +331,14 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* Mobile Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#F5F5F5] p-4">
-        <div className="flex justify-around">
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center space-y-1 text-[#7C9885]"
-            onClick={handleStartChat}
-          >
-            <MessageCircle className="w-6 h-6" />
-            <span className="text-xs font-medium">Chat</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center space-y-1 text-[#C99383]"
-            onClick={handleCreateDocument}
-          >
-            <FileText className="w-6 h-6" />
-            <span className="text-xs font-medium">Documents</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col items-center space-y-1 text-[#718096]">
-            <User className="w-6 h-6" />
-            <span className="text-xs font-medium">Profile</span>
-          </Button>
-        </div>
-      </div>
+      {/* AI Chat Bubble */}
+      <AIChatBubble 
+        context="dashboard"
+        onNavigate={(view) => {
+          if (view === "chat") handleStartChat();
+          if (view === "analysis") handleStartStructuredChat();
+        }}
+      />
     </div>
   )
 }

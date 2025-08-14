@@ -20,13 +20,13 @@ export const getDocumentTitle = (documentType: DocumentType): string => {
       case DocumentType.SERVICE_AGREEMENT:
         return "Service Agreement";
       case DocumentType.ENHANCED_EMPLOYMENT_CONTRACT:
-        return "Enhanced Employment Contract";
+        return "Employment Contract";
       case DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT:
         return "Independent Contractor Agreement";
       case DocumentType.NON_COMPETE_AGREEMENT:
         return "Non-Compete Agreement";
       case DocumentType.ENHANCED_LEASE_AGREEMENT:
-        return "Enhanced Lease Agreement";
+        return "Lease Agreement";
       case DocumentType.SALE_OF_LAND_AGREEMENT:
         return "Sale of Land Agreement";
       case DocumentType.PROPERTY_MANAGEMENT_AGREEMENT:
@@ -78,13 +78,13 @@ export const getDocumentDescription = (documentType: DocumentType): string => {
       case DocumentType.SERVICE_AGREEMENT:
         return "Create professional service contracts and consulting agreements";
       case DocumentType.ENHANCED_EMPLOYMENT_CONTRACT:
-        return "Create a comprehensive employment contract with enhanced terms";
+        return "Create a comprehensive employment contract with professional terms and conditions";
       case DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT:
         return "Engage independent contractors with proper classification";
       case DocumentType.NON_COMPETE_AGREEMENT:
         return "Restrict competitive activities during and after employment";
       case DocumentType.ENHANCED_LEASE_AGREEMENT:
-        return "Comprehensive rental agreements for residential and commercial properties";
+        return "Professional rental agreements for residential and commercial properties";
       case DocumentType.SALE_OF_LAND_AGREEMENT:
         return "Contracts for the purchase and sale of real property";
       case DocumentType.PROPERTY_MANAGEMENT_AGREEMENT:
