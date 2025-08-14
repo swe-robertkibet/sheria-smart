@@ -349,9 +349,14 @@ export class DocumentCatalog {
       name: 'Data Protection Compliance Agreement',
       category: DocumentCategory.REGULATORY_COMPLIANCE,
       description: 'Ensure compliance with data protection and privacy laws',
-      isActive: false,
+      isActive: true,
       complexity: 'High',
-      requiredFields: []
+      requiredFields: [
+        'controllerName', 'controllerAddress', 'processingPurpose', 'dataCategories',
+        'dataSubjectCategories', 'legalBasisController', 'dataSubjectRights',
+        'securityMeasures', 'breachNotificationProcedure', 'retentionPeriod',
+        'complianceMonitoring', 'effectiveDate'
+      ]
     },
     [DocumentType.ANTI_MONEY_LAUNDERING_COMPLIANCE]: {
       name: 'Anti-Money Laundering Compliance',

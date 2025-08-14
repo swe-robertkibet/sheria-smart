@@ -34,6 +34,9 @@ export * from './litigation/settlement-agreement';
 export * from './litigation/arbitration-agreement';
 export * from './litigation/mediation-agreement';
 
+// Regulatory & Compliance
+export * from './compliance/data-protection-compliance';
+
 // Family Law (simplified interfaces for remaining categories)
 
 export interface PostnuptialUserInput {

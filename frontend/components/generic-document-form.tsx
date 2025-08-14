@@ -78,6 +78,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Arbitration Agreement'
       case DocumentType.MEDIATION_AGREEMENT:
         return 'Mediation Agreement'
+      case DocumentType.DATA_PROTECTION_COMPLIANCE_AGREEMENT:
+        return 'Data Protection Compliance Agreement'
       default:
         return 'Legal Document'
     }
@@ -129,6 +131,8 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
         return 'Require binding arbitration for dispute resolution'
       case DocumentType.MEDIATION_AGREEMENT:
         return 'Engage in structured mediation process for dispute resolution'
+      case DocumentType.DATA_PROTECTION_COMPLIANCE_AGREEMENT:
+        return 'Ensure compliance with data protection and privacy laws including Kenya Data Protection Act 2019'
       default:
         return 'Generate a professional legal document'
     }
@@ -1508,6 +1512,128 @@ export function GenericDocumentForm({ onBack, documentType }: GenericDocumentFor
           { key: 'signatureRequirements', label: 'Signature Requirements', type: 'textarea', required: false },
           { key: 'witnessRequirements', label: 'Witness Requirements', type: 'textarea', required: false },
           { key: 'notarizationRequirements', label: 'Notarization Required', type: 'select', required: false, options: ['yes', 'no'] },
+          
+          ...basicFields
+        ]
+
+      case DocumentType.DATA_PROTECTION_COMPLIANCE_AGREEMENT:
+        return [
+          // Data Controller Information
+          { key: 'controllerName', label: 'Data Controller Name', type: 'text', required: true },
+          { key: 'controllerAddress', label: 'Data Controller Address', type: 'textarea', required: true },
+          { key: 'controllerEmail', label: 'Data Controller Email', type: 'email', required: false },
+          { key: 'controllerPhone', label: 'Data Controller Phone', type: 'text', required: false },
+          { key: 'controllerBusinessRegistration', label: 'Controller Business Registration', type: 'text', required: false },
+          { key: 'controllerContactPerson', label: 'Controller Contact Person', type: 'text', required: false },
+          { key: 'controllerContactTitle', label: 'Controller Contact Title', type: 'text', required: false },
+          { key: 'controllerContactEmail', label: 'Controller Contact Email', type: 'email', required: false },
+          { key: 'controllerContactPhone', label: 'Controller Contact Phone', type: 'text', required: false },
+          
+          // Data Processor Information (optional)
+          { key: 'processorName', label: 'Data Processor Name', type: 'text', required: false },
+          { key: 'processorAddress', label: 'Data Processor Address', type: 'textarea', required: false },
+          { key: 'processorEmail', label: 'Data Processor Email', type: 'email', required: false },
+          { key: 'processorPhone', label: 'Data Processor Phone', type: 'text', required: false },
+          { key: 'processorBusinessRegistration', label: 'Processor Business Registration', type: 'text', required: false },
+          { key: 'processorContactPerson', label: 'Processor Contact Person', type: 'text', required: false },
+          { key: 'processorContactTitle', label: 'Processor Contact Title', type: 'text', required: false },
+          { key: 'processorContactEmail', label: 'Processor Contact Email', type: 'email', required: false },
+          { key: 'processorContactPhone', label: 'Processor Contact Phone', type: 'text', required: false },
+          
+          // Data Processing Context and Purpose
+          { key: 'processingPurpose', label: 'Processing Purpose', type: 'textarea', required: true },
+          { key: 'processingDescription', label: 'Processing Description', type: 'textarea', required: false },
+          { key: 'dataCategories', label: 'Data Categories', type: 'textarea', required: true },
+          { key: 'dataSubjectCategories', label: 'Data Subject Categories', type: 'textarea', required: true },
+          { key: 'personalDataTypes', label: 'Types of Personal Data', type: 'textarea', required: false },
+          { key: 'specialCategoryData', label: 'Special Category Data', type: 'textarea', required: false },
+          { key: 'dataSources', label: 'Data Sources', type: 'textarea', required: false },
+          { key: 'processingActivities', label: 'Processing Activities', type: 'textarea', required: false },
+          
+          // Legal Basis for Processing
+          { key: 'legalBasisController', label: 'Legal Basis for Processing', type: 'select', required: true, options: [
+            'consent', 'contract', 'legal_obligation', 'vital_interests', 'public_task', 'legitimate_interests'
+          ]},
+          { key: 'legalBasisDescription', label: 'Legal Basis Description', type: 'textarea', required: false },
+          { key: 'consentRequirements', label: 'Consent Requirements', type: 'textarea', required: false },
+          { key: 'legitimateInterestsAssessment', label: 'Legitimate Interests Assessment', type: 'textarea', required: false },
+          { key: 'legalObligationSource', label: 'Legal Obligation Source', type: 'textarea', required: false },
+          
+          // Data Subject Rights and Procedures
+          { key: 'dataSubjectRights', label: 'Data Subject Rights', type: 'textarea', required: true },
+          { key: 'accessRequestProcedure', label: 'Access Request Procedure', type: 'textarea', required: false },
+          { key: 'rectificationProcedure', label: 'Rectification Procedure', type: 'textarea', required: false },
+          { key: 'erasureProcedure', label: 'Erasure Procedure', type: 'textarea', required: false },
+          { key: 'portabilityProcedure', label: 'Data Portability Procedure', type: 'textarea', required: false },
+          { key: 'objectionProcedure', label: 'Objection Procedure', type: 'textarea', required: false },
+          { key: 'restrictionProcedure', label: 'Restriction Procedure', type: 'textarea', required: false },
+          { key: 'automatedDecisionMaking', label: 'Automated Decision Making', type: 'textarea', required: false },
+          { key: 'responseTimeframe', label: 'Response Timeframe', type: 'text', required: false },
+          
+          // Security Measures and Safeguards
+          { key: 'securityMeasures', label: 'Security Measures', type: 'textarea', required: true },
+          { key: 'technicalSafeguards', label: 'Technical Safeguards', type: 'textarea', required: false },
+          { key: 'organizationalMeasures', label: 'Organizational Measures', type: 'textarea', required: false },
+          { key: 'accessControls', label: 'Access Controls', type: 'textarea', required: false },
+          { key: 'encryptionMeasures', label: 'Encryption Measures', type: 'textarea', required: false },
+          { key: 'backupProcedures', label: 'Backup Procedures', type: 'textarea', required: false },
+          { key: 'incidentResponsePlan', label: 'Incident Response Plan', type: 'textarea', required: false },
+          { key: 'staffTraining', label: 'Staff Training', type: 'textarea', required: false },
+          
+          // Data Breach and Notification
+          { key: 'breachNotificationProcedure', label: 'Breach Notification Procedure', type: 'textarea', required: true },
+          { key: 'breachNotificationTimeframe', label: 'Breach Notification Timeframe', type: 'text', required: false },
+          { key: 'supervisoryAuthorityContact', label: 'Supervisory Authority Contact', type: 'textarea', required: false },
+          { key: 'dataSubjectNotificationCriteria', label: 'Data Subject Notification Criteria', type: 'textarea', required: false },
+          { key: 'breachAssessmentProcedure', label: 'Breach Assessment Procedure', type: 'textarea', required: false },
+          { key: 'breachDocumentationRequirements', label: 'Breach Documentation Requirements', type: 'textarea', required: false },
+          
+          // Data Retention and Deletion
+          { key: 'retentionPeriod', label: 'Retention Period', type: 'text', required: true },
+          { key: 'retentionCriteria', label: 'Retention Criteria', type: 'textarea', required: false },
+          { key: 'deletionProcedures', label: 'Deletion Procedures', type: 'textarea', required: false },
+          { key: 'archivalRequirements', label: 'Archival Requirements', type: 'textarea', required: false },
+          { key: 'retentionSchedule', label: 'Retention Schedule', type: 'textarea', required: false },
+          { key: 'disposalMethods', label: 'Disposal Methods', type: 'textarea', required: false },
+          
+          // International Transfers (if applicable)
+          { key: 'internationalTransfers', label: 'International Transfers', type: 'textarea', required: false },
+          { key: 'transferSafeguards', label: 'Transfer Safeguards', type: 'textarea', required: false },
+          { key: 'adequacyDecisionCountries', label: 'Adequacy Decision Countries', type: 'textarea', required: false },
+          { key: 'standardContractualClauses', label: 'Standard Contractual Clauses', type: 'textarea', required: false },
+          { key: 'bindingCorporateRules', label: 'Binding Corporate Rules', type: 'textarea', required: false },
+          { key: 'transferRiskAssessment', label: 'Transfer Risk Assessment', type: 'textarea', required: false },
+          
+          // Compliance and Monitoring
+          { key: 'complianceMonitoring', label: 'Compliance Monitoring', type: 'textarea', required: true },
+          { key: 'auditProcedures', label: 'Audit Procedures', type: 'textarea', required: false },
+          { key: 'recordKeepingRequirements', label: 'Record Keeping Requirements', type: 'textarea', required: false },
+          { key: 'impactAssessmentRequirements', label: 'Impact Assessment Requirements', type: 'textarea', required: false },
+          { key: 'consultationRequirements', label: 'Consultation Requirements', type: 'textarea', required: false },
+          { key: 'complianceOfficerDetails', label: 'Compliance Officer Details', type: 'textarea', required: false },
+          
+          // Processor Obligations (if applicable)
+          { key: 'processorObligations', label: 'Processor Obligations', type: 'textarea', required: false },
+          { key: 'subProcessorArrangements', label: 'Sub-Processor Arrangements', type: 'textarea', required: false },
+          { key: 'processorSecurityMeasures', label: 'Processor Security Measures', type: 'textarea', required: false },
+          { key: 'processorAuditRights', label: 'Processor Audit Rights', type: 'textarea', required: false },
+          { key: 'processorTerminationObligations', label: 'Processor Termination Obligations', type: 'textarea', required: false },
+          
+          // Governing Law and Jurisdiction
+          { key: 'governingLaw', label: 'Governing Law', type: 'text', required: false },
+          { key: 'disputeResolution', label: 'Dispute Resolution', type: 'textarea', required: false },
+          { key: 'supervisoryAuthority', label: 'Supervisory Authority', type: 'text', required: false },
+          
+          // Amendment and Termination
+          { key: 'amendmentProcedures', label: 'Amendment Procedures', type: 'textarea', required: false },
+          { key: 'terminationConditions', label: 'Termination Conditions', type: 'textarea', required: false },
+          { key: 'terminationNotice', label: 'Termination Notice', type: 'text', required: false },
+          { key: 'postTerminationObligations', label: 'Post-Termination Obligations', type: 'textarea', required: false },
+          
+          // Signatures and Effective Date
+          { key: 'signatureRequirements', label: 'Signature Requirements', type: 'textarea', required: false },
+          { key: 'witnessRequirements', label: 'Witness Requirements', type: 'textarea', required: false },
+          { key: 'notarizationRequirements', label: 'Notarization Requirements', type: 'textarea', required: false },
           
           ...basicFields
         ]

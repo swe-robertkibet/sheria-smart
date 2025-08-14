@@ -37,6 +37,9 @@ import { SettlementAgreementGenerator } from './litigation/settlement-agreement-
 import { ArbitrationAgreementGenerator } from './litigation/arbitration-agreement-generator';
 import { MediationAgreementGenerator } from './litigation/mediation-agreement-generator';
 
+// Regulatory & Compliance generators
+import { DataProtectionComplianceGenerator } from './compliance/data-protection-compliance-generator';
+
 // Document category mapping
 export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
   // Original documents
@@ -130,6 +133,9 @@ export class DocumentGeneratorRegistry {
     this.generators.set(DocumentType.SETTLEMENT_AGREEMENT, new SettlementAgreementGenerator());
     this.generators.set(DocumentType.ARBITRATION_AGREEMENT, new ArbitrationAgreementGenerator());
     this.generators.set(DocumentType.MEDIATION_AGREEMENT, new MediationAgreementGenerator());
+    
+    // Regulatory & Compliance generators
+    this.generators.set(DocumentType.DATA_PROTECTION_COMPLIANCE_AGREEMENT, new DataProtectionComplianceGenerator());
   }
 
   getGenerator(documentType: DocumentType): BaseDocumentGenerator | null {
