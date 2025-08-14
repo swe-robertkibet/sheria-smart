@@ -139,16 +139,27 @@ export default function HomePage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button
                     size="lg"
+                    onClick={() => {
+                      if (isAuthenticated) {
+                        router.push("/dashboard")
+                      } else {
+                        router.push("/signup")
+                      }
+                    }}
                     className="bg-gradient-to-r from-[#7C9885] to-[#5D7A6B] hover:from-[#5D7A6B] hover:to-[#4A6356] text-white px-8 py-4 text-lg rounded-xl transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-xl animate-pulse-gentle"
                   >
-                    Start Free Consultation
+                    {isAuthenticated ? "Go to Dashboard" : "Start Free Consultation"}
                   </Button>
                   <Button
                     variant="outline"
                     size="lg"
+                    onClick={() => {
+                      const element = document.getElementById('how-it-works')
+                      element?.scrollIntoView({ behavior: 'smooth' })
+                    }}
                     className="border-2 border-[#C99383] text-[#C99383] hover:bg-[#C99383] hover:text-white px-8 py-4 text-lg rounded-xl transition-all duration-300 bg-transparent"
                   >
-                    Watch How It Works
+                    Learn How It Works
                   </Button>
                 </div>
               </ScrollReveal>
@@ -205,11 +216,15 @@ export default function HomePage() {
                     <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
                       <MessageCircle className="w-8 h-8" />
                     </div>
-                    <h3 className="text-3xl font-bold">Instant Legal Advice</h3>
+                    <h3 className="text-3xl font-bold">AI Legal Chat & Analysis</h3>
                     <p className="text-lg text-white/90 leading-relaxed">
-                      Chat with our AI assistant trained on Kenyan law. Get answers to contracts, tenancy, consumer
-                      rights, and more—instantly.
+                      Two powerful AI modes: Quick Chat for instant answers and Structured Legal Analysis for detailed guidance on complex legal matters.
                     </p>
+                    <div className="flex flex-wrap gap-2">
+                      <div className="bg-white/20 px-3 py-1 rounded-full text-sm">Quick Chat</div>
+                      <div className="bg-white/20 px-3 py-1 rounded-full text-sm">Legal Analysis</div>
+                      <div className="bg-white/20 px-3 py-1 rounded-full text-sm">Session History</div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -224,10 +239,9 @@ export default function HomePage() {
                       <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
                         <FileText className="w-6 h-6" />
                       </div>
-                      <h3 className="text-xl font-bold">Smart Document Generation</h3>
+                      <h3 className="text-xl font-bold">25+ Legal Documents</h3>
                       <p className="text-white/90">
-                        Create legal documents in minutes. Contracts, agreements, legal notices—perfectly formatted and
-                        compliant.
+                        Complete document generation across 8 categories: Employment, Business, Property, Family Law, Corporate, IP, Compliance & Dispute Resolution.
                       </p>
                     </div>
                   </CardContent>
@@ -240,11 +254,11 @@ export default function HomePage() {
                   <CardContent className="p-6 text-[#2D3748]">
                     <div className="space-y-4">
                       <div className="w-12 h-12 bg-[#2D3748]/10 rounded-xl flex items-center justify-center">
-                        <Shield className="w-6 h-6" />
+                        <Scale className="w-6 h-6" />
                       </div>
-                      <h3 className="text-xl font-bold">Know Your Rights</h3>
+                      <h3 className="text-xl font-bold">Kenyan Law Expertise</h3>
                       <p className="text-[#2D3748]/80">
-                        Understand Kenyan law in plain language. Never enter unfair agreements again.
+                        Trained specifically on Kenyan legal framework. From Constitution to Commercial Law - get accurate, localized guidance.
                       </p>
                     </div>
                   </CardContent>
@@ -606,9 +620,9 @@ export default function HomePage() {
                 <div className="space-y-6">
                   {[
                     { icon: Smartphone, text: "Works on any device" },
-                    { icon: Wifi, text: "Offline document access" },
-                    { icon: Mic, text: "Voice input support" },
-                    { icon: Globe, text: "Multiple language support" },
+                    { icon: MessageCircle, text: "Chat session history" },
+                    { icon: FileText, text: "Document download & email" },
+                    { icon: Shield, text: "Secure & private consultations" },
                   ].map((feature, index) => (
                     <div key={index} className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-[#7C9885] rounded-xl flex items-center justify-center">
@@ -643,13 +657,24 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Button
                   size="lg"
+                  onClick={() => {
+                    if (isAuthenticated) {
+                      router.push("/dashboard")
+                    } else {
+                      router.push("/signup")
+                    }
+                  }}
                   className="bg-[#F7DC6F] hover:bg-[#F4D03F] text-[#2D3748] px-12 py-4 text-xl rounded-xl transform hover:-translate-y-1 transition-all duration-300 shadow-2xl hover:shadow-3xl font-bold"
                 >
-                  Get Started Now
+                  {isAuthenticated ? "Go to Dashboard" : "Get Started Now"}
                 </Button>
                 <Button
                   variant="outline"
                   size="lg"
+                  onClick={() => {
+                    const element = document.getElementById('how-it-works')
+                    element?.scrollIntoView({ behavior: 'smooth' })
+                  }}
                   className="border-2 border-white text-white hover:bg-white hover:text-[#2D3748] px-12 py-4 text-xl rounded-xl transition-all duration-300 bg-transparent"
                 >
                   Learn More
@@ -671,26 +696,26 @@ export default function HomePage() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Legal Help</h3>
+              <h3 className="text-lg font-semibold text-white">Document Categories</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="#" className="hover:text-[#7C9885] transition-colors">
-                    Tenancy Issues
+                  <a href="#use-cases" className="hover:text-[#7C9885] transition-colors">
+                    Employment & HR
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-[#7C9885] transition-colors">
-                    Employment Rights
+                  <a href="#use-cases" className="hover:text-[#7C9885] transition-colors">
+                    Business Contracts
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-[#7C9885] transition-colors">
-                    Consumer Protection
+                  <a href="#use-cases" className="hover:text-[#7C9885] transition-colors">
+                    Property & Real Estate
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-[#7C9885] transition-colors">
-                    FAQ
+                  <a href="#use-cases" className="hover:text-[#7C9885] transition-colors">
+                    Family Law Documents
                   </a>
                 </li>
               </ul>
