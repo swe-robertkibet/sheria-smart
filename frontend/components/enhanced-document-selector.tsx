@@ -265,31 +265,18 @@ export function EnhancedDocumentSelector({
   return (
     <div className="min-h-screen bg-white">
       {/* Header with Breadcrumbs */}
-      <header className="bg-white border-b border-[#F5F5F5] p-4 sticky top-0 z-40">
-        <div className="container mx-auto max-w-6xl">
-          <div className="flex items-center justify-between mb-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onBack}
-              className="text-[#7C9885]"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div className="flex-1 ml-4">
-              <BreadcrumbNavigation items={breadcrumbItems} />
-            </div>
-          </div>
-
-          <div>
-            <h1 className="text-2xl font-bold text-[#2D3748] mb-2">
-              {selectedCategory ? selectedCategoryData?.name : "Create Document"}
-            </h1>
-            <p className="text-[#718096]">
-              {selectedCategory 
-                ? selectedCategoryData?.description 
-                : "Choose from our comprehensive legal document library"}
-            </p>
+      <header className="bg-white border-b border-[#F5F5F5] sticky top-0 z-50 h-16">
+        <div className="container mx-auto max-w-6xl h-full flex items-center px-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onBack}
+            className="text-[#7C9885] flex-shrink-0"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div className="flex-1 ml-4 min-w-0">
+            <BreadcrumbNavigation items={breadcrumbItems} />
           </div>
         </div>
       </header>

@@ -250,9 +250,17 @@ export function EnhancedGenericDocumentForm({
           borderBottom: `1px solid ${token.colorBorder}`,
           position: "sticky",
           top: 0,
-          zIndex: 50
+          zIndex: 50,
+          height: '64px'
         }}
-        styles={{ body: { padding: `${token.paddingLG}px ${token.paddingXL}px` } }}
+        styles={{ 
+          body: { 
+            padding: `16px ${token.paddingXL}px`,
+            display: 'flex',
+            alignItems: 'center',
+            height: '64px'
+          } 
+        }}
       >
         <Space size="middle" align="center">
           <Button
