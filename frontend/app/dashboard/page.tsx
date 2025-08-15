@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { ChatInterface } from "@/components/chat-interface"
 import { StructuredChatInterface } from "@/components/structured-chat-interface"
 import { EnhancedDocumentSelector } from "@/components/enhanced-document-selector"
-import { GenericDocumentForm } from "@/components/generic-document-form"
+import { EnhancedGenericDocumentForm } from "@/components/enhanced-generic-document-form"
 import { EnhancedHeader } from "@/components/enhanced-header"
 import { ChatSidebar, ChatSidebarRef } from "@/components/chat-sidebar"
 import { useAuth } from "@/contexts/auth-context"
@@ -238,7 +238,7 @@ export default function DashboardPage() {
   // NDA form removed - document type has been discontinued
 
   if (currentView === "document-form" && selectedDocumentType) {
-    return <GenericDocumentForm onBack={handleBackToDocuments} documentType={selectedDocumentType} />
+    return <EnhancedGenericDocumentForm onBack={handleBackToDocuments} documentType={selectedDocumentType} />
   }
 
   return (

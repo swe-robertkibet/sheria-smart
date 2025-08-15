@@ -499,14 +499,6 @@ export function EnhancedDocumentSelector({
         ) : (
           /* Categories Grid */
           <div className="space-y-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-[#2D3748] mb-4">
-                Choose a Document Category
-              </h2>
-              <p className="text-[#718096] text-lg">
-                Browse our comprehensive legal document library
-              </p>
-            </div>
 
             {filteredCategories.length === 0 ? (
               <Card>

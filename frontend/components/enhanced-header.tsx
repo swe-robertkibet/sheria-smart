@@ -14,10 +14,12 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   Search,
   Menu,
@@ -238,6 +240,11 @@ export function EnhancedHeader({
                       <span className="text-[#C99383]"> Smart</span>
                     </div>
                   </SheetTitle>
+                  <VisuallyHidden.Root>
+                    <SheetDescription>
+                      Navigation menu with user profile and settings
+                    </SheetDescription>
+                  </VisuallyHidden.Root>
                 </SheetHeader>
 
                 <div className="mt-8 space-y-4">
