@@ -34,7 +34,6 @@ import {
 } from "lucide-react";
 import { useScrollToTop, useScrollToTopOnChange } from "@/hooks/use-scroll-to-top";
 import { BreadcrumbNavigation, createDocumentBreadcrumbs } from "@/components/breadcrumb-navigation";
-import { AIChatBubble } from "@/components/ai-chat-bubble";
 import {
   DocumentType,
   DocumentCategory,
@@ -580,17 +579,6 @@ export function EnhancedDocumentSelector({
         )}
       </div>
 
-      {/* AI Chat Bubble */}
-      <AIChatBubble 
-        context={selectedCategory ? "categories" : "documents"}
-        contextData={{
-          categoryName: selectedCategoryData?.name,
-        }}
-        onNavigate={(view) => {
-          if (view === "chat") onNavigateToChat?.();
-          if (view === "analysis") onNavigateToAnalysis?.();
-        }}
-      />
     </div>
   );
 }

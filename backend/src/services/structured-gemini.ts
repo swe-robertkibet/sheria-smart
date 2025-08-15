@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { StructuredLegalResponse, QuestionClassification, LegalArea, UrgencyLevel, ActionType } from '../types/legal';
+import { StructuredLegalResponse, QuestionClassification, LegalArea, UrgencyLevel, ActionType, DocumentSuggestion } from '../types/legal';
+import DocumentCatalog from './document-catalog';
 
 export class StructuredGeminiService {
   private genAI: GoogleGenerativeAI;
@@ -59,6 +60,77 @@ Focus on Kenyan legal system and laws. Respond with ONLY the JSON object, no oth
         keywords: []
       };
     }
+  }
+
+  private shouldSuggestDocuments(legalArea: string, userMessage: string): boolean {
+    const messageLower = userMessage.toLowerCase();
+    
+    // Don't suggest documents for these types of cases
+    const noDocumentCases = [
+      // Criminal cases (unless settlement context)
+      ['assault', 'hit', 'attack', 'violence', 'crime', 'police'],
+      // Information seeking only
+      ['what is', 'how to', 'can you explain', 'tell me about'],
+      // Emergency situations
+      ['urgent', 'emergency', 'immediate help', 'right now']
+    ];
+    
+    // Criminal law cases should only suggest settlement/mediation documents if dispute resolution context
+    if (legalArea === 'Criminal Law') {
+      const settlementContext = ['settle', 'mediation', 'resolve', 'agreement', 'compensation'];
+      const hasSettlementContext = settlementContext.some(term => messageLower.includes(term));
+      if (!hasSettlementContext) {
+        return false; // No documents for pure criminal cases
+      }
+    }
+    
+    // Check if this is a case where documents are not appropriate
+    for (const caseType of noDocumentCases) {
+      if (caseType.some(term => messageLower.includes(term))) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  private generateDocumentSuggestions(
+    legalArea: string,
+    keywords: string[],
+    userMessage: string
+  ): DocumentSuggestion[] {
+    // Check if we should suggest documents for this case
+    if (!this.shouldSuggestDocuments(legalArea, userMessage)) {
+      return [];
+    }
+    
+    const suggestedDocs = DocumentCatalog.getDocumentSuggestions(legalArea, keywords, userMessage);
+    
+    return suggestedDocs.map(doc => {
+      // Generate reason based on document type and user context
+      let reason = `Based on your ${legalArea.toLowerCase()} situation, this document can help formalize your legal position.`;
+      
+      // Customize reason based on document type
+      if (doc.name.includes('Agreement') || doc.name.includes('Contract')) {
+        reason = `This document will help establish clear terms and protect your rights in your ${legalArea.toLowerCase()} matter.`;
+      } else if (doc.name.includes('Notice')) {
+        reason = `This formal notice document will help you communicate your legal position properly.`;
+      } else if (doc.name.includes('Application') || doc.name.includes('Petition')) {
+        reason = `This document will help you formally request the legal remedy or action you need.`;
+      }
+
+      return {
+        documentType: doc.id,
+        documentName: doc.name,
+        category: DocumentCatalog.getCategoryInfo(doc.category)?.name || doc.category,
+        reason,
+        navigationSteps: DocumentCatalog.getDocumentNavigationSteps(doc.id),
+        requiredInputs: doc.requiredFields.slice(0, 5), // Show first 5 key fields
+        estimatedTime: DocumentCatalog.getEstimatedCompletionTime(doc.id),
+        priority: doc.complexity === 'High' ? UrgencyLevel.HIGH : 
+                 doc.complexity === 'Medium' ? UrgencyLevel.MEDIUM : UrgencyLevel.LOW
+      };
+    });
   }
 
   async generateStructuredResponse(
@@ -147,7 +219,20 @@ Important guidelines:
       // Clean up the response to ensure it's valid JSON
       const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
       
-      return JSON.parse(cleanedText) as StructuredLegalResponse;
+      const structuredResponse = JSON.parse(cleanedText) as StructuredLegalResponse;
+      
+      // Add document suggestions
+      const documentSuggestions = this.generateDocumentSuggestions(
+        classification.legalArea,
+        classification.keywords,
+        userMessage
+      );
+      
+      if (documentSuggestions.length > 0) {
+        structuredResponse.documentSuggestions = documentSuggestions;
+      }
+      
+      return structuredResponse;
     } catch (error) {
       console.error('Error generating structured response:', error);
       console.error('Raw response:', error);

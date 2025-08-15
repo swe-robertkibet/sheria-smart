@@ -79,6 +79,7 @@ export interface StructuredLegalResponse {
   warnings?: string[];
   recommendConsultation: boolean;
   consultationReason?: string;
+  documentSuggestions?: DocumentSuggestion[];
 }
 
 export interface QuestionClassification {
@@ -87,6 +88,17 @@ export interface QuestionClassification {
   complexity: "simple" | "moderate" | "complex";
   requiresSpecialist: boolean;
   keywords: string[];
+}
+
+export interface DocumentSuggestion {
+  documentType: string;
+  documentName: string;
+  category: string;
+  reason: string;
+  navigationSteps: string[];
+  requiredInputs: string[];
+  estimatedTime: string;
+  priority: UrgencyLevel;
 }
 
 export interface StructuredChatResponse {

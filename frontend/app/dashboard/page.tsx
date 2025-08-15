@@ -9,15 +9,16 @@ import { StructuredChatInterface } from "@/components/structured-chat-interface"
 import { EnhancedDocumentSelector } from "@/components/enhanced-document-selector"
 import { GenericDocumentForm } from "@/components/generic-document-form"
 import { EnhancedHeader } from "@/components/enhanced-header"
-import { AIChatBubble } from "@/components/ai-chat-bubble"
 import { ChatSidebar, ChatSidebarRef } from "@/components/chat-sidebar"
 import { useAuth } from "@/contexts/auth-context"
 import { AuthLoading } from "@/components/auth-loading"
 import { AuthError } from "@/components/auth-error"
 import { DocumentType } from "@/types/document"
 
+type ViewType = "dashboard" | "chat" | "structured-chat" | "documents" | "document-form";
+
 export default function DashboardPage() {
-  const [currentView, setCurrentView] = useState<"dashboard" | "chat" | "structured-chat" | "documents" | "document-form">("dashboard")
+  const [currentView, setCurrentView] = useState<ViewType>("dashboard")
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(undefined)
   const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | null>(null)
@@ -137,6 +138,41 @@ export default function DashboardPage() {
     }
   }
 
+  const handleNavigateToDocumentFromChat = (documentType: any, category: string) => {
+    // Set the document type and navigate to document form
+    setSelectedDocumentType(documentType);
+    setSelectedCategory(category);
+    setCurrentView("document-form");
+  }
+
+  const handleNavigate = (view: "dashboard" | "documents" | "chat" | "analysis") => {
+    switch (view) {
+      case "dashboard":
+        handleBackToDashboard();
+        break;
+      case "documents":
+        handleCreateDocument();
+        break;
+      case "chat":
+        handleStartChat();
+        break;
+      case "analysis":
+        handleStartStructuredChat();
+        break;
+    }
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    // If not in documents view, navigate there
+    if (currentView !== "documents" && currentView !== "document-form") {
+      setCurrentView("documents");
+    }
+  };
+
+  // Compute this value before early returns affect type narrowing
+  const shouldShowSearch = currentView === "documents" || currentView === "document-form";
+
   if (currentView === "chat") {
     return (
       <div className="flex h-screen">
@@ -179,6 +215,7 @@ export default function DashboardPage() {
             sessionId={currentSessionId}
             onToggleSidebar={handleToggleSidebar}
             onSessionCreated={handleSessionCreated}
+            onNavigateToDocument={handleNavigateToDocumentFromChat}
           />
         </div>
       </div>
@@ -204,31 +241,6 @@ export default function DashboardPage() {
     return <GenericDocumentForm onBack={handleBackToDocuments} documentType={selectedDocumentType} />
   }
 
-  const handleNavigate = (view: "dashboard" | "documents" | "chat" | "analysis") => {
-    switch (view) {
-      case "dashboard":
-        handleBackToDashboard();
-        break;
-      case "documents":
-        handleCreateDocument();
-        break;
-      case "chat":
-        handleStartChat();
-        break;
-      case "analysis":
-        handleStartStructuredChat();
-        break;
-    }
-  };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    // If not in documents view, navigate there
-    if (currentView !== "documents" && currentView !== "document-form") {
-      setCurrentView("documents");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white">
       {/* Enhanced Header */}
@@ -236,7 +248,7 @@ export default function DashboardPage() {
         currentView={currentView}
         onNavigate={handleNavigate}
         onSearch={handleSearch}
-        showSearch={currentView === "documents" || currentView === "document-form"}
+        showSearch={shouldShowSearch}
       />
 
       {/* Main Dashboard Content */}
@@ -331,14 +343,6 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* AI Chat Bubble */}
-      <AIChatBubble 
-        context="dashboard"
-        onNavigate={(view) => {
-          if (view === "chat") handleStartChat();
-          if (view === "analysis") handleStartStructuredChat();
-        }}
-      />
     </div>
   )
 }

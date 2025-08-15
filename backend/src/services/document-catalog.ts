@@ -472,6 +472,143 @@ export class DocumentCatalog {
     const info = this.getDocumentTypeInfo(documentType);
     return info?.isActive || false;
   }
+
+  static getDocumentSuggestions(legalArea: string, keywords: string[] = [], userMessage: string = ''): DocumentTypeInfo[] {
+    const activeDocuments = this.getActiveDocumentTypes();
+    const suggestions: DocumentTypeInfo[] = [];
+    const messageLower = userMessage.toLowerCase();
+
+    // Enhanced context-specific document mapping
+    const contextSpecificDocs: { [key: string]: string[] } = {
+      'land sale': ['SALE_OF_LAND_AGREEMENT'],
+      'property sale': ['SALE_OF_LAND_AGREEMENT'],
+      'land purchase': ['SALE_OF_LAND_AGREEMENT'],
+      'buy land': ['SALE_OF_LAND_AGREEMENT'],
+      'sell land': ['SALE_OF_LAND_AGREEMENT'],
+      'employment contract': ['ENHANCED_EMPLOYMENT_CONTRACT'],
+      'job contract': ['ENHANCED_EMPLOYMENT_CONTRACT'],
+      'work agreement': ['ENHANCED_EMPLOYMENT_CONTRACT'],
+      'lease agreement': ['ENHANCED_LEASE_AGREEMENT'],
+      'rental agreement': ['ENHANCED_LEASE_AGREEMENT'],
+      'tenancy agreement': ['ENHANCED_LEASE_AGREEMENT'],
+      'service agreement': ['SERVICE_AGREEMENT'],
+      'partnership': ['PARTNERSHIP_AGREEMENT'],
+      'company formation': ['ARTICLES_OF_ASSOCIATION'],
+      'shareholder agreement': ['SHAREHOLDER_AGREEMENT'],
+      'settlement': ['SETTLEMENT_AGREEMENT'],
+      'mediation': ['MEDIATION_AGREEMENT'],
+      'arbitration': ['ARBITRATION_AGREEMENT']
+    };
+
+    // Track context-specific matches and category matches separately
+    const contextMatches: DocumentTypeInfo[] = [];
+    const categoryMatches: DocumentTypeInfo[] = [];
+
+    // Check for specific context matches first
+    for (const [context, docTypes] of Object.entries(contextSpecificDocs)) {
+      if (messageLower.includes(context)) {
+        docTypes.forEach(docType => {
+          const doc = activeDocuments.find(d => d.id === docType);
+          if (doc && !contextMatches.find(s => s.id === doc.id)) {
+            contextMatches.push(doc);
+          }
+        });
+      }
+    }
+
+    // Only do category-based matching if we don't have enough context matches
+    if (contextMatches.length < 3) {
+      const legalAreaToCategory: { [key: string]: DocumentCategory[] } = {
+        'Contract Law': [DocumentCategory.BUSINESS_COMMERCIAL],
+        'Employment Law': [DocumentCategory.EMPLOYMENT_HR],
+        'Property Law': [DocumentCategory.PROPERTY_REAL_ESTATE],
+        'Family Law': [DocumentCategory.FAMILY_LAW],
+        'Business Law': [DocumentCategory.BUSINESS_COMMERCIAL, DocumentCategory.CORPORATE_GOVERNANCE],
+        'Intellectual Property': [DocumentCategory.INTELLECTUAL_PROPERTY],
+        'Tenancy Law': [DocumentCategory.PROPERTY_REAL_ESTATE],
+        'Civil Procedure': [DocumentCategory.LITIGATION_DISPUTE],
+        'Criminal Law': [DocumentCategory.LITIGATION_DISPUTE],
+        'Consumer Protection': [DocumentCategory.BUSINESS_COMMERCIAL],
+        'Constitutional Law': [DocumentCategory.LITIGATION_DISPUTE],
+        'Other': Object.values(DocumentCategory)
+      };
+
+      // Get relevant categories for the legal area
+      const relevantCategories = legalAreaToCategory[legalArea] || [];
+
+      // Filter documents by category, excluding those already found in context matches
+      const categoryDocs = activeDocuments.filter(doc => 
+        relevantCategories.includes(doc.category) && 
+        !contextMatches.find(cm => cm.id === doc.id)
+      );
+
+      // Keyword-based matching for more specific suggestions
+      if (keywords.length > 0) {
+        const keywordMatches = activeDocuments.filter(doc => {
+          const searchText = `${doc.name} ${doc.description}`.toLowerCase();
+          return keywords.some(keyword => 
+            searchText.includes(keyword.toLowerCase())
+          ) && !contextMatches.find(cm => cm.id === doc.id);
+        });
+        
+        // Add keyword matches to category matches
+        keywordMatches.forEach(doc => {
+          if (!categoryMatches.find(s => s.id === doc.id)) {
+            categoryMatches.push(doc);
+          }
+        });
+      }
+
+      // Add category docs to category matches
+      categoryDocs.forEach(doc => {
+        if (!categoryMatches.find(s => s.id === doc.id)) {
+          categoryMatches.push(doc);
+        }
+      });
+    }
+
+    // Combine results: context matches first, then category matches
+    const finalSuggestions = [
+      ...contextMatches,
+      ...categoryMatches.slice(0, 3 - contextMatches.length)
+    ];
+
+    // Limit to top 3 suggestions to avoid overwhelming the user
+    return finalSuggestions.slice(0, 3);
+  }
+
+  static getDocumentNavigationSteps(documentType: DocumentType): string[] {
+    const categoryInfo = this.getCategoryInfo(this.getDocumentTypeInfo(documentType)?.category!);
+    const documentInfo = this.getDocumentTypeInfo(documentType);
+    
+    if (!categoryInfo || !documentInfo) {
+      return ['Go to Documents section', 'Search for the document type'];
+    }
+
+    return [
+      'Click on "Documents" from the main dashboard',
+      `Select "${categoryInfo.name}" category`,
+      `Choose "${documentInfo.name}" document type`,
+      'Fill in the required information',
+      'Review and generate your document'
+    ];
+  }
+
+  static getEstimatedCompletionTime(documentType: DocumentType): string {
+    const info = this.getDocumentTypeInfo(documentType);
+    if (!info) return '15-30 minutes';
+
+    switch (info.complexity) {
+      case 'Low':
+        return '10-15 minutes';
+      case 'Medium':
+        return '20-30 minutes';
+      case 'High':
+        return '45-60 minutes';
+      default:
+        return '15-30 minutes';
+    }
+  }
 }
 
 export default DocumentCatalog;

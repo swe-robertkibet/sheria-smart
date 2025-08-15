@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Send, Mic, AlertTriangle, CheckCircle, Clock, FileText, Scale, User, Menu } from "lucide-react"
+import { ArrowLeft, Send, Mic, AlertTriangle, CheckCircle, Clock, FileText, Scale, User, Menu, ExternalLink, ChevronRight } from "lucide-react"
 import { StructuredLegalResponse, QuestionClassification, StructuredChatResponse, UrgencyLevel, LegalArea } from "../types/legal"
 import { useScrollToTop } from "@/hooks/use-scroll-to-top"
 
@@ -24,9 +24,10 @@ interface StructuredChatInterfaceProps {
   sessionId?: string | null
   onToggleSidebar?: () => void
   onSessionCreated?: (sessionId: string) => void
+  onNavigateToDocument?: (documentType: string, category: string) => void
 }
 
-export function StructuredChatInterface({ onBack, sessionId: propSessionId, onToggleSidebar, onSessionCreated }: StructuredChatInterfaceProps) {
+export function StructuredChatInterface({ onBack, sessionId: propSessionId, onToggleSidebar, onSessionCreated, onNavigateToDocument }: StructuredChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
@@ -287,9 +288,9 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
       }
     } catch (error) {
       console.error('🚨 [ERROR] Exception during structured fetch:', {
-        error: error.message,
-        stack: error.stack,
-        name: error.name,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : 'No stack trace',
+        name: error instanceof Error ? error.name : 'Unknown error',
         timestamp: new Date().toISOString()
       })
       
@@ -404,7 +405,7 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
               <div key={index} className="border-l-4 border-blue-500 pl-4">
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="font-semibold text-blue-800">{step.description}</h4>
-                  <Badge size="sm" className={getUrgencyColor(step.priority)}>
+                  <Badge className={getUrgencyColor(step.priority)}>
                     {step.priority}
                   </Badge>
                 </div>
@@ -500,6 +501,95 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
             <p className="text-sm text-blue-700">
               {response.consultationReason || "It is recommended that you consult with a qualified lawyer for your specific situation."}
             </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Document Suggestions */}
+      {response.documentSuggestions && response.documentSuggestions.length > 0 && (
+        <Card className="border-green-200 bg-green-50">
+          <CardHeader>
+            <CardTitle className="text-lg text-green-800 flex items-center">
+              <FileText className="w-5 h-5 mr-2" />
+              Recommended Documents
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-green-700 mb-4">
+              Based on your situation, you might need to create these legal documents:
+            </p>
+            {response.documentSuggestions.map((suggestion, index) => (
+              <div key={index} className="border border-green-200 rounded-lg p-4 bg-white">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-green-800">{suggestion.documentName}</h4>
+                    <Badge variant="outline" className="text-xs mt-1">
+                      {suggestion.category}
+                    </Badge>
+                  </div>
+                  <Badge className={`ml-2 ${
+                    suggestion.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+                    suggestion.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                    suggestion.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {suggestion.priority}
+                  </Badge>
+                </div>
+                
+                <p className="text-sm text-gray-700 mb-3">{suggestion.reason}</p>
+                
+                <div className="grid md:grid-cols-2 gap-4 mb-3">
+                  <div>
+                    <p className="text-xs font-medium text-gray-600 mb-1">Estimated Time:</p>
+                    <p className="text-sm text-gray-700">{suggestion.estimatedTime}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-600 mb-1">Key Information Needed:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {suggestion.requiredInputs.slice(0, 3).map((input, i) => (
+                        <span key={i} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                          {input.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                        </span>
+                      ))}
+                      {suggestion.requiredInputs.length > 3 && (
+                        <span className="text-xs text-gray-500">
+                          +{suggestion.requiredInputs.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-200 pt-3">
+                  <p className="text-xs font-medium text-gray-600 mb-2">How to create this document:</p>
+                  <ol className="text-xs text-gray-600 space-y-1">
+                    {suggestion.navigationSteps.map((step, i) => (
+                      <li key={i} className="flex items-start">
+                        <span className="font-medium mr-2">{i + 1}.</span>
+                        <span>{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                  
+                  <Button 
+                    size="sm" 
+                    className="mt-3 w-full bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => {
+                      if (onNavigateToDocument) {
+                        onNavigateToDocument(suggestion.documentType, suggestion.category);
+                      } else {
+                        console.log('Navigate to document:', suggestion.documentType);
+                      }
+                    }}
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Create This Document
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}

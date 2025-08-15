@@ -300,9 +300,9 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
       }
     } catch (error) {
       console.error('🚨 [ERROR] Exception during fetch:', {
-        error: error.message,
-        stack: error.stack,
-        name: error.name,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : 'No stack trace',
+        name: error instanceof Error ? error.name : 'Unknown error',
         timestamp: new Date().toISOString()
       })
       

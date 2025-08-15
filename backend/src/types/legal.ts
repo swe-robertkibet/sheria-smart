@@ -64,6 +64,17 @@ export interface LegalProcedure {
   requirements: string[];
 }
 
+export interface DocumentSuggestion {
+  documentType: string;
+  documentName: string;
+  category: string;
+  reason: string;
+  navigationSteps: string[];
+  requiredInputs: string[];
+  estimatedTime: string;
+  priority: UrgencyLevel;
+}
+
 export interface StructuredLegalResponse {
   // Classification
   legalArea: LegalArea;
@@ -92,6 +103,9 @@ export interface StructuredLegalResponse {
   // Recommendation
   recommendConsultation: boolean;
   consultationReason?: string;
+
+  // Document Suggestions
+  documentSuggestions?: DocumentSuggestion[];
 }
 
 export interface QuestionClassification {
