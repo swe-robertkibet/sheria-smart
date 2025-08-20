@@ -47,7 +47,7 @@ export class EmailService {
       await this.delay(delayMs);
     }
 
-    const subject = `Your ${emailData.documentType} Document - Sheria Smart`;
+    const subject = `Your Legal Document is Ready`;
     const htmlContent = this.generateEmailHTML(emailData);
     
     const mailOptions = {
@@ -101,8 +101,8 @@ export class EmailService {
 
   private generateEmailHTML(emailData: DocumentEmailData): string {
     const attachmentsList = emailData.attachments.map(att => 
-      `<li>${att.filename}</li>`
-    ).join('');
+      `${att.filename}`
+    ).join(', ');
 
     return `
 <!DOCTYPE html>
@@ -110,7 +110,7 @@ export class EmailService {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Legal Document - Sheria Smart</title>
+    <title>Your Legal Document is Ready</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -124,172 +124,86 @@ export class EmailService {
             max-width: 600px;
             margin: 20px auto;
             background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
         .header {
             background: linear-gradient(135deg, #7C9885, #5D7A6B);
             color: white;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
         }
         .header h1 {
             margin: 0;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 600;
         }
-        .header .subtitle {
-            margin: 8px 0 0 0;
-            font-size: 16px;
-            opacity: 0.9;
-        }
         .content {
-            padding: 40px 30px;
+            padding: 30px;
         }
-        .greeting {
-            font-size: 18px;
-            color: #2D3748;
-            margin-bottom: 25px;
-        }
-        .document-info {
+        .document-details {
             background-color: #F8FAF9;
-            border-left: 4px solid #7C9885;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
             padding: 20px;
-            margin: 25px 0;
-            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
         }
-        .document-info h3 {
+        .document-details h3 {
             margin-top: 0;
             color: #7C9885;
-            font-size: 20px;
+            font-size: 18px;
+            margin-bottom: 15px;
         }
-        .document-info p {
+        .document-details ul {
+            margin: 0;
+            padding-left: 0;
+            list-style: none;
+        }
+        .document-details li {
             margin: 8px 0;
             color: #4A5568;
         }
-        .attachments {
-            background-color: #E6F3E7;
-            border: 1px solid #C6E2C8;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 25px 0;
-        }
-        .attachments h4 {
-            color: #2F855A;
-            margin-top: 0;
-            font-size: 16px;
-        }
-        .attachments ul {
-            margin: 10px 0 0 0;
-            padding-left: 20px;
-            color: #2F855A;
-        }
-        .attachments li {
-            margin: 5px 0;
-            font-weight: 500;
-        }
-        .important-notice {
-            background-color: #FFF5E6;
-            border: 1px solid #FBD38D;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 25px 0;
-        }
-        .important-notice h4 {
-            color: #C05621;
-            margin-top: 0;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-        }
-        .important-notice p {
-            color: #744210;
-            margin: 10px 0 0 0;
-        }
         .footer {
             background-color: #F7F8FC;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
             border-top: 1px solid #E2E8F0;
-        }
-        .footer p {
-            margin: 5px 0;
             color: #718096;
             font-size: 14px;
-        }
-        .logo {
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .logo .smart {
-            color: #FED7C3;
-        }
-        .warning-icon {
-            display: inline-block;
-            margin-right: 8px;
-            font-size: 18px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">
-                Sheria <span class="smart">Smart</span>
-            </div>
             <h1>Your Legal Document is Ready</h1>
-            <p class="subtitle">Professional Legal Assistance for Kenya</p>
         </div>
         
         <div class="content">
-            <div class="greeting">
-                Dear ${emailData.recipientName},
-            </div>
+            <p>Dear ${emailData.recipientName},</p>
             
-            <p>Thank you for using Sheria Smart for your legal document needs. We're pleased to provide you with your professionally generated ${emailData.documentType} document.</p>
+            <p>Thank you for using Sheria Smart for your legal document needs. Your document has been successfully generated and is attached to this email.</p>
             
-            <p><strong>📬 Delivery Note:</strong> This email has been successfully processed by our system and delivered to your inbox. Due to email server processing and security filtering, there may be a short delay before it appears in your email client.</p>
-            
-            <div class="document-info">
+            <div class="document-details">
                 <h3>Document Details</h3>
-                <p><strong>Document Type:</strong> ${emailData.documentType}</p>
-                <p><strong>Generated On:</strong> ${emailData.generatedDate}</p>
-                <p><strong>Format(s):</strong> ${emailData.attachments.map(att => att.filename.split('.').pop()?.toUpperCase()).join(', ')}</p>
-            </div>
-            
-            <div class="attachments">
-                <h4>📎 Attached Documents</h4>
-                <p>The following files are attached to this email:</p>
                 <ul>
-                    ${attachmentsList}
+                    <li>• <strong>Type:</strong> ${emailData.documentType}</li>
+                    <li>• <strong>Generated On:</strong> ${emailData.generatedDate}</li>
+                    <li>• <strong>Format:</strong> PDF</li>
+                    <li>• <strong>Attached Document:</strong> ${attachmentsList}</li>
                 </ul>
             </div>
             
-            <div class="important-notice">
-                <h4>
-                    <span class="warning-icon">⚠️</span>
-                    Important Legal Notice
-                </h4>
-                <p>This document has been generated using AI assistance and is provided for informational purposes only. While we strive for accuracy and compliance with Kenyan law, we strongly recommend that you have this document reviewed by a qualified Kenyan legal professional before use or execution.</p>
-                <p><strong>This does not constitute legal advice.</strong> Consult with a licensed attorney for specific legal guidance related to your situation.</p>
-            </div>
+            <p>If you have any questions or need further assistance, please don't hesitate to contact us.</p>
             
-            <p>If you have any questions about your document or need additional assistance, please don't hesitate to contact our support team or visit our platform.</p>
-            
-            <p>Thank you for choosing Sheria Smart for your legal documentation needs.</p>
-            
-            <p>Best regards,<br>
-            <strong>The Sheria Smart Team</strong></p>
+            <p>Kind regards,<br>
+            <strong>Sheria Smart</strong><br>
+            Professional Legal Assistance for Kenya</p>
         </div>
         
         <div class="footer">
-            <p><strong>Sheria Smart</strong></p>
-            <p>AI-Powered Legal Assistance for Kenya</p>
-            <p style="margin-top: 15px;">This email was sent automatically. Please do not reply directly to this email.</p>
-            <p>For support, please visit our platform or contact our customer service.</p>
+            This email was sent automatically. Please do not reply directly to this email.
         </div>
     </div>
 </body>
