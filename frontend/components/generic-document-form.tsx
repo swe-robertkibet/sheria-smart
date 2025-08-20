@@ -208,9 +208,7 @@ export function GenericDocumentForm({
       }
 
       setSuccess(
-        `Document generated successfully! Request ID: ${result.requestId}. ${
-          result.message || "Document will be sent to your email."
-        }`
+        `Your legal document has been successfully generated and will be delivered to your registered email address. Request ID: ${result.requestId}`
       );
     } catch (err) {
       console.error("Error generating document:", err);
@@ -530,11 +528,10 @@ export function GenericDocumentForm({
               </svg>
               <div>
                 <p className="text-sm font-medium text-blue-800">
-                  Document Delivery
+                  Secure Document Delivery
                 </p>
                 <p className="text-sm text-blue-700">
-                  Your generated document will be sent to your registered email
-                  address for security.
+                  Your legal document will be delivered directly to your registered email address upon completion.
                 </p>
               </div>
             </div>
