@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "@ant-design/v5-patch-for-react-19";
 import { AuthProvider } from "@/contexts/auth-context";
+import { ConfigProvider } from 'antd';
+import { antdTheme } from '@/lib/theme-config';
 
 export const metadata: Metadata = {
   title: "Sheria Smart",
@@ -16,9 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <ConfigProvider theme={antdTheme}>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </ConfigProvider>
       </body>
     </html>
   );

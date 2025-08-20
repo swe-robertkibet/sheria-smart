@@ -22,6 +22,7 @@ frontend/node_modules/
 frontend/.next/
 frontend/out/
 frontend/.vercel
+frontend/package-lock.json
 
 # === BACKEND (Node.js or TS) ===
 backend/node_modules/

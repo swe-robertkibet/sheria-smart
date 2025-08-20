@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Loader2, FileText } from "lucide-react";
+import { ArrowLeft, Loader2, FileText, User, Phone, Briefcase, Building2, DollarSign, Calendar, Shield } from "lucide-react";
 import { 
   Form, 
   Input, 
@@ -16,7 +16,8 @@ import {
   Alert, 
   Modal,
   Typography,
-  theme
+  theme,
+  Divider
 } from "antd";
 import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 import { DocumentType, DocumentFormat } from "@/types/document";
@@ -33,6 +34,8 @@ import {
   validateRequiredFields,
   createRequestData
 } from "@/lib/document-form-utils";
+import { createFormSections, getIconName } from "@/lib/form-grouping";
+import { semanticColors, formSections } from "@/lib/theme-config";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -53,9 +56,7 @@ export function EnhancedGenericDocumentForm({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({});
-  const [selectedFormats, setSelectedFormats] = useState<DocumentFormat[]>([
-    DocumentFormat.PDF,
-  ]);
+  // Removed selectedFormats state - using Form state only for instant responsiveness
   const [pasteError, setPasteError] = useState<string | null>(null);
   const [pasteSuccess, setPasteSuccess] = useState<string | null>(null);
   const [mappingResult, setMappingResult] = useState<FieldMappingResult | null>(
@@ -65,13 +66,30 @@ export function EnhancedGenericDocumentForm({
   // Reset scroll position when component mounts
   useScrollToTop();
 
+  // Get form sections for this document type
+  const formSectionsList = createFormSections(documentType);
+
+  // Helper function to get icon component
+  const getIconComponent = (iconKey: string) => {
+    const iconMap: { [key: string]: React.ComponentType<any> } = {
+      'user': User,
+      'phone': Phone,
+      'briefcase': Briefcase,
+      'building': Building2,
+      'dollar-sign': DollarSign,
+      'calendar': Calendar,
+      'shield': Shield,
+      'file-text': FileText
+    };
+    
+    return iconMap[iconKey] || FileText;
+  };
+
   const handleInputChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleFormatChange = (checkedValues: DocumentFormat[]) => {
-    setSelectedFormats(checkedValues);
-  };
+  // Removed handleFormatChange - Form handles state directly for instant responsiveness
 
   const handlePasteData = (pastedData: Record<string, any>) => {
     setPasteError(null);
@@ -147,6 +165,31 @@ export function EnhancedGenericDocumentForm({
     }, 5000);
   };
 
+  // Handle form validation failures
+  const handleFinishFailed = (errorInfo: any) => {
+    console.log('Form validation failed:', errorInfo);
+    
+    // Set error message for validation failure
+    const errorFields = errorInfo.errorFields;
+    if (errorFields && errorFields.length > 0) {
+      const firstError = errorFields[0];
+      const fieldName = firstError.name[0];
+      const errorMessage = firstError.errors[0];
+      
+      setError(`Validation Error: ${errorMessage}`);
+      
+      // Clear error after 8 seconds
+      setTimeout(() => {
+        setError(null);
+      }, 8000);
+    } else {
+      setError("Please fix the highlighted fields and try again.");
+      setTimeout(() => {
+        setError(null);
+      }, 6000);
+    }
+  };
+
   const handleSubmit = async (values: Record<string, any>) => {
     setLoading(true);
     setError(null);
@@ -162,7 +205,10 @@ export function EnhancedGenericDocumentForm({
         );
       }
 
-      if (selectedFormats.length === 0) {
+      // Get formats from form state instead of removed selectedFormats
+      const formats = values.formats || [DocumentFormat.PDF];
+      
+      if (formats.length === 0) {
         throw new Error("Please select at least one document format");
       }
 
@@ -171,7 +217,7 @@ export function EnhancedGenericDocumentForm({
       const requestData = createRequestData(
         documentType,
         processedUserInput,
-        selectedFormats,
+        formats,
         getDocumentTitle
       );
 
@@ -180,7 +226,7 @@ export function EnhancedGenericDocumentForm({
         documentType,
         userInputKeys: Object.keys(processedUserInput),
         userInputValues: processedUserInput,
-        formats: selectedFormats,
+        formats: formats,
         allRequiredFields: getRequiredFields(documentType)
           .filter((f) => f.required)
           .map((f) => f.key),
@@ -227,8 +273,6 @@ export function EnhancedGenericDocumentForm({
       setLoading(false);
     }
   };
-
-  const fields = getRequiredFields(documentType);
 
   // Form layout configuration
   const formLayout = {
@@ -290,12 +334,15 @@ export function EnhancedGenericDocumentForm({
           form={form}
           {...formLayout}
           onFinish={handleSubmit}
+          onFinishFailed={handleFinishFailed}
           onValuesChange={(changedValues, allValues) => {
             setFormData(allValues);
           }}
           size="middle"
           requiredMark="optional"
           colon={false}
+          scrollToFirstError={{ behavior: 'smooth', offset: 100 }}
+          validateTrigger={['onChange', 'onBlur']}
         >
           <Space direction="vertical" size="large" style={{ width: "100%" }}>
             {/* Paste Button Section */}
@@ -325,7 +372,11 @@ export function EnhancedGenericDocumentForm({
                     onError={handlePasteError}
                     size="lg"
                     variant="default"
-                    className="bg-[#7C9885] hover:bg-[#7C9885]/90 text-white"
+                    style={{
+                      backgroundColor: semanticColors.primary.bg,
+                      borderColor: semanticColors.primary.bg,
+                      color: 'white'
+                    }}
                   />
                 </Col>
               </Row>
@@ -492,86 +543,171 @@ export function EnhancedGenericDocumentForm({
               </div>
             </Card>
 
-            {/* Form Fields */}
-            <Card
-              title="Form Fields"
-              style={{
-                borderRadius: token.borderRadiusLG,
-                boxShadow: token.boxShadowTertiary
-              }}
-              styles={{ body: { padding: token.paddingLG } }}
-            >
-              <Row gutter={[24, 16]}>
-                {fields.map((field) => (
-                  <Col
-                    key={field.key}
-                    xs={24}
-                    sm={field.type === "textarea" ? 24 : 12}
-                    md={field.type === "textarea" ? 24 : 12}
-                    lg={field.type === "textarea" ? 24 : 8}
-                  >
-                    <Form.Item
-                      name={field.key}
-                      label={field.label}
-                      rules={[
-                        {
-                          required: field.required,
-                          message: `Please enter ${field.label.toLowerCase()}`,
-                        },
-                      ]}
-                      tooltip={field.required ? "This field is required" : undefined}
-                    >
-                      {field.type === "textarea" ? (
-                        <TextArea
-                          placeholder={(field as any).placeholder || `Enter ${field.label.toLowerCase()}`}
-                          rows={3}
-                          style={{ borderRadius: token.borderRadius }}
-                        />
-                      ) : field.type === "select" ? (
-                        <Select
-                          placeholder={`Select ${field.label.toLowerCase()}`}
-                          style={{ borderRadius: token.borderRadius }}
+            {/* Form Sections - Vertical Grouping */}
+            {formSectionsList.map((section, sectionIndex) => {
+              const IconComponent = getIconComponent(section.icon || 'file-text');
+              
+              return (
+                <Card
+                  key={section.id}
+                  style={{
+                    borderRadius: token.borderRadiusLG,
+                    border: formSections.styling.sectionBorder,
+                    backgroundColor: formSections.styling.sectionBackground,
+                    marginBottom: formSections.spacing.sectionGap,
+                  }}
+                  styles={{ body: { padding: formSections.styling.sectionPadding } }}
+                >
+                  {/* Section Header */}
+                  <div style={{ marginBottom: formSections.spacing.groupGap }}>
+                    <Space align="start" size="middle">
+                      <div style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        backgroundColor: semanticColors.primary.bg,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                      }}>
+                        <IconComponent size={20} color="white" />
+                      </div>
+                      <div>
+                        <Title 
+                          level={4} 
+                          style={{ 
+                            margin: 0,
+                            color: formSections.styling.headerColor,
+                            fontSize: formSections.styling.headerFontSize,
+                            fontWeight: formSections.styling.headerFontWeight
+                          }}
                         >
-                          {(field as any).options?.map((option: string) => (
-                            <Option key={option} value={option}>
-                              {option
-                                .replace("_", " ")
-                                .split(" ")
-                                .map(
-                                  (word) =>
-                                    word.charAt(0).toUpperCase() +
-                                    word.slice(1).toLowerCase()
-                                )
-                                .join(" ")}
-                            </Option>
-                          ))}
-                        </Select>
-                      ) : field.type === "radio" ? (
-                        <Radio.Group>
-                          <Space direction="vertical">
-                            {(field as any).options?.map((option: string) => (
-                              <Radio key={option} value={option}>
-                                {option === "true"
-                                  ? "Yes"
-                                  : option === "false"
-                                  ? "No"
-                                  : option}
-                              </Radio>
-                            ))}
-                          </Space>
-                        </Radio.Group>
-                      ) : (
-                        <Input
-                          type={field.type}
-                          placeholder={(field as any).placeholder || `Enter ${field.label.toLowerCase()}`}
-                          style={{ borderRadius: token.borderRadius }}
-                        />
-                      )}
-                    </Form.Item>
-                  </Col>
-                ))}
-              </Row>
-            </Card>
+                          {section.title}
+                        </Title>
+                        {section.description && (
+                          <Text 
+                            type="secondary"
+                            style={{ 
+                              fontSize: formSections.styling.descriptionFontSize,
+                              color: formSections.styling.descriptionColor
+                            }}
+                          >
+                            {section.description}
+                          </Text>
+                        )}
+                      </div>
+                    </Space>
+                  </div>
+
+                  <Divider style={{ margin: `${formSections.spacing.fieldGap}px 0` }} />
+
+                  {/* Section Fields */}
+                  <Row gutter={[formSections.spacing.fieldGap, formSections.spacing.fieldGap]}>
+                    {section.fields.map((field) => (
+                      <Col
+                        key={field.key}
+                        xs={24}
+                        sm={field.type === "textarea" ? 24 : 12}
+                        md={field.type === "textarea" ? 24 : section.fields.length === 1 ? 24 : 12}
+                        lg={field.type === "textarea" ? 24 : section.fields.length <= 2 ? 12 : 8}
+                      >
+                        <Form.Item
+                          name={field.key}
+                          label={
+                            <span style={{ fontWeight: token.fontWeightStrong }}>
+                              {field.label}
+                              {field.required && (
+                                <span style={{ color: token.colorError, marginLeft: 4 }}>*</span>
+                              )}
+                            </span>
+                          }
+                          rules={[
+                            {
+                              required: field.required,
+                              message: `${field.label} is required`,
+                            },
+                            // Add specific validation for different field types
+                            ...(field.type === 'email' ? [{
+                              type: 'email' as const,
+                              message: `Please enter a valid email address`,
+                            }] : []),
+                            ...(field.type === 'url' ? [{
+                              type: 'url' as const,
+                              message: `Please enter a valid URL`,
+                            }] : []),
+                            // Add minimum length validation for text fields
+                            ...(field.type === 'text' || field.type === 'textarea' ? [{
+                              min: 2,
+                              message: `${field.label} must be at least 2 characters`,
+                            }] : []),
+                          ]}
+                          tooltip={field.required ? "This field is required" : undefined}
+                          style={{ marginBottom: formSections.spacing.fieldGap }}
+                          hasFeedback={field.required}
+                          validateFirst
+                        >
+                          {field.type === "textarea" ? (
+                            <TextArea
+                              placeholder={(field as any).placeholder || `Enter ${field.label.toLowerCase()}`}
+                              rows={4}
+                              style={{ 
+                                borderRadius: token.borderRadius,
+                                fontSize: token.fontSize
+                              }}
+                            />
+                          ) : field.type === "select" ? (
+                            <Select
+                              placeholder={`Select ${field.label.toLowerCase()}`}
+                              style={{ borderRadius: token.borderRadius }}
+                              size="large"
+                            >
+                              {(field as any).options?.map((option: string) => (
+                                <Option key={option} value={option}>
+                                  {option
+                                    .replace("_", " ")
+                                    .split(" ")
+                                    .map(
+                                      (word) =>
+                                        word.charAt(0).toUpperCase() +
+                                        word.slice(1).toLowerCase()
+                                    )
+                                    .join(" ")}
+                                </Option>
+                              ))}
+                            </Select>
+                          ) : field.type === "radio" ? (
+                            <Radio.Group size="large">
+                              <Space direction="vertical" size="middle">
+                                {(field as any).options?.map((option: string) => (
+                                  <Radio key={option} value={option}>
+                                    {option === "true"
+                                      ? "Yes"
+                                      : option === "false"
+                                      ? "No"
+                                      : option}
+                                  </Radio>
+                                ))}
+                              </Space>
+                            </Radio.Group>
+                          ) : (
+                            <Input
+                              type={field.type}
+                              placeholder={(field as any).placeholder || `Enter ${field.label.toLowerCase()}`}
+                              style={{ 
+                                borderRadius: token.borderRadius,
+                                fontSize: token.fontSize
+                              }}
+                              size="large"
+                            />
+                          )}
+                        </Form.Item>
+                      </Col>
+                    ))}
+                  </Row>
+                </Card>
+              );
+            })}
 
             {/* Document Formats */}
             <Card
@@ -585,11 +721,9 @@ export function EnhancedGenericDocumentForm({
               <Form.Item
                 name="formats"
                 rules={[{ required: true, message: "Please select at least one format" }]}
+                initialValue={[DocumentFormat.PDF]}
               >
-                <Checkbox.Group
-                  value={selectedFormats}
-                  onChange={handleFormatChange}
-                >
+                <Checkbox.Group>
                   <Space>
                     <Checkbox value={DocumentFormat.PDF}>PDF</Checkbox>
                     <Checkbox value={DocumentFormat.DOCX}>Word Document</Checkbox>
@@ -614,10 +748,30 @@ export function EnhancedGenericDocumentForm({
             {/* Error/Success Messages */}
             {error && (
               <Alert
-                message="Generation Error"
-                description={error}
+                message={error.includes('Validation Error') ? "Form Validation Failed" : "Document Generation Error"}
+                description={
+                  <div>
+                    <p>{error}</p>
+                    {error.includes('Validation Error') && (
+                      <p style={{ 
+                        marginTop: token.marginXS, 
+                        fontStyle: 'italic',
+                        color: token.colorTextSecondary 
+                      }}>
+                        Please check the highlighted fields above and correct any errors.
+                      </p>
+                    )}
+                  </div>
+                }
                 type="error"
-                style={{ borderRadius: token.borderRadiusLG }}
+                style={{ 
+                  borderRadius: token.borderRadiusLG,
+                  border: `2px solid ${token.colorError}`,
+                  backgroundColor: token.colorErrorBg
+                }}
+                showIcon
+                closable
+                onClose={() => setError(null)}
               />
             )}
 
@@ -666,8 +820,9 @@ export function EnhancedGenericDocumentForm({
                   style={{
                     borderRadius: token.borderRadius,
                     minWidth: 180,
-                    backgroundColor: "#7C9885",
-                    borderColor: "#7C9885"
+                    backgroundColor: semanticColors.primary.bg,
+                    borderColor: semanticColors.primary.bg,
+                    fontWeight: token.fontWeightStrong
                   }}
                 >
                   {loading ? "Generating Document..." : "Generate Document"}

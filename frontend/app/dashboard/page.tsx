@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Button } from "@/components/ui/button"
 import { MessageCircle, FileText, Scale, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Button, Card, theme } from "antd"
 import { ChatInterface } from "@/components/chat-interface"
 import { StructuredChatInterface } from "@/components/structured-chat-interface"
 import { EnhancedDocumentSelector } from "@/components/enhanced-document-selector"
@@ -14,10 +14,12 @@ import { useAuth } from "@/contexts/auth-context"
 import { AuthLoading } from "@/components/auth-loading"
 import { AuthError } from "@/components/auth-error"
 import { DocumentType } from "@/types/document"
+import { semanticColors, getColorValue } from "@/lib/theme-config"
 
 type ViewType = "dashboard" | "chat" | "structured-chat" | "documents" | "document-form";
 
 export default function DashboardPage() {
+  const { token } = theme.useToken()
   const [currentView, setCurrentView] = useState<ViewType>("dashboard")
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(undefined)
@@ -242,7 +244,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div style={{ minHeight: '100vh', backgroundColor: token.colorBgContainer }}>
       {/* Enhanced Header */}
       <EnhancedHeader 
         currentView={currentView}
@@ -252,94 +254,264 @@ export default function DashboardPage() {
       />
 
       {/* Main Dashboard Content */}
-      <main className="container mx-auto px-6 py-16 max-w-4xl">
+      <main style={{ 
+        maxWidth: '1024px', 
+        margin: '0 auto', 
+        padding: `${token.paddingXL * 2}px ${token.paddingLG}px` 
+      }}>
         {/* Central Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#2D3748] mb-8">What legal help do you need?</h1>
+        <div style={{ textAlign: 'center', marginBottom: token.marginXL * 2 }}>
+          <h1 style={{ 
+            fontSize: token.fontSizeHeading1,
+            fontWeight: token.fontWeightStrong,
+            color: token.colorText,
+            marginBottom: token.marginXL,
+            lineHeight: token.lineHeightHeading
+          }}>
+            What legal help do you need?
+          </h1>
         </div>
 
         {/* Three Main Action Cards */}
-        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {/* Basic Chat Card */}
-          <div
-            className="bg-[#7C9885] rounded-3xl p-6 md:p-8 text-center cursor-pointer transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl group"
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: token.paddingLG,
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
+          {/* Quick Chat Card */}
+          <Card
+            hoverable
             onClick={handleStartChat}
+            style={{
+              background: `linear-gradient(135deg, ${getColorValue('primary', 500)} 0%, ${getColorValue('primary', 600)} 100%)`,
+              border: 'none',
+              borderRadius: token.borderRadiusLG * 2,
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)',
+              boxShadow: `0 8px 24px ${getColorValue('primary', 500)}33`,
+            }}
+            styles={{
+              body: { 
+                padding: `${token.paddingXL}px ${token.paddingLG}px`,
+                textAlign: 'center',
+                color: 'white'
+              }
+            }}
+            className="group hover:shadow-2xl hover:-translate-y-1"
           >
-            <div className="space-y-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                <MessageCircle className="w-8 h-8 text-white" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: token.paddingMD, alignItems: 'center' }}>
+              <div style={{
+                width: 64,
+                height: 64,
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'transform 0.3s ease',
+              }} className="group-hover:scale-110">
+                <MessageCircle size={32} color="white" />
               </div>
-
-              <div className="space-y-3">
-                <h2 className="text-xl md:text-2xl font-bold text-white">Quick Chat</h2>
-                <p className="text-sm text-white/90 leading-relaxed">
+              
+              <div style={{ textAlign: 'center' }}>
+                <h2 style={{ 
+                  fontSize: token.fontSizeHeading3,
+                  fontWeight: token.fontWeightStrong,
+                  color: 'white',
+                  marginBottom: token.marginSM
+                }}>
+                  Quick Chat
+                </h2>
+                <p style={{ 
+                  fontSize: token.fontSize,
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  lineHeight: token.lineHeight,
+                  marginBottom: token.marginLG
+                }}>
                   Get instant answers about legal questions
                 </p>
               </div>
 
-              <Button
-                size="lg"
-                className="bg-white text-[#7C9885] hover:bg-white/90 font-semibold px-6 py-3 text-base rounded-xl transform hover:scale-105 transition-all duration-300"
+              <Button 
+                type="default"
+                size="large"
+                style={{
+                  backgroundColor: 'white',
+                  color: getColorValue('primary', 500),
+                  border: 'none',
+                  fontWeight: token.fontWeightStrong,
+                  borderRadius: token.borderRadiusLG,
+                  height: 48,
+                  paddingInline: token.paddingLG,
+                  transition: 'all 0.3s ease'
+                }}
+                className="hover:scale-105"
               >
                 Start Chat
               </Button>
             </div>
-          </div>
+          </Card>
 
-          {/* Structured Legal Analysis Card */}
-          <div
-            className="bg-gradient-to-br from-[#7C9885] to-[#5D7A6B] rounded-3xl p-6 md:p-8 text-center cursor-pointer transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl group border-2 border-white/20"
+          {/* Legal Analysis Card */}
+          <Card
+            hoverable
             onClick={handleStartStructuredChat}
+            style={{
+              background: `linear-gradient(135deg, ${getColorValue('primary', 500)} 0%, ${getColorValue('primary', 700)} 100%)`,
+              border: `2px solid rgba(255, 255, 255, 0.2)`,
+              borderRadius: token.borderRadiusLG * 2,
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)',
+              boxShadow: `0 8px 24px ${getColorValue('primary', 600)}33`,
+            }}
+            styles={{
+              body: { 
+                padding: `${token.paddingXL}px ${token.paddingLG}px`,
+                textAlign: 'center',
+                color: 'white'
+              }
+            }}
+            className="group hover:shadow-2xl hover:-translate-y-1"
           >
-            <div className="space-y-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                <Scale className="w-8 h-8 text-white" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: token.paddingMD, alignItems: 'center' }}>
+              <div style={{
+                width: 64,
+                height: 64,
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'transform 0.3s ease',
+              }} className="group-hover:scale-110">
+                <Scale size={32} color="white" />
               </div>
-
-              <div className="space-y-3">
-                <h2 className="text-xl md:text-2xl font-bold text-white">Legal Analysis</h2>
-                <p className="text-sm text-white/90 leading-relaxed">
+              
+              <div style={{ textAlign: 'center' }}>
+                <h2 style={{ 
+                  fontSize: token.fontSizeHeading3,
+                  fontWeight: token.fontWeightStrong,
+                  color: 'white',
+                  marginBottom: token.marginSM
+                }}>
+                  Legal Analysis
+                </h2>
+                <p style={{ 
+                  fontSize: token.fontSize,
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  lineHeight: token.lineHeight,
+                  marginBottom: token.marginSM
+                }}>
                   Get detailed structured legal guidance
                 </p>
-                <div className="inline-block bg-white/20 text-xs text-white px-2 py-1 rounded-full">
+                <div style={{
+                  display: 'inline-block',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  fontSize: token.fontSizeSM,
+                  color: 'white',
+                  padding: `${token.paddingXS}px ${token.paddingSM}px`,
+                  borderRadius: token.borderRadius,
+                  marginBottom: token.marginLG
+                }}>
                   ENHANCED
                 </div>
               </div>
 
-              <Button
-                size="lg"
-                className="bg-white text-[#7C9885] hover:bg-white/90 font-semibold px-6 py-3 text-base rounded-xl transform hover:scale-105 transition-all duration-300"
+              <Button 
+                type="default"
+                size="large"
+                style={{
+                  backgroundColor: 'white',
+                  color: getColorValue('primary', 500),
+                  border: 'none',
+                  fontWeight: token.fontWeightStrong,
+                  borderRadius: token.borderRadiusLG,
+                  height: 48,
+                  paddingInline: token.paddingLG,
+                  transition: 'all 0.3s ease'
+                }}
+                className="hover:scale-105"
               >
                 Start Analysis
               </Button>
             </div>
-          </div>
+          </Card>
 
-          {/* Create Documents Card */}
-          <div
-            className="bg-[#C99383] rounded-3xl p-6 md:p-8 text-center cursor-pointer transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl group"
+          {/* Documents Card */}
+          <Card
+            hoverable
             onClick={handleCreateDocument}
+            style={{
+              background: `linear-gradient(135deg, ${getColorValue('secondary', 500)} 0%, ${getColorValue('secondary', 600)} 100%)`,
+              border: 'none',
+              borderRadius: token.borderRadiusLG * 2,
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)',
+              boxShadow: `0 8px 24px ${getColorValue('secondary', 500)}33`,
+            }}
+            styles={{
+              body: { 
+                padding: `${token.paddingXL}px ${token.paddingLG}px`,
+                textAlign: 'center',
+                color: 'white'
+              }
+            }}
+            className="group hover:shadow-2xl hover:-translate-y-1"
           >
-            <div className="space-y-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                <FileText className="w-8 h-8 text-white" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: token.paddingMD, alignItems: 'center' }}>
+              <div style={{
+                width: 64,
+                height: 64,
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'transform 0.3s ease',
+              }} className="group-hover:scale-110">
+                <FileText size={32} color="white" />
               </div>
-
-              <div className="space-y-3">
-                <h2 className="text-xl md:text-2xl font-bold text-white">Documents</h2>
-                <p className="text-sm text-white/90 leading-relaxed">
+              
+              <div style={{ textAlign: 'center' }}>
+                <h2 style={{ 
+                  fontSize: token.fontSizeHeading3,
+                  fontWeight: token.fontWeightStrong,
+                  color: 'white',
+                  marginBottom: token.marginSM
+                }}>
+                  Documents
+                </h2>
+                <p style={{ 
+                  fontSize: token.fontSize,
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  lineHeight: token.lineHeight,
+                  marginBottom: token.marginLG
+                }}>
                   Create contracts and legal notices
                 </p>
               </div>
 
-              <Button
-                size="lg"
-                className="bg-white text-[#C99383] hover:bg-white/90 font-semibold px-6 py-3 text-base rounded-xl transform hover:scale-105 transition-all duration-300"
+              <Button 
+                type="default"
+                size="large"
+                style={{
+                  backgroundColor: 'white',
+                  color: getColorValue('secondary', 500),
+                  border: 'none',
+                  fontWeight: token.fontWeightStrong,
+                  borderRadius: token.borderRadiusLG,
+                  height: 48,
+                  paddingInline: token.paddingLG,
+                  transition: 'all 0.3s ease'
+                }}
+                className="hover:scale-105"
               >
                 Create Document
               </Button>
             </div>
-          </div>
+          </Card>
         </div>
       </main>
 

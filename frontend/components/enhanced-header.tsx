@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button, Input, Avatar, theme } from "antd";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +34,7 @@ import {
 import Image from "next/image";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
+import { semanticColors } from "@/lib/theme-config";
 
 interface EnhancedHeaderProps {
   currentView?: "dashboard" | "documents" | "chat" | "analysis" | "structured-chat" | "document-form";
@@ -52,6 +51,7 @@ export function EnhancedHeader({
   showSearch = false,
   className = "",
 }: EnhancedHeaderProps) {
+  const { token } = theme.useToken();
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
@@ -107,13 +107,12 @@ export function EnhancedHeader({
             key={item.id}
             variant={isActive ? "default" : "ghost"}
             size={mobile ? "lg" : "sm"}
-            className={`${
-              mobile ? "w-full justify-start" : ""
-            } ${
-              isActive
-                ? "bg-[#7C9885] text-white hover:bg-[#7C9885]/90"
-                : "text-[#718096] hover:text-[#2D3748] hover:bg-[#F8FAF9]"
-            }`}
+            className={mobile ? "w-full justify-start" : ""}
+            style={{
+              backgroundColor: isActive ? semanticColors.primary.bg : 'transparent',
+              borderColor: isActive ? semanticColors.primary.bg : 'transparent',
+              color: isActive ? 'white' : token.colorTextSecondary,
+            }}
             onClick={() => {
               onNavigate?.(item.id);
               if (mobile) setIsMobileMenuOpen(false);
@@ -128,7 +127,13 @@ export function EnhancedHeader({
   );
 
   return (
-    <header className={`bg-white border-b border-[#F5F5F5] sticky top-0 z-50 ${className}`}>
+    <header 
+      className={`sticky top-0 z-50 ${className}`}
+      style={{
+        backgroundColor: token.colorBgContainer,
+        borderBottom: `1px solid ${token.colorBorder}`
+      }}
+    >
       <div className="container mx-auto px-4 lg:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -141,8 +146,8 @@ export function EnhancedHeader({
               className="h-7 w-7"
             />
             <div className="text-xl font-bold">
-              <span className="text-[#7C9885]">Sheria</span>
-              <span className="text-[#C99383]"> Smart</span>
+              <span style={{ color: semanticColors.primary.text }}>Sheria</span>
+              <span style={{ color: semanticColors.secondary.text }}> Smart</span>
             </div>
           </div>
 
@@ -156,7 +161,10 @@ export function EnhancedHeader({
             <div className="hidden md:flex flex-1 max-w-md mx-6">
               <form onSubmit={handleSearch} className="w-full">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#718096] w-4 h-4" />
+                  <Search 
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4"
+                    style={{ color: token.colorTextSecondary }}
+                  />
                   <Input
                     type="text"
                     placeholder="Search documents, categories..."
@@ -175,7 +183,8 @@ export function EnhancedHeader({
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden text-[#718096]"
+                className="md:hidden"
+                style={{ color: token.colorTextSecondary }}
                 onClick={() => {/* Toggle search on mobile */}}
               >
                 <Search className="w-5 h-5" />
@@ -184,19 +193,35 @@ export function EnhancedHeader({
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center space-x-2 px-3">
-                  <Avatar className="w-8 h-8 bg-[#7C9885]">
-                    {user?.picture ? (
-                      <AvatarImage src={user.picture} alt={user?.name || user?.email} />
-                    ) : null}
-                    <AvatarFallback className="text-white font-semibold">
-                      {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
-                    </AvatarFallback>
+                <Button 
+                  variant="ghost" 
+                  className="flex items-center space-x-2 px-3"
+                  style={{ 
+                    border: 'none',
+                    background: 'transparent',
+                    color: token.colorText
+                  }}
+                >
+                  <Avatar 
+                    size={32}
+                    src={user?.picture}
+                    style={{ 
+                      backgroundColor: semanticColors.primary.bg,
+                      color: 'white'
+                    }}
+                  >
+                    {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
                   </Avatar>
-                  <span className="text-[#2D3748] hidden lg:inline">
+                  <span 
+                    className="hidden lg:inline"
+                    style={{ color: token.colorText }}
+                  >
                     {user?.name || user?.email || "User"}
                   </span>
-                  <ChevronDown className="w-4 h-4 text-[#718096]" />
+                  <ChevronDown 
+                    className="w-4 h-4"
+                    style={{ color: token.colorTextSecondary }}
+                  />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -236,8 +261,8 @@ export function EnhancedHeader({
                       className="h-6 w-6"
                     />
                     <div className="text-lg font-bold">
-                      <span className="text-[#7C9885]">Sheria</span>
-                      <span className="text-[#C99383]"> Smart</span>
+                      <span style={{ color: semanticColors.primary.text }}>Sheria</span>
+                      <span style={{ color: semanticColors.secondary.text }}> Smart</span>
                     </div>
                   </SheetTitle>
                   <VisuallyHidden.Root>
@@ -252,7 +277,10 @@ export function EnhancedHeader({
                   {showSearch && (
                     <form onSubmit={handleSearch} className="mb-6">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#718096] w-4 h-4" />
+                        <Search 
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4"
+                    style={{ color: token.colorTextSecondary }}
+                  />
                         <Input
                           type="text"
                           placeholder="Search documents..."
@@ -270,21 +298,46 @@ export function EnhancedHeader({
                   </nav>
 
                   {/* Mobile User Section */}
-                  <div className="pt-6 mt-6 border-t border-[#E2E8F0] space-y-2">
-                    <div className="flex items-center space-x-3 p-3 rounded-lg bg-[#F8FAF9]">
-                      <Avatar className="w-10 h-10 bg-[#7C9885]">
-                        {user?.picture ? (
-                          <AvatarImage src={user.picture} alt={user?.name || user?.email} />
-                        ) : null}
-                        <AvatarFallback className="text-white font-semibold">
-                          {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
-                        </AvatarFallback>
+                  <div 
+                    className="pt-6 mt-6 space-y-2"
+                    style={{ 
+                      borderTop: `1px solid ${token.colorBorder}`,
+                      paddingTop: token.paddingLG,
+                      marginTop: token.marginLG
+                    }}
+                  >
+                    <div 
+                      className="flex items-center space-x-3 p-3 rounded-lg"
+                      style={{ 
+                        backgroundColor: token.colorBgLayout,
+                        borderRadius: token.borderRadius,
+                        padding: token.paddingMD
+                      }}
+                    >
+                      <Avatar 
+                        size={40}
+                        src={user?.picture}
+                        style={{ 
+                          backgroundColor: semanticColors.primary.bg,
+                          color: 'white'
+                        }}
+                      >
+                        {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#2D3748] truncate">
+                        <p 
+                          className="text-sm font-medium truncate"
+                          style={{ 
+                            color: token.colorText,
+                            fontWeight: token.fontWeightStrong
+                          }}
+                        >
                           {user?.name || "User"}
                         </p>
-                        <p className="text-xs text-[#718096] truncate">
+                        <p 
+                          className="text-xs truncate"
+                          style={{ color: token.colorTextSecondary }}
+                        >
                           {user?.email}
                         </p>
                       </div>
@@ -293,7 +346,8 @@ export function EnhancedHeader({
                     <Button
                       variant="ghost"
                       size="lg"
-                      className="w-full justify-start text-[#718096]"
+                      className="w-full justify-start"
+                      style={{ color: token.colorTextSecondary }}
                     >
                       <User className="w-4 h-4 mr-3" />
                       Profile Settings
@@ -301,7 +355,8 @@ export function EnhancedHeader({
                     <Button
                       variant="ghost"
                       size="lg"
-                      className="w-full justify-start text-[#718096]"
+                      className="w-full justify-start"
+                      style={{ color: token.colorTextSecondary }}
                     >
                       <Settings className="w-4 h-4 mr-3" />
                       Preferences
