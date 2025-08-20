@@ -323,33 +323,75 @@ export function EnhancedGenericDocumentForm({
           position: "sticky",
           top: 0,
           zIndex: 50,
-          height: '64px'
+          minHeight: '64px'
         }}
         styles={{ 
           body: { 
             padding: `16px ${token.paddingXL}px`,
             display: 'flex',
             alignItems: 'center',
-            height: '64px'
+            minHeight: '64px'
           } 
         }}
       >
-        <Space size="middle" align="center">
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '16px',
+          width: '100%',
+          height: '40px' // Increased content height for proper typography
+        }}>
           <Button
             type="text"
             icon={<ArrowLeft size={20} />}
             onClick={onBack}
-            style={{ color: token.colorPrimary }}
+            style={{ 
+              color: token.colorPrimary,
+              flexShrink: 0
+            }}
           />
-          <div>
-            <Title level={3} style={{ margin: 0, color: token.colorText }}>
+          <div style={{ 
+            flex: 1,
+            minWidth: 0,
+            height: '40px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            gap: '2px'
+          }}>
+            <Title 
+              level={3} 
+              style={{ 
+                margin: 0, 
+                color: token.colorText,
+                fontSize: 'clamp(14px, 3vw, 18px)',
+                lineHeight: 1.3,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                height: '22px'
+              }}
+              title={getDocumentTitle(documentType)}
+            >
               {getDocumentTitle(documentType)}
             </Title>
-            <Text type="secondary">
+            <Text 
+              type="secondary"
+              style={{
+                fontSize: 'clamp(11px, 2.5vw, 12px)',
+                lineHeight: 1.33,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                margin: 0,
+                height: '16px'
+              }}
+              title={getDocumentDescription(documentType)}
+            >
               {getDocumentDescription(documentType)}
             </Text>
           </div>
-        </Space>
+        </div>
       </Card>
 
       {/* Form */}

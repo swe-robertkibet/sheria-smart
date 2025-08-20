@@ -225,21 +225,31 @@ export function GenericDocumentForm({
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white border-b border-[#F5F5F5] p-4 sticky top-0 z-50">
-        <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onBack}
-            className="text-[#7C9885]"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-semibold text-[#2D3748]">
+      <header className="bg-white border-b border-[#F5F5F5] sticky top-0 z-50 h-[64px] px-4">
+        <div className="flex items-center gap-4 h-full max-w-full">
+          <div className="flex-shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onBack}
+              className="text-[#7C9885]"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </div>
+          <div className="flex-1 min-w-0 h-10 flex flex-col justify-center gap-0.5">
+            <h1 
+              className="text-sm sm:text-base lg:text-lg font-semibold text-[#2D3748] leading-normal truncate h-[22px]"
+              title={getDocumentTitle(documentType)}
+            >
               {getDocumentTitle(documentType)}
             </h1>
-            <p className="text-sm text-[#718096]">{getDocumentDescription(documentType)}</p>
+            <p 
+              className="text-xs text-[#718096] leading-normal truncate h-[16px]"
+              title={getDocumentDescription(documentType)}
+            >
+              {getDocumentDescription(documentType)}
+            </p>
           </div>
         </div>
       </header>
