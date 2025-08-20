@@ -341,7 +341,7 @@ export function EnhancedGenericDocumentForm({
           size="middle"
           requiredMark="optional"
           colon={false}
-          scrollToFirstError={{ behavior: 'smooth', offset: 100 }}
+          scrollToFirstError={{ behavior: 'smooth', block: 'center', inline: 'center' }}
           validateTrigger={['onChange', 'onBlur']}
         >
           <Space direction="vertical" size="large" style={{ width: "100%" }}>
