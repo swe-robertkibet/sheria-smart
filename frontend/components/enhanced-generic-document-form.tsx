@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Loader2, FileText, User, Phone, Briefcase, Building2, DollarSign, Calendar, Shield } from "lucide-react";
 import { 
   Form, 
@@ -63,8 +63,38 @@ export function EnhancedGenericDocumentForm({
     null
   );
 
+  // Refs for feedback message elements
+  const errorAlertRef = useRef<HTMLDivElement>(null);
+  const successAlertRef = useRef<HTMLDivElement>(null);
+
+  // Scroll utility function for feedback messages
+  const scrollToFeedback = (elementRef: React.RefObject<HTMLDivElement>) => {
+    if (elementRef.current) {
+      elementRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
+      });
+    }
+  };
+
   // Reset scroll position when component mounts
   useScrollToTop();
+
+  // Scroll to feedback messages when they appear
+  useEffect(() => {
+    if (error) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => scrollToFeedback(errorAlertRef), 100);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => scrollToFeedback(successAlertRef), 100);
+    }
+  }, [success]);
 
   // Get form sections for this document type
   const formSectionsList = createFormSections(documentType);
@@ -747,41 +777,45 @@ export function EnhancedGenericDocumentForm({
 
             {/* Error/Success Messages */}
             {error && (
-              <Alert
-                message={error.includes('Validation Error') ? "Form Validation Failed" : "Document Generation Error"}
-                description={
-                  <div>
-                    <p>{error}</p>
-                    {error.includes('Validation Error') && (
-                      <p style={{ 
-                        marginTop: token.marginXS, 
-                        fontStyle: 'italic',
-                        color: token.colorTextSecondary 
-                      }}>
-                        Please check the highlighted fields above and correct any errors.
-                      </p>
-                    )}
-                  </div>
-                }
-                type="error"
-                style={{ 
-                  borderRadius: token.borderRadiusLG,
-                  border: `2px solid ${token.colorError}`,
-                  backgroundColor: token.colorErrorBg
-                }}
-                showIcon
-                closable
-                onClose={() => setError(null)}
-              />
+              <div ref={errorAlertRef}>
+                <Alert
+                  message={error.includes('Validation Error') ? "Form Validation Failed" : "Document Generation Error"}
+                  description={
+                    <div>
+                      <p>{error}</p>
+                      {error.includes('Validation Error') && (
+                        <p style={{ 
+                          marginTop: token.marginXS, 
+                          fontStyle: 'italic',
+                          color: token.colorTextSecondary 
+                        }}>
+                          Please check the highlighted fields above and correct any errors.
+                        </p>
+                      )}
+                    </div>
+                  }
+                  type="error"
+                  style={{ 
+                    borderRadius: token.borderRadiusLG,
+                    border: `2px solid ${token.colorError}`,
+                    backgroundColor: token.colorErrorBg
+                  }}
+                  showIcon
+                  closable
+                  onClose={() => setError(null)}
+                />
+              </div>
             )}
 
             {success && (
-              <Alert
-                message="Generation Successful"
-                description={success}
-                type="success"
-                style={{ borderRadius: token.borderRadiusLG }}
-              />
+              <div ref={successAlertRef}>
+                <Alert
+                  message="Generation Successful"
+                  description={success}
+                  type="success"
+                  style={{ borderRadius: token.borderRadiusLG }}
+                />
+              </div>
             )}
 
             {/* Submit Buttons */}
