@@ -1022,7 +1022,9 @@ export default function HomePage() {
                 </li>
                 <li>
                   <a
-                    href="#"
+                    href="https://www.reuters.com/legal/"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="hover:text-[#7C9885] transition-colors"
                   >
                     Legal News
@@ -1034,22 +1036,6 @@ export default function HomePage() {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-white">Support</h3>
               <ul className="space-y-2 text-sm">
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-[#7C9885] transition-colors"
-                  >
-                    Contact Us
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-[#7C9885] transition-colors"
-                  >
-                    Help Center
-                  </a>
-                </li>
                 <li>
                   <a
                     href="#"
