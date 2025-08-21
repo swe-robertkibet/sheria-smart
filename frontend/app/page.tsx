@@ -38,6 +38,7 @@ import {
   Heart,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { TypewriterText } from "@/components/typewriter-text";
 import { CounterAnimation } from "@/components/counter-animation";
 import { ScrollReveal } from "@/components/scroll-reveal";
@@ -1037,20 +1038,20 @@ export default function HomePage() {
               <h3 className="text-lg font-semibold text-white">Support</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    href="/privacy"
                     className="hover:text-[#7C9885] transition-colors"
                   >
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    href="/terms"
                     className="hover:text-[#7C9885] transition-colors"
                   >
                     Terms of Service
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
