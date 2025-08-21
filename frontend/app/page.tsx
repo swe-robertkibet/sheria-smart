@@ -141,10 +141,10 @@ export default function HomePage() {
                     Login
                   </Button>
                   <Button
-                    onClick={() => router.push("/signup")}
+                    onClick={() => router.push("/login")}
                     className="bg-[#7C9885] hover:bg-[#5D7A6B] text-white transition-all duration-300"
                   >
-                    Sign Up
+                    Get Started
                   </Button>
                 </>
               )}
@@ -233,12 +233,12 @@ export default function HomePage() {
                           </Button>
                           <Button
                             onClick={() => {
-                              router.push("/signup");
+                              router.push("/login");
                               setIsMobileMenuOpen(false);
                             }}
                             className="w-full bg-[#7C9885] hover:bg-[#5D7A6B] text-white transition-all duration-300 min-h-[48px] text-lg touch-manipulation"
                           >
-                            Sign Up
+                            Get Started
                           </Button>
                         </>
                       )}
@@ -283,14 +283,14 @@ export default function HomePage() {
                       if (isAuthenticated) {
                         router.push("/dashboard");
                       } else {
-                        router.push("/signup");
+                        router.push("/login");
                       }
                     }}
                     className="bg-gradient-to-r from-[#7C9885] to-[#5D7A6B] hover:from-[#5D7A6B] hover:to-[#4A6356] text-white px-8 py-4 text-lg rounded-xl transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-xl animate-pulse-gentle"
                   >
                     {isAuthenticated
                       ? "Go to Dashboard"
-                      : "Start Free Consultation"}
+                      : "Get Started Free"}
                   </Button>
                   <Button
                     variant="outline"
@@ -763,13 +763,13 @@ export default function HomePage() {
                       if (isAuthenticated) {
                         router.push("/dashboard");
                       } else {
-                        router.push("/signup");
+                        router.push("/login");
                       }
                     } else {
                       if (isAuthenticated) {
                         router.push("/dashboard");
                       } else {
-                        router.push("/signup");
+                        router.push("/login");
                       }
                     }
                   }}
@@ -915,7 +915,7 @@ export default function HomePage() {
                     if (isAuthenticated) {
                       router.push("/dashboard");
                     } else {
-                      router.push("/signup");
+                      router.push("/login");
                     }
                   }}
                   className="bg-[#F7DC6F] hover:bg-[#F4D03F] text-[#2D3748] px-12 py-4 text-xl rounded-xl transform hover:-translate-y-1 transition-all duration-300 shadow-2xl hover:shadow-3xl font-bold"

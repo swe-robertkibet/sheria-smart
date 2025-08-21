@@ -20,6 +20,7 @@ export default function LoginPage() {
   // OAuth-only authentication - no password field needed
   const [isLoading, setIsLoading] = useState(false)
   const [showRedirecting, setShowRedirecting] = useState(false)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   // OAuth-only authentication - no email form needed
 
   const router = useRouter()
@@ -45,6 +46,9 @@ export default function LoginPage() {
   }, [isAuthenticated, isValidatingToken, authLoading, router])
 
   const handleGoogleLogin = async () => {
+    if (!agreedToTerms) {
+      return // Prevent login if terms not agreed
+    }
     setIsLoading(true)
     try {
       await login()
@@ -156,8 +160,8 @@ export default function LoginPage() {
             </Link>
 
             <div className="space-y-2">
-              <h2 className="text-4xl font-bold text-[#2D3748]">Sign In</h2>
-              <p className="text-[#718096]">Access your legal assistant</p>
+              <h2 className="text-4xl font-bold text-[#2D3748]">Get Started</h2>
+              <p className="text-[#718096]">Access your AI legal assistant</p>
             </div>
 
             {/* Auth Error Display */}
@@ -178,18 +182,62 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* OAuth-Only Authentication */}
+          {/* Terms and Privacy Agreement */}
           <div className="space-y-6">
             <div className="text-center space-y-4">
-              <h3 className="text-lg font-medium text-[#2D3748]">Sign in to continue</h3>
+              <h3 className="text-lg font-medium text-[#2D3748]">Welcome to Sheria Smart</h3>
               <p className="text-sm text-[#718096]">Secure authentication with your Google account</p>
+            </div>
+
+            {/* Agreement Checkbox */}
+            <div className="bg-[#F8FAF9] border-2 border-[#E2E8F0] rounded-lg p-6 space-y-4">
+              <div className="flex items-start space-x-3">
+                <div className="flex items-center h-5">
+                  <Checkbox
+                    id="terms-agreement"
+                    checked={agreedToTerms}
+                    onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                    className="border-[#7C9885] data-[state=checked]:bg-[#7C9885] data-[state=checked]:border-[#7C9885]"
+                  />
+                </div>
+                <div className="text-sm">
+                  <label htmlFor="terms-agreement" className="text-[#2D3748] cursor-pointer">
+                    I agree to the{" "}
+                    <Link href="/terms" className="text-[#7C9885] hover:text-[#5D7A6B] underline font-medium" target="_blank">
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link href="/privacy" className="text-[#7C9885] hover:text-[#5D7A6B] underline font-medium" target="_blank">
+                      Privacy Policy
+                    </Link>
+                  </label>
+                  <p className="text-xs text-[#718096] mt-1">
+                    Required to access Sheria Smart's AI legal assistance services
+                  </p>
+                </div>
+              </div>
+
+              {!agreedToTerms && (
+                <div className="bg-[#FFF8E7] border border-[#F7DC6F] rounded-md p-3">
+                  <div className="flex items-center space-x-2">
+                    <AlertTriangle className="w-4 h-4 text-[#F7DC6F]" />
+                    <p className="text-xs text-[#2D3748]">
+                      Please agree to our Terms and Privacy Policy to continue
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
             
             <Button
               type="button"
               onClick={handleGoogleLogin}
-              disabled={isLoading || authLoading}
-              className="w-full h-16 bg-white border-2 border-[#E2E8F0] hover:bg-[#F8FAF9] hover:border-[#7C9885] transition-all duration-300 text-[#2D3748] font-semibold rounded-lg shadow-md hover:shadow-lg"
+              disabled={!agreedToTerms || isLoading || authLoading}
+              className={`w-full h-16 ${
+                agreedToTerms 
+                  ? 'bg-white border-2 border-[#E2E8F0] hover:bg-[#F8FAF9] hover:border-[#7C9885] text-[#2D3748]' 
+                  : 'bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed'
+              } transition-all duration-300 font-semibold rounded-lg shadow-md hover:shadow-lg`}
             >
               {isLoading ? (
                 <>
@@ -216,23 +264,10 @@ export default function LoginPage() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  <span>Sign in with Google</span>
+                  <span>{agreedToTerms ? 'Continue with Google' : 'Agree to Terms & Continue with Google'}</span>
                 </>
               )}
             </Button>
-
-            <div className="text-center">
-              <p className="text-xs text-[#718096]">
-                By signing in, you agree to our{" "}
-                <Link href="/terms" className="text-[#7C9885] hover:underline">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link href="/privacy" className="text-[#7C9885] hover:underline">
-                  Privacy Policy
-                </Link>
-              </p>
-            </div>
           </div>
 
           {/* Security Indicators */}
@@ -251,15 +286,6 @@ export default function LoginPage() {
             <p className="text-center text-sm text-[#718096]">Your data is encrypted and secure</p>
           </div>
 
-          {/* Sign Up Link */}
-          <div className="text-center">
-            <p className="text-[#718096]">
-              Don't have an account?{" "}
-              <Link href="/signup" className="text-[#7C9885] hover:underline font-medium">
-                Sign up for free
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </div>
