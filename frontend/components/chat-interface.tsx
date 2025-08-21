@@ -339,12 +339,12 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
   }
 
   return (
-    <div className="h-screen bg-[#FEFCF3] flex flex-col">
-      {/* Chat Header */}
-      <header className="bg-[#FEFCF3] border-b border-[#F5F5F5] px-3 py-4 sm:px-4 sticky top-0 z-[60]">
+    <>
+      {/* Full-Width Chat Header - Positioned above everything */}
+      <header className="fixed top-0 left-0 right-0 bg-[#FEFCF3] border-b border-[#F5F5F5] px-3 py-4 sm:px-4 z-[70]">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Hamburger menu for all screen sizes */}
+            {/* Hamburger menu - positioned at far left */}
             {onToggleSidebar && (
               <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-[#7C9885] min-h-[44px] min-w-[44px] touch-manipulation">
                 <Menu className="w-5 h-5" />
@@ -413,7 +413,7 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
                   <ChevronDown className="w-4 h-4 text-[#718096] hidden sm:block" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-32 max-w-[calc(100vw-16px)] z-[70] bg-white shadow-lg border border-[#E2E8F0] mt-2 mr-4 sm:mr-2">
+              <DropdownMenuContent align="end" className="w-32 max-w-[calc(100vw-16px)] z-[80] bg-white shadow-lg border border-[#E2E8F0] mt-2 mr-4 sm:mr-2">
                 <DropdownMenuItem onClick={handleLogout} className="min-h-[44px] cursor-pointer">
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
@@ -423,6 +423,9 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
           </div>
         </div>
       </header>
+      
+      {/* Main Content Container with top padding for fixed header */}
+      <div className="h-screen bg-[#FEFCF3] flex flex-col pt-20">
 
       {/* Main Chat Container - Unified with input */}
       <div className="flex-1 flex flex-col min-h-0">
@@ -582,6 +585,7 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

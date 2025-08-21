@@ -177,7 +177,7 @@ export default function DashboardPage() {
 
   if (currentView === "chat") {
     return (
-      <div className="flex h-screen">
+      <div className="relative h-screen">
         <ChatSidebar 
           ref={quickChatSidebarRef}
           isOpen={isSidebarOpen}
@@ -187,21 +187,19 @@ export default function DashboardPage() {
           onNewChat={handleNewChat}
           chatType="QUICK_CHAT"
         />
-        <div className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64 xl:ml-80' : 'ml-0'}`}>
-          <ChatInterface 
-            onBack={handleBackToDashboard}
-            sessionId={currentSessionId}
-            onToggleSidebar={handleToggleSidebar}
-            onSessionCreated={handleSessionCreated}
-          />
-        </div>
+        <ChatInterface 
+          onBack={handleBackToDashboard}
+          sessionId={currentSessionId}
+          onToggleSidebar={handleToggleSidebar}
+          onSessionCreated={handleSessionCreated}
+        />
       </div>
     )
   }
 
   if (currentView === "structured-chat") {
     return (
-      <div className="flex h-screen">
+      <div className="relative h-screen">
         <ChatSidebar 
           ref={structuredChatSidebarRef}
           isOpen={isSidebarOpen}
@@ -211,15 +209,13 @@ export default function DashboardPage() {
           onNewChat={handleNewChat}
           chatType="STRUCTURED_ANALYSIS"
         />
-        <div className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64 xl:ml-80' : 'ml-0'}`}>
-          <StructuredChatInterface 
-            onBack={handleBackToDashboard}
-            sessionId={currentSessionId}
-            onToggleSidebar={handleToggleSidebar}
-            onSessionCreated={handleSessionCreated}
-            onNavigateToDocument={handleNavigateToDocumentFromChat}
-          />
-        </div>
+        <StructuredChatInterface 
+          onBack={handleBackToDashboard}
+          sessionId={currentSessionId}
+          onToggleSidebar={handleToggleSidebar}
+          onSessionCreated={handleSessionCreated}
+          onNavigateToDocument={handleNavigateToDocumentFromChat}
+        />
       </div>
     )
   }

@@ -270,23 +270,24 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
 
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Mobile overlay - positioned below header */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-[45] lg:hidden"
+          className="fixed inset-0 bg-black/50 z-[50] lg:hidden"
           onClick={onToggle}
+          style={{ top: '80px' }}
         />
       )}
 
       {/* Sidebar */}
       <div className={`
-        fixed top-0 left-0 h-full bg-[#FEFCF3] border-r border-[#E2E8F0] z-50 transition-transform duration-300
+        fixed top-20 left-0 h-[calc(100vh-80px)] bg-[#FEFCF3] border-r border-[#E2E8F0] z-[60] transition-transform duration-300
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        w-80 lg:w-64 xl:w-80 pt-12 lg:pt-16 overflow-hidden flex flex-col
+        w-80 lg:w-64 xl:w-80 overflow-hidden flex flex-col
       `}>
         {/* Sidebar Content */}
         <div className="p-4 flex-shrink-0">
-          {/* New Chat Button */}
+          {/* New Chat Button - No extra spacing above */}
           <Button
             onClick={onNewChat}
             className="w-full mb-4 bg-[#7C9885] hover:bg-[#5D7A6B] text-white flex items-center justify-center min-h-[44px] text-sm touch-manipulation"
@@ -420,19 +421,6 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
         </ScrollArea>
       </div>
 
-      {/* Toggle Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onToggle}
-        className={`
-          fixed top-4 z-40 transition-all duration-300
-          ${isOpen ? 'left-72 lg:left-56 xl:left-72' : 'left-4'}
-          lg:block hidden
-        `}
-      >
-        {isOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-      </Button>
     </>
   )
 })
