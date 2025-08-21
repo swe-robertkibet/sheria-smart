@@ -294,44 +294,47 @@ export default function DashboardPage() {
             }}
             styles={{
               body: { 
-                padding: `${token.paddingXL}px ${token.paddingLG}px`,
+                padding: 0,
                 textAlign: 'center',
-                color: 'white'
+                color: 'white',
+                height: '100%'
               }
             }}
             className="group hover:shadow-2xl hover:-translate-y-1"
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: token.paddingMD, alignItems: 'center' }}>
-              <div style={{
-                width: 64,
-                height: 64,
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'transform 0.3s ease',
-              }} className="group-hover:scale-110">
-                <MessageCircle size={32} color="white" />
-              </div>
-              
-              <div style={{ textAlign: 'center' }}>
-                <h2 style={{ 
-                  fontSize: token.fontSizeHeading3,
-                  fontWeight: token.fontWeightStrong,
-                  color: 'white',
-                  marginBottom: token.marginSM
-                }}>
-                  Quick Chat
-                </h2>
-                <p style={{ 
-                  fontSize: token.fontSize,
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  lineHeight: token.lineHeight,
-                  marginBottom: token.marginLG
-                }}>
-                  Get instant answers about legal questions
-                </p>
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', height: '300px', padding: `${token.paddingXL}px ${token.paddingLG}px` }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: token.paddingMD }}>
+                <div style={{
+                  width: 64,
+                  height: 64,
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'transform 0.3s ease',
+                }} className="group-hover:scale-110">
+                  <MessageCircle size={32} color="white" />
+                </div>
+                
+                <div style={{ textAlign: 'center' }}>
+                  <h2 style={{ 
+                    fontSize: token.fontSizeHeading3,
+                    fontWeight: token.fontWeightStrong,
+                    color: 'white',
+                    marginBottom: token.marginSM
+                  }}>
+                    Quick Chat
+                  </h2>
+                  <p style={{ 
+                    fontSize: token.fontSize,
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    lineHeight: token.lineHeight,
+                    marginBottom: 0
+                  }}>
+                    Get instant answers about legal questions
+                  </p>
+                </div>
               </div>
 
               <Button 
@@ -368,44 +371,47 @@ export default function DashboardPage() {
             }}
             styles={{
               body: { 
-                padding: `${token.paddingXL}px ${token.paddingLG}px`,
+                padding: 0,
                 textAlign: 'center',
-                color: 'white'
+                color: 'white',
+                height: '100%'
               }
             }}
             className="group hover:shadow-2xl hover:-translate-y-1"
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: token.paddingMD, alignItems: 'center' }}>
-              <div style={{
-                width: 64,
-                height: 64,
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'transform 0.3s ease',
-              }} className="group-hover:scale-110">
-                <Scale size={32} color="white" />
-              </div>
-              
-              <div style={{ textAlign: 'center' }}>
-                <h2 style={{ 
-                  fontSize: token.fontSizeHeading3,
-                  fontWeight: token.fontWeightStrong,
-                  color: 'white',
-                  marginBottom: token.marginSM
-                }}>
-                  Legal Analysis
-                </h2>
-                <p style={{ 
-                  fontSize: token.fontSize,
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  lineHeight: token.lineHeight,
-                  marginBottom: token.marginLG
-                }}>
-                  Get detailed structured legal guidance
-                </p>
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', height: '300px', padding: `${token.paddingXL}px ${token.paddingLG}px` }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: token.paddingMD }}>
+                <div style={{
+                  width: 64,
+                  height: 64,
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'transform 0.3s ease',
+                }} className="group-hover:scale-110">
+                  <Scale size={32} color="white" />
+                </div>
+                
+                <div style={{ textAlign: 'center' }}>
+                  <h2 style={{ 
+                    fontSize: token.fontSizeHeading3,
+                    fontWeight: token.fontWeightStrong,
+                    color: 'white',
+                    marginBottom: token.marginSM
+                  }}>
+                    Legal Analysis
+                  </h2>
+                  <p style={{ 
+                    fontSize: token.fontSize,
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    lineHeight: token.lineHeight,
+                    marginBottom: 0
+                  }}>
+                    Get detailed structured legal guidance
+                  </p>
+                </div>
               </div>
 
               <Button 
@@ -442,44 +448,47 @@ export default function DashboardPage() {
             }}
             styles={{
               body: { 
-                padding: `${token.paddingXL}px ${token.paddingLG}px`,
+                padding: 0,
                 textAlign: 'center',
-                color: '#2D3748'
+                color: '#2D3748',
+                height: '100%'
               }
             }}
             className="group hover:shadow-2xl hover:-translate-y-1"
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: token.paddingMD, alignItems: 'center' }}>
-              <div style={{
-                width: 64,
-                height: 64,
-                backgroundColor: 'rgba(45, 55, 72, 0.1)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'transform 0.3s ease',
-              }} className="group-hover:scale-110">
-                <FileText size={32} color="#2D3748" />
-              </div>
-              
-              <div style={{ textAlign: 'center' }}>
-                <h2 style={{ 
-                  fontSize: token.fontSizeHeading3,
-                  fontWeight: token.fontWeightStrong,
-                  color: '#2D3748',
-                  marginBottom: token.marginSM
-                }}>
-                  Documents
-                </h2>
-                <p style={{ 
-                  fontSize: token.fontSize,
-                  color: 'rgba(45, 55, 72, 0.8)',
-                  lineHeight: token.lineHeight,
-                  marginBottom: token.marginLG
-                }}>
-                  Create contracts and legal notices
-                </p>
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', height: '300px', padding: `${token.paddingXL}px ${token.paddingLG}px` }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: token.paddingMD }}>
+                <div style={{
+                  width: 64,
+                  height: 64,
+                  backgroundColor: 'rgba(45, 55, 72, 0.1)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'transform 0.3s ease',
+                }} className="group-hover:scale-110">
+                  <FileText size={32} color="#2D3748" />
+                </div>
+                
+                <div style={{ textAlign: 'center' }}>
+                  <h2 style={{ 
+                    fontSize: token.fontSizeHeading3,
+                    fontWeight: token.fontWeightStrong,
+                    color: '#2D3748',
+                    marginBottom: token.marginSM
+                  }}>
+                    Documents
+                  </h2>
+                  <p style={{ 
+                    fontSize: token.fontSize,
+                    color: 'rgba(45, 55, 72, 0.8)',
+                    lineHeight: token.lineHeight,
+                    marginBottom: 0
+                  }}>
+                    Create contracts and legal notices
+                  </p>
+                </div>
               </div>
 
               <Button 
