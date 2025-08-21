@@ -4,6 +4,15 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden"
+import {
   MessageCircle,
   FileText,
   Shield,
@@ -21,6 +30,8 @@ import {
   Globe,
   Wifi,
   Scale,
+  Menu,
+  X,
 } from "lucide-react"
 import Image from "next/image"
 import { TypewriterText } from "@/components/typewriter-text"
@@ -32,6 +43,7 @@ import { AuthLoading } from "@/components/auth-loading"
 
 export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const router = useRouter()
   const { isAuthenticated, isValidatingToken, loadingContext } = useAuth()
 
@@ -57,59 +69,160 @@ export default function HomePage() {
           isScrolled ? "bg-[#FEFCF3]/90 backdrop-blur-md shadow-lg" : "bg-transparent"
         }`}
       >
-        <nav className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Image
-              src="/sheria-smart-ico.png"
-              alt="Sheria Smart Icon"
-              width={24}
-              height={24}
-              className="h-6 w-6"
-            />
-            <div className="text-xl font-bold">
-              <span className="text-[#7C9885]">Sheria</span>
-              <span className="text-[#C99383]"> Smart</span>
+        <nav className="container mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center space-x-3">
+              <Image
+                src="/sheria-smart-ico.png"
+                alt="Sheria Smart Icon"
+                width={24}
+                height={24}
+                className="h-6 w-6"
+              />
+              <div className="text-xl font-bold">
+                <span className="text-[#7C9885]">Sheria</span>
+                <span className="text-[#C99383]"> Smart</span>
+              </div>
             </div>
-          </div>
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#how-it-works" className="text-[#2D3748] hover:text-[#7C9885] transition-colors">
-              How It Works
-            </a>
-            <a href="#use-cases" className="text-[#2D3748] hover:text-[#7C9885] transition-colors">
-              Use Cases
-            </a>
-            <a href="#about" className="text-[#2D3748] hover:text-[#7C9885] transition-colors">
-              About
-            </a>
-            <a href="#help" className="text-[#2D3748] hover:text-[#7C9885] transition-colors">
-              Help
-            </a>
-          </div>
-          <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
-              <Button
-                onClick={() => router.push("/dashboard")}
-                className="bg-[#7C9885] hover:bg-[#5D7A6B] text-white transition-all duration-300"
-              >
-                Go to Dashboard
-              </Button>
-            ) : (
-              <>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#how-it-works" className="text-[#2D3748] hover:text-[#7C9885] transition-colors">
+                How It Works
+              </a>
+              <a href="#use-cases" className="text-[#2D3748] hover:text-[#7C9885] transition-colors">
+                Use Cases
+              </a>
+              <a href="#about" className="text-[#2D3748] hover:text-[#7C9885] transition-colors">
+                About
+              </a>
+              <a href="#help" className="text-[#2D3748] hover:text-[#7C9885] transition-colors">
+                Help
+              </a>
+            </div>
+
+            {/* Desktop Auth Buttons */}
+            <div className="hidden md:flex items-center space-x-4">
+              {isAuthenticated ? (
                 <Button
-                  variant="outline"
-                  onClick={() => router.push("/login")}
-                  className="border-[#7C9885] text-[#7C9885] hover:bg-[#7C9885] hover:text-white bg-transparent transition-all duration-300"
-                >
-                  Login
-                </Button>
-                <Button
-                  onClick={() => router.push("/signup")}
+                  onClick={() => router.push("/dashboard")}
                   className="bg-[#7C9885] hover:bg-[#5D7A6B] text-white transition-all duration-300"
                 >
-                  Sign Up
+                  Go to Dashboard
                 </Button>
-              </>
-            )}
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push("/login")}
+                    className="border-[#7C9885] text-[#7C9885] hover:bg-[#7C9885] hover:text-white bg-transparent transition-all duration-300"
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    onClick={() => router.push("/signup")}
+                    className="bg-[#7C9885] hover:bg-[#5D7A6B] text-white transition-all duration-300"
+                  >
+                    Sign Up
+                  </Button>
+                </>
+              )}
+            </div>
+
+            {/* Mobile Hamburger Menu */}
+            <div className="md:hidden">
+              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="min-h-[44px] min-w-[44px] touch-manipulation">
+                    <Menu className="w-6 h-6 text-[#2D3748]" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-80 bg-[#FEFCF3]">
+                  <SheetHeader>
+                    <VisuallyHidden.Root>
+                      <SheetTitle>
+                        Navigation menu and authentication options
+                      </SheetTitle>
+                      <SheetDescription>
+                        Navigation menu and authentication options
+                      </SheetDescription>
+                    </VisuallyHidden.Root>
+                  </SheetHeader>
+
+                  <div className="mt-8 space-y-6">
+                    {/* Navigation Links */}
+                    <div className="space-y-4">
+                      <a 
+                        href="#how-it-works" 
+                        className="block text-[#2D3748] hover:text-[#7C9885] transition-colors text-lg py-2 min-h-[44px] flex items-center touch-manipulation"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        How It Works
+                      </a>
+                      <a 
+                        href="#use-cases" 
+                        className="block text-[#2D3748] hover:text-[#7C9885] transition-colors text-lg py-2 min-h-[44px] flex items-center touch-manipulation"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Use Cases
+                      </a>
+                      <a 
+                        href="#about" 
+                        className="block text-[#2D3748] hover:text-[#7C9885] transition-colors text-lg py-2 min-h-[44px] flex items-center touch-manipulation"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        About
+                      </a>
+                      <a 
+                        href="#help" 
+                        className="block text-[#2D3748] hover:text-[#7C9885] transition-colors text-lg py-2 min-h-[44px] flex items-center touch-manipulation"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Help
+                      </a>
+                    </div>
+
+                    {/* Auth Buttons */}
+                    <div className="space-y-3 pt-6 border-t border-gray-200">
+                      {isAuthenticated ? (
+                        <Button
+                          onClick={() => {
+                            router.push("/dashboard")
+                            setIsMobileMenuOpen(false)
+                          }}
+                          className="w-full bg-[#7C9885] hover:bg-[#5D7A6B] text-white transition-all duration-300 min-h-[48px] text-lg touch-manipulation"
+                        >
+                          Go to Dashboard
+                        </Button>
+                      ) : (
+                        <>
+                          <Button
+                            onClick={() => {
+                              router.push("/login")
+                              setIsMobileMenuOpen(false)
+                            }}
+                            variant="outline"
+                            className="w-full border-[#7C9885] text-[#7C9885] hover:bg-[#7C9885] hover:text-white bg-transparent transition-all duration-300 min-h-[48px] text-lg touch-manipulation"
+                          >
+                            Login
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              router.push("/signup")
+                              setIsMobileMenuOpen(false)
+                            }}
+                            className="w-full bg-[#7C9885] hover:bg-[#5D7A6B] text-white transition-all duration-300 min-h-[48px] text-lg touch-manipulation"
+                          >
+                            Sign Up
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </nav>
       </header>
