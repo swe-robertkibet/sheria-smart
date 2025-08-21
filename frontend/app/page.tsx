@@ -678,17 +678,24 @@ export default function HomePage() {
                   }}
                 >
                   <CardContent className="p-8 text-center space-y-4">
-                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                      <useCase.icon className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white">{useCase.title}</h3>
-                    <p className="text-white/90 text-sm leading-relaxed">{useCase.description}</p>
-                    <Button
-                      variant="outline"
-                      className="border-white text-white hover:bg-white hover:text-[#2D3748] transition-all duration-300 bg-transparent"
-                    >
-                      {isAuthenticated ? "Go to Dashboard" : "Get Started"}
-                    </Button>
+                    {(() => {
+                      const isYellowCard = useCase.bg.includes('#F7DC6F');
+                      return (
+                        <>
+                          <div className={`w-16 h-16 ${isYellowCard ? 'bg-[#2D3748]/10' : 'bg-white/20'} rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300`}>
+                            <useCase.icon className={`w-8 h-8 ${isYellowCard ? 'text-[#2D3748]' : 'text-white'}`} />
+                          </div>
+                          <h3 className={`text-xl font-bold ${isYellowCard ? 'text-[#2D3748]' : 'text-white'}`}>{useCase.title}</h3>
+                          <p className={`text-sm leading-relaxed ${isYellowCard ? 'text-[#2D3748]/80' : 'text-white/90'}`}>{useCase.description}</p>
+                          <Button
+                            variant="outline"
+                            className={`${isYellowCard ? 'border-[#2D3748] text-[#2D3748] hover:bg-[#2D3748] hover:text-white' : 'border-white text-white hover:bg-white hover:text-[#2D3748]'} transition-all duration-300 bg-transparent`}
+                          >
+                            {isAuthenticated ? "Go to Dashboard" : "Get Started"}
+                          </Button>
+                        </>
+                      );
+                    })()}
                   </CardContent>
                 </Card>
               </ScrollReveal>
