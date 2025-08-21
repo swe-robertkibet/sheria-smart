@@ -38,6 +38,13 @@ export default function DashboardPage() {
     window.scrollTo(0, 0)
   }, [currentView])
 
+  // Handle authentication redirect in useEffect to avoid setState during render
+  useEffect(() => {
+    if (!isAuthenticated && !user && !isValidatingToken && !isLoading && !authError) {
+      router.push('/login')
+    }
+  }, [isAuthenticated, user, isValidatingToken, isLoading, authError, router])
+
 
   const handleRetryAuth = () => {
     clearAuthError()
@@ -72,9 +79,8 @@ export default function DashboardPage() {
     return <AuthLoading message="Processing..." />
   }
 
-  // Redirect if not authenticated (silent redirect without error)
+  // Return null if not authenticated (redirect handled in useEffect)
   if (!isAuthenticated || !user) {
-    router.push('/login')
     return null
   }
 
@@ -187,12 +193,14 @@ export default function DashboardPage() {
           onNewChat={handleNewChat}
           chatType="QUICK_CHAT"
         />
-        <ChatInterface 
-          onBack={handleBackToDashboard}
-          sessionId={currentSessionId}
-          onToggleSidebar={handleToggleSidebar}
-          onSessionCreated={handleSessionCreated}
-        />
+        <div className={`transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64 xl:ml-80' : ''}`}>
+          <ChatInterface 
+            onBack={handleBackToDashboard}
+            sessionId={currentSessionId}
+            onToggleSidebar={handleToggleSidebar}
+            onSessionCreated={handleSessionCreated}
+          />
+        </div>
       </div>
     )
   }
@@ -209,13 +217,15 @@ export default function DashboardPage() {
           onNewChat={handleNewChat}
           chatType="STRUCTURED_ANALYSIS"
         />
-        <StructuredChatInterface 
-          onBack={handleBackToDashboard}
-          sessionId={currentSessionId}
-          onToggleSidebar={handleToggleSidebar}
-          onSessionCreated={handleSessionCreated}
-          onNavigateToDocument={handleNavigateToDocumentFromChat}
-        />
+        <div className={`transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64 xl:ml-80' : ''}`}>
+          <StructuredChatInterface 
+            onBack={handleBackToDashboard}
+            sessionId={currentSessionId}
+            onToggleSidebar={handleToggleSidebar}
+            onSessionCreated={handleSessionCreated}
+            onNavigateToDocument={handleNavigateToDocumentFromChat}
+          />
+        </div>
       </div>
     )
   }

@@ -146,7 +146,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+      <div className="flex-1 flex items-center justify-center p-8 bg-[#FEFCF3]">
         <div className="w-full max-w-md space-y-8">
           {/* Header */}
           <div className="space-y-4">

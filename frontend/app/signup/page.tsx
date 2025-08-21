@@ -132,7 +132,7 @@ export default function SignupPage() {
       </div>
 
       {/* Right Panel - Signup Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center p-8 bg-[#FEFCF3] overflow-y-auto">
         <div className="w-full max-w-2xl space-y-8">
           {/* Header */}
           <div className="space-y-4">
