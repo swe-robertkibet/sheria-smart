@@ -81,9 +81,9 @@ export function EnhancedGenericDocumentForm({
   // Reset scroll position when component mounts
   useScrollToTop();
 
-  // Scroll to feedback messages when they appear
+  // Scroll to feedback messages when they appear (only for non-validation errors)
   useEffect(() => {
-    if (error) {
+    if (error && !error.includes('Validation Error')) {
       // Small delay to ensure DOM is updated
       setTimeout(() => scrollToFeedback(errorAlertRef), 100);
     }
@@ -199,24 +199,12 @@ export function EnhancedGenericDocumentForm({
   const handleFinishFailed = (errorInfo: any) => {
     console.log('Form validation failed:', errorInfo);
     
-    // Set error message for validation failure
+    // Don't set error messages for field validation failures
+    // Let Ant Design's scrollToFirstError handle the UX
+    // Only log for debugging purposes
     const errorFields = errorInfo.errorFields;
     if (errorFields && errorFields.length > 0) {
-      const firstError = errorFields[0];
-      const fieldName = firstError.name[0];
-      const errorMessage = firstError.errors[0];
-      
-      setError(`Validation Error: ${errorMessage}`);
-      
-      // Clear error after 8 seconds
-      setTimeout(() => {
-        setError(null);
-      }, 8000);
-    } else {
-      setError("Please fix the highlighted fields and try again.");
-      setTimeout(() => {
-        setError(null);
-      }, 6000);
+      console.log('Field validation errors detected, letting form handle scroll to fields');
     }
   };
 
@@ -418,9 +406,11 @@ export function EnhancedGenericDocumentForm({
             {/* Paste Button Section */}
             <Card
               style={{
-                background: `linear-gradient(135deg, ${token.colorPrimaryBg} 0%, ${token.colorBgContainer} 100%)`,
-                border: `1px solid ${token.colorPrimary}`,
+                backgroundColor: 'white',
+                border: `1px solid #E5E7EB`,
                 borderRadius: token.borderRadiusLG,
+                borderLeft: `4px solid #7C9885`,
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
               }}
               styles={{ body: { padding: token.paddingLG } }}
             >
@@ -443,9 +433,10 @@ export function EnhancedGenericDocumentForm({
                     size="lg"
                     variant="default"
                     style={{
-                      backgroundColor: semanticColors.primary.bg,
-                      borderColor: semanticColors.primary.bg,
-                      color: 'white'
+                      backgroundColor: '#7C9885',
+                      borderColor: '#7C9885',
+                      color: 'white',
+                      fontWeight: token.fontWeightStrong
                     }}
                   />
                 </Col>
@@ -617,13 +608,19 @@ export function EnhancedGenericDocumentForm({
             {formSectionsList.map((section, sectionIndex) => {
               const IconComponent = getIconComponent(section.icon || 'file-text');
               
+              // Subtle accent colors for section variety
+              const accentColors = ['#7C9885', '#C99383', '#E1A857'];
+              const accentColor = accentColors[sectionIndex % accentColors.length];
+              
               return (
                 <Card
                   key={section.id}
                   style={{
                     borderRadius: token.borderRadiusLG,
-                    border: formSections.styling.sectionBorder,
-                    backgroundColor: formSections.styling.sectionBackground,
+                    backgroundColor: 'white',
+                    border: `1px solid #E5E7EB`,
+                    borderLeft: `4px solid ${accentColor}`,
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
                     marginBottom: formSections.spacing.sectionGap,
                   }}
                   styles={{ body: { padding: formSections.styling.sectionPadding } }}
@@ -635,13 +632,14 @@ export function EnhancedGenericDocumentForm({
                         width: 40,
                         height: 40,
                         borderRadius: '50%',
-                        backgroundColor: semanticColors.primary.bg,
+                        backgroundColor: `${accentColor}15`,
+                        border: `2px solid ${accentColor}30`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0
                       }}>
-                        <IconComponent size={20} color="white" />
+                        <IconComponent size={20} style={{ color: accentColor }} />
                       </div>
                       <div>
                         <Title 
@@ -781,10 +779,17 @@ export function EnhancedGenericDocumentForm({
 
             {/* Document Formats */}
             <Card
-              title="Document Formats"
+              title={
+                <span style={{ color: token.colorText, fontWeight: token.fontWeightStrong }}>
+                  Document Formats
+                </span>
+              }
               style={{
                 borderRadius: token.borderRadiusLG,
-                boxShadow: token.boxShadowTertiary
+                backgroundColor: 'white',
+                border: `1px solid #E5E7EB`,
+                borderLeft: `4px solid #7C9885`,
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
               }}
               styles={{ body: { padding: token.paddingLG } }}
             >
@@ -810,8 +815,10 @@ export function EnhancedGenericDocumentForm({
               showIcon
               style={{
                 borderRadius: token.borderRadiusLG,
-                backgroundColor: token.colorInfoBg,
-                border: `1px solid ${token.colorInfoBorder}`
+                backgroundColor: '#F8FAFC',
+                border: `1px solid #E5E7EB`,
+                borderLeft: `4px solid #3B82F6`,
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
               }}
             />
 
@@ -859,50 +866,44 @@ export function EnhancedGenericDocumentForm({
             )}
 
             {/* Submit Buttons */}
-            <Card
-              style={{
-                borderRadius: token.borderRadiusLG,
-                boxShadow: token.boxShadowTertiary
-              }}
-              styles={{ 
-                body: { 
-                  padding: token.paddingLG,
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: token.marginMD
-                }
-              }}
-            >
-              <Space size="middle">
-                <Button
-                  type="default"
-                  onClick={onBack}
-                  size="large"
-                  style={{
-                    borderRadius: token.borderRadius,
-                    minWidth: 120
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={loading}
-                  size="large"
-                  icon={!loading ? <FileText size={16} /> : undefined}
-                  style={{
-                    borderRadius: token.borderRadius,
-                    minWidth: 180,
-                    backgroundColor: semanticColors.primary.bg,
-                    borderColor: semanticColors.primary.bg,
-                    fontWeight: token.fontWeightStrong
-                  }}
-                >
-                  {loading ? "Generating Document..." : "Generate Document"}
-                </Button>
-              </Space>
-            </Card>
+            <div style={{ 
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: token.marginMD,
+              paddingTop: token.paddingLG,
+              flexWrap: "wrap"
+            }}>
+              <Button
+                type="default"
+                onClick={onBack}
+                size="large"
+                style={{
+                  borderRadius: token.borderRadius,
+                  minWidth: 120,
+                  order: 1
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+                size="large"
+                icon={!loading ? <FileText size={16} /> : undefined}
+                style={{
+                  borderRadius: token.borderRadius,
+                  minWidth: 180,
+                  backgroundColor: '#7C9885',
+                  borderColor: '#7C9885',
+                  fontWeight: token.fontWeightStrong,
+                  order: 2
+                }}
+              >
+                {loading ? "Generating Document..." : "Generate Document"}
+              </Button>
+            </div>
           </Space>
         </Form>
       </div>

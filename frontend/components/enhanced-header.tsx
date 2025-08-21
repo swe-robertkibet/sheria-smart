@@ -22,10 +22,8 @@ import {
   Search,
   Menu,
   X,
-  User,
   LogOut,
   ChevronDown,
-  Settings,
 } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/contexts/auth-context";
@@ -159,17 +157,8 @@ export function EnhancedHeader({
                   />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem>
-                  <User className="w-4 h-4 mr-2" />
-                  Profile Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Preferences
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
+              <DropdownMenuContent align="end" className="w-32 max-w-[calc(100vw-16px)]">
+                <DropdownMenuItem onClick={handleLogout} className="min-h-[44px] cursor-pointer">
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
                 </DropdownMenuItem>
@@ -177,8 +166,9 @@ export function EnhancedHeader({
             </DropdownMenu>
           </div>
 
-          {/* Mobile Menu Trigger */}
-          <div className="md:hidden">
+          {/* Mobile Menu Trigger - Hidden on dashboard */}
+          {currentView !== "dashboard" && (
+            <div className="md:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -305,7 +295,40 @@ export function EnhancedHeader({
                 </div>
               </SheetContent>
             </Sheet>
-          </div>
+            </div>
+          )}
+
+          {/* Mobile User Profile for Dashboard */}
+          {currentView === "dashboard" && (
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="min-h-[44px] min-w-[44px] touch-manipulation"
+                  >
+                    <Avatar 
+                      size={32}
+                      src={user?.picture}
+                      style={{ 
+                        backgroundColor: '#7C9885',
+                        color: 'white'
+                      }}
+                    >
+                      {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-32 max-w-[calc(100vw-16px)] mr-4 sm:mr-2">
+                  <DropdownMenuItem onClick={handleLogout} className="min-h-[44px] cursor-pointer">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </div>
       </div>
     </header>

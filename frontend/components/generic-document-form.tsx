@@ -140,6 +140,23 @@ export function GenericDocumentForm({
     }, 5000);
   };
 
+  // Function to scroll to first missing field
+  const scrollToFirstMissingField = (missingFields: string[]) => {
+    if (missingFields.length > 0) {
+      const firstMissingField = missingFields[0];
+      const fieldElement = document.getElementById(firstMissingField);
+      if (fieldElement) {
+        fieldElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center'
+        });
+        // Focus the field for better UX
+        fieldElement.focus();
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -151,13 +168,24 @@ export function GenericDocumentForm({
       const missingFields = validateRequiredFields(formData, requiredFields);
 
       if (missingFields.length > 0) {
-        throw new Error(
-          `Please fill in all required fields: ${missingFields.join(", ")}`
-        );
+        // Scroll to first missing field instead of showing error message
+        scrollToFirstMissingField(missingFields);
+        setLoading(false);
+        return; // Exit early, don't show error message
       }
 
       if (selectedFormats.length === 0) {
-        throw new Error("Please select at least one document format");
+        // Scroll to document formats section
+        const formatsElement = document.getElementById('pdf-format') || document.getElementById('docx-format');
+        if (formatsElement) {
+          formatsElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center'
+          });
+        }
+        setLoading(false);
+        return; // Exit early, don't show error message
       }
 
       const processedUserInput = processUserInput(formData, documentType);
@@ -223,9 +251,9 @@ export function GenericDocumentForm({
   const fields = getRequiredFields(documentType);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#FEFCF3]">
       {/* Header */}
-      <header className="bg-white border-b border-[#F5F5F5] sticky top-0 z-50 h-[64px] px-4">
+      <header className="bg-[#FEFCF3] border-b border-[#F5F5F5] sticky top-0 z-50 h-[64px] px-4">
         <div className="flex items-center gap-4 h-full max-w-full">
           <div className="flex-shrink-0">
             <Button
@@ -258,7 +286,7 @@ export function GenericDocumentForm({
       <main className="container mx-auto px-6 py-12 max-w-4xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Paste Button Section */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
+          <div className="bg-white border border-[#E5E7EB] border-l-[4px] border-l-[#7C9885] rounded-lg p-6 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-[#2D3748] mb-2">
@@ -393,104 +421,129 @@ export function GenericDocumentForm({
               <FieldReference fields={getRequiredFields(documentType)} />
             </div>
           </div>
-          <div className="grid gap-6 md:grid-cols-2">
-            {fields.map((field) => (
-              <div
-                key={field.key}
-                className={field.type === "textarea" ? "md:col-span-2" : ""}
-              >
-                <Label
-                  htmlFor={field.key}
-                  className="text-sm font-medium text-[#2D3748]"
+          {/* Form Fields Sections */}
+          {(() => {
+            // Group fields into logical sections for better organization
+            const fieldSections = [];
+            const fieldsPerSection = Math.ceil(fields.length / 3);
+            
+            for (let i = 0; i < fields.length; i += fieldsPerSection) {
+              fieldSections.push(fields.slice(i, i + fieldsPerSection));
+            }
+            
+            const accentColors = ['#7C9885', '#C99383', '#E1A857'];
+            
+            return fieldSections.map((sectionFields, sectionIndex) => {
+              const accentColor = accentColors[sectionIndex % accentColors.length];
+              
+              return (
+                <div
+                  key={`section-${sectionIndex}`}
+                  className="bg-white border border-[#E5E7EB] rounded-lg p-6 shadow-sm"
+                  style={{ borderLeft: `4px solid ${accentColor}` }}
                 >
-                  {field.label}
-                  {field.required && (
-                    <span className="text-red-500 ml-1">*</span>
-                  )}
-                </Label>
-                {field.type === "textarea" ? (
-                  <Textarea
-                    id={field.key}
-                    value={formData[field.key] || ""}
-                    onChange={(e) =>
-                      handleInputChange(field.key, e.target.value)
-                    }
-                    className="mt-1 focus:ring-[#7C9885] focus:border-[#7C9885]"
-                    rows={3}
-                    placeholder={(field as any).placeholder || ""}
-                  />
-                ) : field.type === "select" ? (
-                  <Select
-                    value={formData[field.key] || ""}
-                    onValueChange={(value) =>
-                      handleInputChange(field.key, value)
-                    }
-                  >
-                    <SelectTrigger className="mt-1 focus:ring-[#7C9885] focus:border-[#7C9885]">
-                      <SelectValue placeholder={`Select ${field.label}`} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(field as any).options?.map((option: string) => (
-                        <SelectItem key={option} value={option}>
-                          {option
-                            .replace("_", " ")
-                            .split(" ")
-                            .map(
-                              (word) =>
-                                word.charAt(0).toUpperCase() +
-                                word.slice(1).toLowerCase()
-                            )
-                            .join(" ")}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : field.type === "radio" ? (
-                  <div className="mt-1 space-y-2">
-                    {(field as any).options?.map((option: string) => (
-                      <div key={option} className="flex items-center space-x-2">
-                        <input
-                          type="radio"
-                          id={`${field.key}-${option}`}
-                          name={field.key}
-                          value={option}
-                          checked={formData[field.key] === option}
-                          onChange={(e) =>
-                            handleInputChange(field.key, e.target.value)
-                          }
-                          className="focus:ring-[#7C9885] text-[#7C9885]"
-                        />
+                  <div className="grid gap-6 md:grid-cols-2">
+                    {sectionFields.map((field) => (
+                      <div
+                        key={field.key}
+                        className={field.type === "textarea" ? "md:col-span-2" : ""}
+                      >
                         <Label
-                          htmlFor={`${field.key}-${option}`}
-                          className="text-sm"
+                          htmlFor={field.key}
+                          className="text-sm font-medium text-[#2D3748]"
                         >
-                          {option === "true"
-                            ? "Yes"
-                            : option === "false"
-                            ? "No"
-                            : option}
+                          {field.label}
+                          {field.required && (
+                            <span className="text-red-500 ml-1">*</span>
+                          )}
                         </Label>
+                        {field.type === "textarea" ? (
+                          <Textarea
+                            id={field.key}
+                            value={formData[field.key] || ""}
+                            onChange={(e) =>
+                              handleInputChange(field.key, e.target.value)
+                            }
+                            className="mt-1 focus:ring-[#7C9885] focus:border-[#7C9885]"
+                            rows={3}
+                            placeholder={(field as any).placeholder || ""}
+                          />
+                        ) : field.type === "select" ? (
+                          <Select
+                            value={formData[field.key] || ""}
+                            onValueChange={(value) =>
+                              handleInputChange(field.key, value)
+                            }
+                          >
+                            <SelectTrigger className="mt-1 focus:ring-[#7C9885] focus:border-[#7C9885]">
+                              <SelectValue placeholder={`Select ${field.label}`} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {(field as any).options?.map((option: string) => (
+                                <SelectItem key={option} value={option}>
+                                  {option
+                                    .replace("_", " ")
+                                    .split(" ")
+                                    .map(
+                                      (word) =>
+                                        word.charAt(0).toUpperCase() +
+                                        word.slice(1).toLowerCase()
+                                    )
+                                    .join(" ")}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : field.type === "radio" ? (
+                          <div className="mt-1 space-y-2">
+                            {(field as any).options?.map((option: string) => (
+                              <div key={option} className="flex items-center space-x-2">
+                                <input
+                                  type="radio"
+                                  id={`${field.key}-${option}`}
+                                  name={field.key}
+                                  value={option}
+                                  checked={formData[field.key] === option}
+                                  onChange={(e) =>
+                                    handleInputChange(field.key, e.target.value)
+                                  }
+                                  className="focus:ring-[#7C9885] text-[#7C9885]"
+                                />
+                                <Label
+                                  htmlFor={`${field.key}-${option}`}
+                                  className="text-sm"
+                                >
+                                  {option === "true"
+                                    ? "Yes"
+                                    : option === "false"
+                                    ? "No"
+                                    : option}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <Input
+                            id={field.key}
+                            type={field.type}
+                            value={formData[field.key] || ""}
+                            onChange={(e) =>
+                              handleInputChange(field.key, e.target.value)
+                            }
+                            className="mt-1 focus:ring-[#7C9885] focus:border-[#7C9885]"
+                            placeholder={(field as any).placeholder || ""}
+                          />
+                        )}
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <Input
-                    id={field.key}
-                    type={field.type}
-                    value={formData[field.key] || ""}
-                    onChange={(e) =>
-                      handleInputChange(field.key, e.target.value)
-                    }
-                    className="mt-1 focus:ring-[#7C9885] focus:border-[#7C9885]"
-                    placeholder={(field as any).placeholder || ""}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
+                </div>
+              );
+            });
+          })()}
 
           {/* Document Formats */}
-          <div className="space-y-3">
+          <div className="bg-white border border-[#E5E7EB] border-l-[4px] border-l-[#C99383] rounded-lg p-6 shadow-sm space-y-4">
             <Label className="text-sm font-medium text-[#2D3748]">
               Document Formats <span className="text-red-500">*</span>
             </Label>
@@ -523,10 +576,10 @@ export function GenericDocumentForm({
           </div>
 
           {/* Email Delivery Notice */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-[#F8FAFC] border border-[#E5E7EB] border-l-[4px] border-l-[#3B82F6] rounded-lg p-4 shadow-sm">
             <div className="flex items-center space-x-2">
               <svg
-                className="w-5 h-5 text-blue-600"
+                className="w-5 h-5 text-[#3B82F6]"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -537,10 +590,10 @@ export function GenericDocumentForm({
                 />
               </svg>
               <div>
-                <p className="text-sm font-medium text-blue-800">
+                <p className="text-sm font-medium text-[#2D3748]">
                   Secure Document Delivery
                 </p>
-                <p className="text-sm text-blue-700">
+                <p className="text-sm text-[#6B7280]">
                   Your legal document will be delivered directly to your registered email address upon completion.
                 </p>
               </div>
@@ -549,31 +602,31 @@ export function GenericDocumentForm({
 
           {/* Error/Success Messages */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-800 text-sm">{error}</p>
+            <div className="bg-red-50 border border-red-200 border-l-[4px] border-l-red-500 rounded-lg p-4 shadow-sm">
+              <p className="text-red-800 text-sm font-medium">{error}</p>
             </div>
           )}
 
           {success && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-green-800 text-sm">{success}</p>
+            <div className="bg-green-50 border border-green-200 border-l-[4px] border-l-green-500 rounded-lg p-4 shadow-sm">
+              <p className="text-green-800 text-sm font-medium">{success}</p>
             </div>
           )}
 
           {/* Submit Button */}
-          <div className="flex justify-end space-x-4">
+          <div className="flex justify-between items-center gap-4 pt-6 flex-wrap">
             <Button
               type="button"
               variant="outline"
               onClick={onBack}
-              className="px-6 py-3 border-[#E2E8F0] text-[#718096] hover:bg-[#F8FAF9]"
+              className="px-6 py-3 border-[#E2E8F0] text-[#718096] hover:bg-[#F8FAF9] order-1"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 bg-[#7C9885] hover:bg-[#7C9885]/90 text-white font-semibold"
+              className="px-6 py-3 bg-[#7C9885] hover:bg-[#7C9885]/90 text-white font-semibold transform hover:scale-105 transition-all duration-200 order-2"
             >
               {loading ? (
                 <>

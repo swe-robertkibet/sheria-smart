@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge"
 import {
   MessageCircle,
   Search,
-  Archive,
   MoreVertical,
   Trash2,
   Edit3,
@@ -17,8 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
-  Clock,
-  X
+  Clock
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -61,7 +59,6 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [showArchived, setShowArchived] = useState(false)
   const [cursor, setCursor] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(true)
   const [editingTitle, setEditingTitle] = useState<string | null>(null)
@@ -76,9 +73,6 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
       const url = new URL('/api/chat/sessions', process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000')
       if (!reset && cursor) {
         url.searchParams.set('cursor', cursor)
-      }
-      if (showArchived) {
-        url.pathname = '/api/chat/sessions/archived'
       }
       if (chatType) {
         url.searchParams.set('chatType', chatType)
@@ -242,14 +236,17 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
   }
 
   // Get session title or generate from first message
+  // NOTE: AI-generated titles should be limited to 6-8 words maximum for optimal display
   const getSessionTitle = (session: ChatSession) => {
-    return session.title || `Chat ${session.messageCount > 0 ? session.messageCount : 'New'}`
+    const title = session.title || `Chat ${session.messageCount > 0 ? session.messageCount : 'New'}`
+    // Truncate overly long titles to prevent UI overflow (max 60 characters)
+    return title.length > 60 ? title.substring(0, 57) + '...' : title
   }
 
   // Load initial sessions
   useEffect(() => {
     loadSessions(true)
-  }, [showArchived, chatType])
+  }, [chatType])
 
   // Handle search
   useEffect(() => {
@@ -276,35 +273,23 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
       {/* Mobile overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-[45] lg:hidden"
           onClick={onToggle}
         />
       )}
 
       {/* Sidebar */}
       <div className={`
-        fixed top-0 left-0 h-full bg-white border-r border-[#F5F5F5] z-50 transition-transform duration-300
+        fixed top-0 left-0 h-full bg-[#FEFCF3] border-r border-[#E2E8F0] z-50 transition-transform duration-300
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        w-80 lg:w-64 xl:w-80
+        w-80 lg:w-64 xl:w-80 pt-12 lg:pt-16 overflow-hidden flex flex-col
       `}>
-        {/* Header */}
-        <div className="p-4 border-b border-[#F5F5F5]">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-[#2D3748]">Chats</h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggle}
-              className="lg:hidden"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-
+        {/* Sidebar Content */}
+        <div className="p-4 flex-shrink-0">
           {/* New Chat Button */}
           <Button
             onClick={onNewChat}
-            className="w-full mb-4 bg-[#7C9885] hover:bg-[#5D7A6B] text-white flex items-center justify-center min-h-[40px] text-sm"
+            className="w-full mb-4 bg-[#7C9885] hover:bg-[#5D7A6B] text-white flex items-center justify-center min-h-[44px] text-sm touch-manipulation"
           >
             <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
             <span className="truncate">New Chat</span>
@@ -317,32 +302,20 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
               placeholder="Search chats..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20"
+              className="pl-10 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 min-h-[44px]"
             />
           </div>
 
-          {/* Toggle Archive */}
-          <div className="flex items-center justify-between mt-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowArchived(!showArchived)}
-              className="text-[#718096] hover:text-[#7C9885]"
-            >
-              {showArchived ? <MessageCircle className="w-4 h-4 mr-2" /> : <Archive className="w-4 h-4 mr-2" />}
-              {showArchived ? 'Active Chats' : 'Archived'}
-            </Button>
-          </div>
         </div>
 
         {/* Chat List */}
-        <ScrollArea className="flex-1 h-[calc(100vh-200px)]">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="p-2">
             {sessions.map((session) => (
               <div
                 key={session.id}
                 className={`
-                  group relative p-3 rounded-lg cursor-pointer transition-colors mb-2
+                  group relative p-3 rounded-lg cursor-pointer transition-colors mb-2 min-h-[44px] touch-manipulation
                   ${session.id === currentSessionId ? 'bg-[#7C9885]/10 border border-[#7C9885]/20' : 'hover:bg-[#F8FAF9]'}
                 `}
                 onClick={() => onSessionSelect(session.id)}
@@ -374,7 +347,10 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
                         />
                       </div>
                     ) : (
-                      <h3 className="font-medium text-sm text-[#2D3748] truncate mb-1">
+                      <h3 
+                        className="font-medium text-sm text-[#2D3748] mb-1 leading-relaxed line-clamp-2"
+                        title={getSessionTitle(session)}
+                      >
                         {getSessionTitle(session)}
                       </h3>
                     )}
@@ -393,7 +369,7 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                        className="opacity-0 group-hover:opacity-100 lg:opacity-100 transition-opacity min-h-[44px] min-w-[44px] p-0 touch-manipulation"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <MoreVertical className="w-4 h-4" />
@@ -403,10 +379,6 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
                       <DropdownMenuItem onClick={() => handleTitleEdit(session.id, session.title)}>
                         <Edit3 className="w-4 h-4 mr-2" />
                         Edit Title
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => archiveChat(session.id)}>
-                        <Archive className="w-4 h-4 mr-2" />
-                        Archive
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => deleteChat(session.id)}

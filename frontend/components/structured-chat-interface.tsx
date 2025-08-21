@@ -6,9 +6,20 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Send, Mic, AlertTriangle, CheckCircle, Clock, FileText, Scale, User, Menu, ExternalLink, ChevronRight } from "lucide-react"
+import { ArrowLeft, Send, Mic, AlertTriangle, CheckCircle, Clock, FileText, Scale, Menu, ExternalLink, ChevronRight, LogOut, ChevronDown, Plus } from "lucide-react"
 import { StructuredLegalResponse, QuestionClassification, StructuredChatResponse, UrgencyLevel, LegalArea } from "../types/legal"
 import { useScrollToTop } from "@/hooks/use-scroll-to-top"
+import { Avatar } from "antd"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import Image from "next/image"
+import { useAuth } from "@/contexts/auth-context"
+import { useRouter } from "next/navigation"
 
 interface Message {
   id: string
@@ -34,6 +45,8 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
   const [sessionId, setSessionId] = useState<string | null>(propSessionId || null)
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(true)
   const [isAtBottom, setIsAtBottom] = useState(true)
+  const { user, logout } = useAuth()
+  const router = useRouter()
   
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const lastUserMessageRef = useRef<HTMLDivElement>(null)
@@ -165,6 +178,11 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
       case UrgencyLevel.LOW: return "bg-green-100 text-green-800"
       default: return "bg-gray-100 text-gray-800"
     }
+  }
+
+  const handleLogout = async () => {
+    await logout()
+    router.push("/")
   }
 
   const getLegalAreaColor = (area: LegalArea) => {
@@ -615,23 +633,71 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
   return (
     <div className="h-screen bg-[#FEFCF3] flex flex-col">
       {/* Chat Header */}
-      <header className="bg-[#FEFCF3] border-b border-[#F5F5F5] p-4 sticky top-0 z-50">
-        <div className="flex items-center space-x-4">
-          {/* Hamburger menu for all screen sizes */}
-          {onToggleSidebar && (
-            <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-[#7C9885]">
-              <Menu className="w-5 h-5" />
+      <header className="bg-[#FEFCF3] border-b border-[#F5F5F5] px-3 py-4 sm:px-4 sticky top-0 z-[60]">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Hamburger menu for all screen sizes */}
+            {onToggleSidebar && (
+              <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-[#7C9885] min-h-[44px] min-w-[44px] touch-manipulation">
+                <Menu className="w-5 h-5" />
+              </Button>
+            )}
+            <Button variant="ghost" size="icon" onClick={onBack} className="text-[#7C9885] min-h-[44px] min-w-[44px] touch-manipulation">
+              <ArrowLeft className="w-5 h-5" />
             </Button>
-          )}
-          <Button variant="ghost" size="icon" onClick={onBack} className="text-[#7C9885]">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-semibold text-[#2D3748]">Legal Assistant</h1>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-[#718096]">Structured Mode</span>
+            
+            {/* Logo */}
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Image
+                src="/sheria-smart-ico.png"
+                alt="Sheria Smart Icon"
+                width={24}
+                height={24}
+                className="h-6 w-6"
+              />
+              <div className="text-xl font-bold hidden sm:block">
+                <span style={{ color: '#7C9885' }}>Sheria</span>
+                <span style={{ color: '#C99383' }}> Smart</span>
+              </div>
             </div>
+          </div>
+          
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* User Profile */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  className="flex items-center space-x-2 px-3 min-h-[44px] touch-manipulation"
+                  style={{ 
+                    border: 'none',
+                    background: 'transparent',
+                    color: '#2D3748'
+                  }}
+                >
+                  <Avatar 
+                    size={32}
+                    src={user?.picture}
+                    style={{ 
+                      backgroundColor: '#7C9885',
+                      color: 'white'
+                    }}
+                  >
+                    {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
+                  </Avatar>
+                  <span className="hidden md:inline text-[#2D3748]">
+                    {user?.name || user?.email || "User"}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-[#718096] hidden sm:block" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-32 max-w-[calc(100vw-16px)] z-[70] bg-white shadow-lg border border-[#E2E8F0] mt-2 mr-4 sm:mr-2">
+                <DropdownMenuItem onClick={handleLogout} className="min-h-[44px] cursor-pointer">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
@@ -731,7 +797,7 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   placeholder="Ask your legal question for structured analysis..."
-                  className="h-14 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-2xl text-base"
+                  className="h-14 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-2xl text-base touch-manipulation"
                   onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                 />
                 <Button
@@ -745,7 +811,7 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
               <Button
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || isTyping}
-                className="h-14 px-6 bg-[#7C9885] hover:bg-[#5D7A6B] text-white rounded-2xl disabled:opacity-50"
+                className="h-14 px-6 bg-[#7C9885] hover:bg-[#5D7A6B] text-white rounded-2xl disabled:opacity-50 touch-manipulation min-w-[44px]"
               >
                 <Send className="w-5 h-5" />
               </Button>

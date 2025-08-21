@@ -188,49 +188,22 @@ export function EnhancedDocumentSelector({
   const isDocumentPopular = (docType: DocumentType) => popularDocuments.includes(docType);
   const isDocumentRecent = (docType: DocumentType) => recentDocuments.includes(docType);
 
-  // Filtered and sorted documents
-  const filteredAndSortedDocuments = useMemo(() => {
+  // Filtered documents (search only)
+  const filteredDocuments = useMemo(() => {
     if (!selectedCategory) return [];
 
     const categoryData = categories.find((cat) => cat.id === selectedCategory);
     if (!categoryData) return [];
 
-    let filtered = categoryData.documents.filter((doc) => {
-      // Search filter
-      const matchesSearch = 
-        doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.description.toLowerCase().includes(searchQuery.toLowerCase());
-
-      // Complexity filter
-      const matchesComplexity = 
-        complexityFilter === "all" || 
-        doc.complexity.toLowerCase() === complexityFilter;
-
-      return matchesSearch && matchesComplexity;
-    });
-
-    // Sort documents
-    return filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "alphabetical":
-          return a.name.localeCompare(b.name);
-        case "complexity":
-          const complexityOrder = { low: 1, medium: 2, high: 3 };
-          return (complexityOrder[a.complexity.toLowerCase() as keyof typeof complexityOrder] || 2) - 
-                 (complexityOrder[b.complexity.toLowerCase() as keyof typeof complexityOrder] || 2);
-        case "popular":
-          const aPopular = isDocumentPopular(a.id) ? 1 : 0;
-          const bPopular = isDocumentPopular(b.id) ? 1 : 0;
-          return bPopular - aPopular;
-        case "recent":
-          const aRecent = isDocumentRecent(a.id) ? 1 : 0;
-          const bRecent = isDocumentRecent(b.id) ? 1 : 0;
-          return bRecent - aRecent;
-        default:
-          return 0;
-      }
-    });
-  }, [categories, selectedCategory, searchQuery, complexityFilter, sortBy, popularDocuments, recentDocuments]);
+    // Only apply search filter - simple alphabetical sort
+    return categoryData.documents
+      .filter((doc) => {
+        // Search filter only
+        return doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               doc.description.toLowerCase().includes(searchQuery.toLowerCase());
+      })
+      .sort((a, b) => a.name.localeCompare(b.name)); // Simple alphabetical sort
+  }, [categories, selectedCategory, searchQuery]);
 
   // Filtered categories for search
   const filteredCategories = useMemo(() => {
@@ -291,72 +264,27 @@ export function EnhancedDocumentSelector({
         </div>
       </header>
 
-      {/* Search and Filters */}
+      {/* Search */}
       <div className="container mx-auto px-6 py-6 max-w-6xl">
         <div className="bg-[#F8FAF9] rounded-2xl p-6 mb-8">
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#718096] w-4 h-4" />
-                <Input
-                  type="text"
-                  placeholder={selectedCategory ? "Search documents..." : "Search categories and documents..."}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 bg-white border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20"
-                />
-                {searchQuery && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 text-[#718096] hover:text-[#2D3748]"
-                    onClick={() => setSearchQuery("")}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Filters (only show when viewing documents) */}
-            {selectedCategory && (
-              <>
-                <Select value={complexityFilter} onValueChange={(value: ComplexityFilter) => setComplexityFilter(value)}>
-                  <SelectTrigger className="w-full lg:w-48 bg-white">
-                    <SelectValue placeholder="Complexity" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Complexity</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-                  <SelectTrigger className="w-full lg:w-48 bg-white">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="alphabetical">Alphabetical</SelectItem>
-                    <SelectItem value="complexity">Complexity</SelectItem>
-                    <SelectItem value="popular">Popular</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setComplexityFilter("all");
-                    setSortBy("alphabetical");
-                  }}
-                  className="whitespace-nowrap"
-                >
-                  Clear Filters
-                </Button>
-              </>
+          <div className="relative max-w-md mx-auto">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#718096] w-4 h-4" />
+            <Input
+              type="text"
+              placeholder={selectedCategory ? "Search documents..." : "Search categories and documents..."}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 bg-white border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 text-[#718096] hover:text-[#2D3748]"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="w-4 h-4" />
+              </Button>
             )}
           </div>
         </div>
@@ -379,7 +307,7 @@ export function EnhancedDocumentSelector({
         ) : selectedCategory ? (
           /* Document Grid */
           <div className="space-y-6">
-            {filteredAndSortedDocuments.length === 0 ? (
+            {filteredDocuments.length === 0 ? (
               <Card>
                 <CardContent className="p-12 text-center">
                   <Search className="w-12 h-12 text-[#718096] mx-auto mb-4" />
@@ -387,14 +315,11 @@ export function EnhancedDocumentSelector({
                     No documents found
                   </h3>
                   <p className="text-[#718096] mb-4">
-                    Try adjusting your search terms or filters
+                    Try adjusting your search terms
                   </p>
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      setSearchQuery("");
-                      setComplexityFilter("all");
-                    }}
+                    onClick={() => setSearchQuery("")}
                   >
                     Clear Search
                   </Button>
@@ -402,7 +327,7 @@ export function EnhancedDocumentSelector({
               </Card>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredAndSortedDocuments.map((docType, index) => {
+                {filteredDocuments.map((docType, index) => {
                   const Icon = getDocumentIcon(docType.id);
                   const isPopular = isDocumentPopular(docType.id);
                   const isRecent = isDocumentRecent(docType.id);
