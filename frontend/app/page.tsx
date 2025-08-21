@@ -732,10 +732,10 @@ export default function HomePage() {
 
                 <div className="space-y-6">
                   {[
-                    { icon: Smartphone, text: "Works on any device" },
-                    { icon: MessageCircle, text: "Chat session history" },
-                    { icon: FileText, text: "Document download & email" },
-                    { icon: Shield, text: "Secure & private consultations" },
+                    { icon: Scale, text: "Kenyan Law Expertise" },
+                    { icon: MessageCircle, text: "Dual AI Chat Modes" },
+                    { icon: FileText, text: "25+ Document Templates" },
+                    { icon: Brain, text: "Context-Aware Guidance" },
                   ].map((feature, index) => (
                     <div key={index} className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-[#7C9885] rounded-xl flex items-center justify-center">
