@@ -619,42 +619,42 @@ export default function HomePage() {
                 icon: Home, 
                 title: "Property & Real Estate", 
                 description: "Lease agreements & property contracts",
-                bg: "from-[#7C9885]/80 to-[#5D7A6B]/80",
+                bg: "from-[#7C9885] to-[#5D7A6B]",
                 action: "property"
               },
               { 
                 icon: Briefcase, 
                 title: "Business Contracts", 
                 description: "Partnership, sales & commercial agreements",
-                bg: "from-[#C99383]/80 to-[#B8826F]/80",
+                bg: "from-[#C99383] to-[#B8826F]",
                 action: "business"
               },
               { 
                 icon: Users, 
                 title: "Family Law Documents", 
                 description: "Prenuptial, postnuptial & custody agreements",
-                bg: "from-[#F7DC6F]/80 to-[#F4D03F]/80",
+                bg: "from-[#F7DC6F] to-[#F4D03F]",
                 action: "family"
               },
               { 
                 icon: Building, 
                 title: "Corporate Governance", 
                 description: "Articles, shareholder agreements & resolutions",
-                bg: "from-[#7C9885]/60 to-[#5D7A6B]/60",
+                bg: "from-[#7C9885] to-[#5D7A6B]",
                 action: "corporate"
               },
               { 
                 icon: Shield, 
                 title: "Compliance Documents", 
                 description: "Data protection, AML & environmental compliance",
-                bg: "from-[#C99383]/60 to-[#B8826F]/60",
+                bg: "from-[#C99383] to-[#B8826F]",
                 action: "compliance"
               },
               { 
                 icon: FileCheck, 
                 title: "Dispute Resolution", 
                 description: "Settlement, arbitration & mediation agreements",
-                bg: "from-[#F7DC6F]/60 to-[#F4D03F]/60",
+                bg: "from-[#F7DC6F] to-[#F4D03F]",
                 action: "dispute"
               },
             ].map((useCase, index) => (
