@@ -1,13 +1,34 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Shield, Eye, Lock, Globe, Users, FileText, AlertTriangle, Mail } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export default function PrivacyPolicy() {
+  const router = useRouter()
+  const [isNavigating, setIsNavigating] = useState(false)
+
+  const handleBackClick = async () => {
+    setIsNavigating(true)
+    try {
+      // Check if there's history to go back to
+      if (typeof window !== 'undefined' && window.history.length > 1) {
+        router.back()
+      } else {
+        // Fallback to home page
+        router.push('/')
+      }
+    } catch (error) {
+      // Fallback on error
+      router.push('/')
+    } finally {
+      setTimeout(() => setIsNavigating(false), 500) // Brief delay to show loading state
+    }
+  }
   return (
     <div className="min-h-screen bg-[#FEFCF3]">
       {/* Header */}
@@ -29,13 +50,16 @@ export default function PrivacyPolicy() {
               </div>
             </Link>
 
-            {/* Back Button */}
-            <Link href="/">
-              <Button variant="outline" className="border-[#7C9885] text-[#7C9885] hover:bg-[#7C9885] hover:text-white">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
+            {/* Dynamic Back Button */}
+            <Button 
+              variant="outline" 
+              onClick={handleBackClick}
+              disabled={isNavigating}
+              className="border-[#7C9885] text-[#7C9885] hover:bg-[#7C9885] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {isNavigating ? "Going Back..." : "Back"}
+            </Button>
           </div>
         </nav>
       </header>
@@ -55,7 +79,7 @@ export default function PrivacyPolicy() {
               <div className="flex items-start space-x-3">
                 <Shield className="w-5 h-5 text-[#7C9885] flex-shrink-0 mt-0.5" />
                 <div className="text-sm text-[#2D3748]">
-                  <p className="font-medium">Last Updated: January 21, 2025</p>
+                  <p className="font-medium">Last Updated: August 21, 2025</p>
                   <p>This policy complies with Kenya Data Protection Act 2019 (KDPA) and your data subject rights.</p>
                 </div>
               </div>
