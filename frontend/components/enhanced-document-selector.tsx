@@ -402,20 +402,32 @@ export function EnhancedDocumentSelector({
               </Card>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredAndSortedDocuments.map((docType) => {
+                {filteredAndSortedDocuments.map((docType, index) => {
                   const Icon = getDocumentIcon(docType.id);
                   const isPopular = isDocumentPopular(docType.id);
                   const isRecent = isDocumentRecent(docType.id);
 
+                  // Cycle through gradient colors (same as categories)
+                  const gradients = [
+                    { bg: 'linear-gradient(135deg, #7C9885 0%, #5D7A6B 100%)', shadow: '0 8px 24px #7C988533', text: 'white', iconBg: 'rgba(255, 255, 255, 0.2)' },
+                    { bg: 'linear-gradient(135deg, #C99383 0%, #B8826F 100%)', shadow: '0 8px 24px #C9938333', text: 'white', iconBg: 'rgba(255, 255, 255, 0.2)' },
+                    { bg: 'linear-gradient(135deg, #F7DC6F 0%, #F4D03F 100%)', shadow: '0 8px 24px #F7DC6F33', text: '#2D3748', iconBg: 'rgba(45, 55, 72, 0.1)' }
+                  ];
+                  const gradient = gradients[index % gradients.length];
+
                   return (
                     <Card
                       key={docType.id}
-                      className={`cursor-pointer transform hover:-translate-y-1 transition-all duration-300 hover:shadow-xl group relative ${
+                      className={`cursor-pointer transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl group relative border-0 ${
                         !docType.isActive ? "opacity-60 cursor-not-allowed" : ""
                       }`}
+                      style={{
+                        background: gradient.bg,
+                        boxShadow: gradient.shadow
+                      }}
                       onClick={() => handleCreateDocument(docType.id, docType.isActive)}
                     >
-                      <CardContent className="p-6">
+                      <CardContent className="p-6" style={{ color: gradient.text }}>
                         {/* Status badges */}
                         <div className="absolute top-3 right-3 flex gap-1">
                           {!docType.isActive && (
@@ -424,7 +436,11 @@ export function EnhancedDocumentSelector({
                             </Badge>
                           )}
                           {isPopular && docType.isActive && (
-                            <Badge variant="secondary" className="bg-[#7C9885] text-white text-xs flex items-center gap-1">
+                            <Badge 
+                              variant="secondary" 
+                              className="text-white text-xs flex items-center gap-1"
+                              style={{ backgroundColor: gradient.text === 'white' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(45, 55, 72, 0.2)' }}
+                            >
                               <Star className="w-3 h-3" />
                               Popular
                             </Badge>
@@ -432,16 +448,19 @@ export function EnhancedDocumentSelector({
                         </div>
 
                         {/* Icon */}
-                        <div className="w-12 h-12 bg-[#7C9885]/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                          <Icon className="w-6 h-6 text-[#7C9885]" />
+                        <div 
+                          className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300"
+                          style={{ backgroundColor: gradient.iconBg }}
+                        >
+                          <Icon className="w-6 h-6" style={{ color: gradient.text }} />
                         </div>
 
                         {/* Content */}
                         <div className="text-center space-y-3">
-                          <h3 className="text-lg font-bold text-[#2D3748]">
+                          <h3 className="text-lg font-bold" style={{ color: gradient.text }}>
                             {docType.name}
                           </h3>
-                          <p className="text-[#718096] text-sm leading-relaxed">
+                          <p className="text-sm leading-relaxed" style={{ color: gradient.text === 'white' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(45, 55, 72, 0.8)' }}>
                             {docType.description}
                           </p>
 
@@ -449,11 +468,15 @@ export function EnhancedDocumentSelector({
                           <div className="flex justify-center items-center gap-3 text-xs">
                             <Badge 
                               variant="outline" 
-                              className={getComplexityColor(docType.complexity)}
+                              className="border-0"
+                              style={{ 
+                                backgroundColor: gradient.text === 'white' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(45, 55, 72, 0.2)',
+                                color: gradient.text
+                              }}
                             >
                               {docType.complexity}
                             </Badge>
-                            <div className="flex items-center text-[#718096]">
+                            <div className="flex items-center" style={{ color: gradient.text === 'white' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(45, 55, 72, 0.7)' }}>
                               <Clock className="w-3 h-3 mr-1" />
                               {getEstimatedTime(docType.complexity)}
                             </div>
@@ -463,7 +486,11 @@ export function EnhancedDocumentSelector({
                           <Button
                             size="sm"
                             disabled={!docType.isActive}
-                            className="bg-[#7C9885] hover:bg-[#7C9885]/90 text-white font-semibold px-6 py-2 rounded-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            className="font-semibold px-6 py-2 rounded-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-0"
+                            style={{
+                              backgroundColor: gradient.text === 'white' ? 'white' : '#2D3748',
+                              color: gradient.text === 'white' ? (gradient.bg.includes('#7C9885') ? '#7C9885' : gradient.bg.includes('#C99383') ? '#C99383' : '#F7DC6F') : 'white'
+                            }}
                           >
                             {docType.isActive ? "Create Document" : "Coming Soon"}
                           </Button>
@@ -496,37 +523,52 @@ export function EnhancedDocumentSelector({
               </Card>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredCategories.map((category) => {
+                {filteredCategories.map((category, index) => {
                   const Icon = getCategoryIcon(category.id);
                   const activeDocuments = category.documents.filter((doc) => doc.isActive).length;
                   const totalDocuments = category.documents.length;
 
+                  // Cycle through gradient colors
+                  const gradients = [
+                    { bg: 'linear-gradient(135deg, #7C9885 0%, #5D7A6B 100%)', shadow: '0 8px 24px #7C988533', text: 'white', iconBg: 'rgba(255, 255, 255, 0.2)' },
+                    { bg: 'linear-gradient(135deg, #C99383 0%, #B8826F 100%)', shadow: '0 8px 24px #C9938333', text: 'white', iconBg: 'rgba(255, 255, 255, 0.2)' },
+                    { bg: 'linear-gradient(135deg, #F7DC6F 0%, #F4D03F 100%)', shadow: '0 8px 24px #F7DC6F33', text: '#2D3748', iconBg: 'rgba(45, 55, 72, 0.1)' }
+                  ];
+                  const gradient = gradients[index % gradients.length];
+
                   return (
                     <Card
                       key={category.id}
-                      className="cursor-pointer transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl group"
+                      className="cursor-pointer transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl group border-0"
+                      style={{
+                        background: gradient.bg,
+                        boxShadow: gradient.shadow
+                      }}
                       onClick={() => setSelectedCategory(category.id)}
                     >
-                      <CardContent className="p-8 text-center">
+                      <CardContent className="p-8 text-center" style={{ color: gradient.text }}>
                         {/* Icon */}
-                        <div className="w-16 h-16 bg-[#7C9885]/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                          <Icon className="w-8 h-8 text-[#7C9885]" />
+                        <div 
+                          className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300"
+                          style={{ backgroundColor: gradient.iconBg }}
+                        >
+                          <Icon className="w-8 h-8" style={{ color: gradient.text }} />
                         </div>
 
                         {/* Content */}
                         <div className="space-y-4">
                           <div className="space-y-3">
-                            <h3 className="text-xl font-bold text-[#2D3748]">
+                            <h3 className="text-xl font-bold" style={{ color: gradient.text }}>
                               {category.name}
                             </h3>
-                            <p className="text-[#718096] text-sm leading-relaxed">
+                            <p className="text-sm leading-relaxed" style={{ color: gradient.text === 'white' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(45, 55, 72, 0.8)' }}>
                               {category.description}
                             </p>
                             <div className="flex justify-center items-center space-x-4 text-sm">
-                              <span className="text-[#7C9885] font-medium">
+                              <span className="font-medium" style={{ color: gradient.text }}>
                                 {activeDocuments} Active
                               </span>
-                              <span className="text-[#718096]">
+                              <span style={{ color: gradient.text === 'white' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(45, 55, 72, 0.7)' }}>
                                 {totalDocuments} Total
                               </span>
                             </div>
@@ -534,7 +576,11 @@ export function EnhancedDocumentSelector({
 
                           <Button
                             size="lg"
-                            className="bg-[#7C9885] hover:bg-[#7C9885]/90 text-white font-semibold px-6 py-3 rounded-xl transform hover:scale-105 transition-all duration-300 w-full"
+                            className="font-semibold px-6 py-3 rounded-xl transform hover:scale-105 transition-all duration-300 w-full border-0"
+                            style={{
+                              backgroundColor: gradient.text === 'white' ? 'white' : '#2D3748',
+                              color: gradient.text === 'white' ? gradient.bg.includes('#7C9885') ? '#7C9885' : gradient.bg.includes('#C99383') ? '#C99383' : '#F7DC6F' : 'white'
+                            }}
                           >
                             Browse Documents
                             <ChevronRight className="w-4 h-4 ml-2" />
