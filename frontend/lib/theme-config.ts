@@ -146,7 +146,7 @@ export const antdTheme: ThemeConfig = {
     colorInfo: brandColors.info[500],
     
     // Background colors
-    colorBgContainer: '#ffffff',
+    colorBgContainer: '#FEFCF3',
     colorBgElevated: '#ffffff',
     colorBgLayout: brandColors.neutral[50],
     colorBgSpotlight: brandColors.primary[50],

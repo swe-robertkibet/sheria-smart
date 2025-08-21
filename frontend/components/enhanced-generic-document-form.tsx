@@ -314,7 +314,7 @@ export function EnhancedGenericDocumentForm({
   };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: token.colorBgContainer }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#FEFCF3" }}>
       {/* Header */}
       <Card
         style={{ 

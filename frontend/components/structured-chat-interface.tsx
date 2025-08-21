@@ -613,9 +613,9 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
   )
 
   return (
-    <div className="h-screen bg-white flex flex-col">
+    <div className="h-screen bg-[#FEFCF3] flex flex-col">
       {/* Chat Header */}
-      <header className="bg-white border-b border-[#F5F5F5] p-4 sticky top-0 z-50">
+      <header className="bg-[#FEFCF3] border-b border-[#F5F5F5] p-4 sticky top-0 z-50">
         <div className="flex items-center space-x-4">
           {/* Hamburger menu for all screen sizes */}
           {onToggleSidebar && (
@@ -723,7 +723,7 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
         )}
 
         {/* Input Area - Part of main container */}
-        <div className="bg-white border-t border-[#F5F5F5] p-4">
+        <div className="bg-[#FEFCF3] border-t border-[#F5F5F5] p-4">
           <div className="max-w-6xl mx-auto">
             <div className="flex space-x-3">
               <div className="flex-1 relative">

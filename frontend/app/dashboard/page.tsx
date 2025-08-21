@@ -257,14 +257,14 @@ export default function DashboardPage() {
       <main style={{ 
         maxWidth: '1024px', 
         margin: '0 auto', 
-        padding: `${token.paddingXL * 2}px ${token.paddingLG}px` 
+        padding: `${token.paddingXL}px ${token.paddingLG}px` 
       }}>
         {/* Central Hero Section */}
         <div style={{ textAlign: 'center', marginBottom: token.marginXL * 2 }}>
           <h1 style={{ 
             fontSize: token.fontSizeHeading1,
             fontWeight: token.fontWeightStrong,
-            color: token.colorText,
+            color: '#2D3748',
             marginBottom: token.marginXL,
             lineHeight: token.lineHeightHeading
           }}>
@@ -285,12 +285,12 @@ export default function DashboardPage() {
             hoverable
             onClick={handleStartChat}
             style={{
-              background: `linear-gradient(135deg, ${getColorValue('primary', 500)} 0%, ${getColorValue('primary', 600)} 100%)`,
+              background: 'linear-gradient(135deg, #7C9885 0%, #5D7A6B 100%)',
               border: 'none',
               borderRadius: token.borderRadiusLG * 2,
               cursor: 'pointer',
               transition: 'all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)',
-              boxShadow: `0 8px 24px ${getColorValue('primary', 500)}33`,
+              boxShadow: '0 8px 24px #7C988533',
             }}
             styles={{
               body: { 
@@ -339,7 +339,7 @@ export default function DashboardPage() {
                 size="large"
                 style={{
                   backgroundColor: 'white',
-                  color: getColorValue('primary', 500),
+                  color: '#7C9885',
                   border: 'none',
                   fontWeight: token.fontWeightStrong,
                   borderRadius: token.borderRadiusLG,
@@ -359,12 +359,12 @@ export default function DashboardPage() {
             hoverable
             onClick={handleStartStructuredChat}
             style={{
-              background: `linear-gradient(135deg, ${getColorValue('primary', 500)} 0%, ${getColorValue('primary', 700)} 100%)`,
-              border: `2px solid rgba(255, 255, 255, 0.2)`,
+              background: 'linear-gradient(135deg, #C99383 0%, #B8826F 100%)',
+              border: '2px solid rgba(255, 255, 255, 0.2)',
               borderRadius: token.borderRadiusLG * 2,
               cursor: 'pointer',
               transition: 'all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)',
-              boxShadow: `0 8px 24px ${getColorValue('primary', 600)}33`,
+              boxShadow: '0 8px 24px #C9938333',
             }}
             styles={{
               body: { 
@@ -402,21 +402,10 @@ export default function DashboardPage() {
                   fontSize: token.fontSize,
                   color: 'rgba(255, 255, 255, 0.9)',
                   lineHeight: token.lineHeight,
-                  marginBottom: token.marginSM
+                  marginBottom: token.marginLG
                 }}>
                   Get detailed structured legal guidance
                 </p>
-                <div style={{
-                  display: 'inline-block',
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  fontSize: token.fontSizeSM,
-                  color: 'white',
-                  padding: `${token.paddingXS}px ${token.paddingSM}px`,
-                  borderRadius: token.borderRadius,
-                  marginBottom: token.marginLG
-                }}>
-                  ENHANCED
-                </div>
               </div>
 
               <Button 
@@ -424,7 +413,7 @@ export default function DashboardPage() {
                 size="large"
                 style={{
                   backgroundColor: 'white',
-                  color: getColorValue('primary', 500),
+                  color: '#C99383',
                   border: 'none',
                   fontWeight: token.fontWeightStrong,
                   borderRadius: token.borderRadiusLG,
@@ -444,18 +433,18 @@ export default function DashboardPage() {
             hoverable
             onClick={handleCreateDocument}
             style={{
-              background: `linear-gradient(135deg, ${getColorValue('secondary', 500)} 0%, ${getColorValue('secondary', 600)} 100%)`,
+              background: 'linear-gradient(135deg, #F7DC6F 0%, #F4D03F 100%)',
               border: 'none',
               borderRadius: token.borderRadiusLG * 2,
               cursor: 'pointer',
               transition: 'all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)',
-              boxShadow: `0 8px 24px ${getColorValue('secondary', 500)}33`,
+              boxShadow: '0 8px 24px #F7DC6F33',
             }}
             styles={{
               body: { 
                 padding: `${token.paddingXL}px ${token.paddingLG}px`,
                 textAlign: 'center',
-                color: 'white'
+                color: '#2D3748'
               }
             }}
             className="group hover:shadow-2xl hover:-translate-y-1"
@@ -464,28 +453,28 @@ export default function DashboardPage() {
               <div style={{
                 width: 64,
                 height: 64,
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                backgroundColor: 'rgba(45, 55, 72, 0.1)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'transform 0.3s ease',
               }} className="group-hover:scale-110">
-                <FileText size={32} color="white" />
+                <FileText size={32} color="#2D3748" />
               </div>
               
               <div style={{ textAlign: 'center' }}>
                 <h2 style={{ 
                   fontSize: token.fontSizeHeading3,
                   fontWeight: token.fontWeightStrong,
-                  color: 'white',
+                  color: '#2D3748',
                   marginBottom: token.marginSM
                 }}>
                   Documents
                 </h2>
                 <p style={{ 
                   fontSize: token.fontSize,
-                  color: 'rgba(255, 255, 255, 0.9)',
+                  color: 'rgba(45, 55, 72, 0.8)',
                   lineHeight: token.lineHeight,
                   marginBottom: token.marginLG
                 }}>
@@ -497,8 +486,8 @@ export default function DashboardPage() {
                 type="default"
                 size="large"
                 style={{
-                  backgroundColor: 'white',
-                  color: getColorValue('secondary', 500),
+                  backgroundColor: '#2D3748',
+                  color: '#F7DC6F',
                   border: 'none',
                   fontWeight: token.fontWeightStrong,
                   borderRadius: token.borderRadiusLG,

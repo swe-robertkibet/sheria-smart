@@ -25,16 +25,11 @@ import {
   User,
   LogOut,
   ChevronDown,
-  Home,
-  FileText,
-  MessageCircle,
-  Scale,
   Settings,
 } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
-import { semanticColors } from "@/lib/theme-config";
 
 interface EnhancedHeaderProps {
   currentView?: "dashboard" | "documents" | "chat" | "analysis" | "structured-chat" | "document-form";
@@ -69,62 +64,6 @@ export function EnhancedHeader({
     }
   };
 
-  const navItems = [
-    {
-      id: "dashboard",
-      label: "Home",
-      icon: Home,
-      description: "Return to main dashboard",
-    },
-    {
-      id: "documents",
-      label: "Documents",
-      icon: FileText,
-      description: "Create and manage legal documents",
-    },
-    {
-      id: "chat",
-      label: "Chat",
-      icon: MessageCircle,
-      description: "Quick legal questions",
-    },
-    {
-      id: "analysis",
-      label: "Analysis",
-      icon: Scale,
-      description: "Structured legal analysis",
-    },
-  ] as const;
-
-  const NavItems = ({ mobile = false }: { mobile?: boolean }) => (
-    <>
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        const isActive = currentView === item.id;
-        
-        return (
-          <Button
-            key={item.id}
-            variant={isActive ? "default" : "ghost"}
-            size={mobile ? "lg" : "sm"}
-            className={mobile ? "w-full justify-start" : ""}
-            style={{
-              backgroundColor: isActive ? semanticColors.primary.bg : 'transparent',
-              borderColor: isActive ? semanticColors.primary.bg : 'transparent',
-              color: isActive ? 'white' : token.colorTextSecondary,
-            }}
-            onClick={() => {
-              onNavigate?.(item.id);
-              if (mobile) setIsMobileMenuOpen(false);
-            }}
-          >
-            <Icon className={`w-4 h-4 ${mobile ? "mr-3" : "mr-2"}`} />
-            {item.label}
-          </Button>
-        );
-      })}
-    </>
-  );
 
   return (
     <header 
@@ -141,20 +80,16 @@ export function EnhancedHeader({
             <Image
               src="/sheria-smart-ico.png"
               alt="Sheria Smart Icon"
-              width={28}
-              height={28}
-              className="h-7 w-7"
+              width={24}
+              height={24}
+              className="h-6 w-6"
             />
             <div className="text-xl font-bold">
-              <span style={{ color: semanticColors.primary.text }}>Sheria</span>
-              <span style={{ color: semanticColors.secondary.text }}> Smart</span>
+              <span style={{ color: '#7C9885' }}>Sheria</span>
+              <span style={{ color: '#C99383' }}> Smart</span>
             </div>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-1">
-            <NavItems />
-          </nav>
 
           {/* Search Bar (Desktop) */}
           {showSearch && (
@@ -206,7 +141,7 @@ export function EnhancedHeader({
                     size={32}
                     src={user?.picture}
                     style={{ 
-                      backgroundColor: semanticColors.primary.bg,
+                      backgroundColor: '#7C9885',
                       color: 'white'
                     }}
                   >
@@ -261,8 +196,8 @@ export function EnhancedHeader({
                       className="h-6 w-6"
                     />
                     <div className="text-lg font-bold">
-                      <span style={{ color: semanticColors.primary.text }}>Sheria</span>
-                      <span style={{ color: semanticColors.secondary.text }}> Smart</span>
+                      <span style={{ color: '#7C9885' }}>Sheria</span>
+                      <span style={{ color: '#C99383' }}> Smart</span>
                     </div>
                   </SheetTitle>
                   <VisuallyHidden.Root>
@@ -292,10 +227,6 @@ export function EnhancedHeader({
                     </form>
                   )}
 
-                  {/* Mobile Navigation */}
-                  <nav className="space-y-2">
-                    <NavItems mobile />
-                  </nav>
 
                   {/* Mobile User Section */}
                   <div 
@@ -318,7 +249,7 @@ export function EnhancedHeader({
                         size={40}
                         src={user?.picture}
                         style={{ 
-                          backgroundColor: semanticColors.primary.bg,
+                          backgroundColor: '#7C9885',
                           color: 'white'
                         }}
                       >

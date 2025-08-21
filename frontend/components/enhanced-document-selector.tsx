@@ -263,9 +263,9 @@ export function EnhancedDocumentSelector({
   );
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#FEFCF3]">
       {/* Header with Breadcrumbs */}
-      <header className="bg-white border-b border-[#F5F5F5] sticky top-0 z-50 h-16">
+      <header className="bg-[#FEFCF3] border-b border-[#F5F5F5] sticky top-0 z-50 h-16">
         <div className="container mx-auto max-w-6xl h-full flex items-center px-4">
           <Button
             variant="ghost"
