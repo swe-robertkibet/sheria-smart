@@ -252,6 +252,16 @@ export function EnhancedDocumentSelector({
     }
   };
 
+  const handleBackClick = () => {
+    if (selectedCategory) {
+      // If in a category, go back to categories list
+      setSelectedCategory(undefined);
+    } else {
+      // If in categories list, go back to dashboard
+      onBack();
+    }
+  };
+
   const selectedCategoryData = categories.find((cat) => cat.id === selectedCategory);
 
   const breadcrumbItems = createDocumentBreadcrumbs(
@@ -270,7 +280,7 @@ export function EnhancedDocumentSelector({
           <Button
             variant="ghost"
             size="icon"
-            onClick={onBack}
+            onClick={handleBackClick}
             className="text-[#7C9885] flex-shrink-0"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -332,7 +342,6 @@ export function EnhancedDocumentSelector({
                     <SelectItem value="alphabetical">Alphabetical</SelectItem>
                     <SelectItem value="complexity">Complexity</SelectItem>
                     <SelectItem value="popular">Popular</SelectItem>
-                    <SelectItem value="recent">Recent</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -370,17 +379,6 @@ export function EnhancedDocumentSelector({
         ) : selectedCategory ? (
           /* Document Grid */
           <div className="space-y-6">
-            {/* Back to Categories Button */}
-            <div className="flex items-center space-x-4 mb-8">
-              <Button
-                variant="ghost"
-                onClick={() => setSelectedCategory(undefined)}
-                className="text-[#7C9885] hover:bg-[#7C9885]/10"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Categories
-              </Button>
-            </div>
             {filteredAndSortedDocuments.length === 0 ? (
               <Card>
                 <CardContent className="p-12 text-center">
@@ -429,12 +427,6 @@ export function EnhancedDocumentSelector({
                             <Badge variant="secondary" className="bg-[#7C9885] text-white text-xs flex items-center gap-1">
                               <Star className="w-3 h-3" />
                               Popular
-                            </Badge>
-                          )}
-                          {isRecent && docType.isActive && !isPopular && (
-                            <Badge variant="secondary" className="bg-blue-500 text-white text-xs flex items-center gap-1">
-                              <TrendingUp className="w-3 h-3" />
-                              Recent
                             </Badge>
                           )}
                         </div>
