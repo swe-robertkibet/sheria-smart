@@ -97,6 +97,22 @@ export function BreadcrumbNavigation({
   );
 }
 
+// Helper function to shorten category names for breadcrumbs
+const shortenCategoryName = (categoryName: string): string => {
+  const shorteningMap: Record<string, string> = {
+    "Business & Commercial": "Business",
+    "Property & Real Estate": "Property", 
+    "Employment & HR": "Employment",
+    "Corporate Governance": "Corporate",
+    "Litigation & Dispute Resolution": "Litigation",
+    "Regulatory & Compliance": "Compliance",
+    "Intellectual Property": "IP",
+    "Family Law": "Family"
+  };
+  
+  return shorteningMap[categoryName] || categoryName;
+};
+
 // Helper function to create breadcrumb items for common navigation patterns
 export const createDocumentBreadcrumbs = (
   categoryName?: string,
@@ -116,7 +132,7 @@ export const createDocumentBreadcrumbs = (
 
   if (categoryName && onNavigateToCategory) {
     items.push({
-      label: categoryName,
+      label: shortenCategoryName(categoryName),
       onClick: onNavigateToCategory,
     });
   }

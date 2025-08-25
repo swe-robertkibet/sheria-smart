@@ -242,7 +242,7 @@ export function EnhancedDocumentSelector({
     undefined,
     onBack,
     () => setSelectedCategory(undefined),
-    undefined
+    () => setSelectedCategory(undefined)
   );
 
   return (
@@ -266,7 +266,7 @@ export function EnhancedDocumentSelector({
 
       {/* Search */}
       <div className="container mx-auto px-6 py-6 max-w-6xl">
-        <div className="bg-[#F8FAF9] rounded-2xl p-6 mb-8">
+        <div className="bg-[#FEFCF3] rounded-2xl p-6 mb-8">
           <div className="relative max-w-md mx-auto">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#718096] w-4 h-4" />
             <Input
