@@ -144,10 +144,6 @@ export const createDocumentBreadcrumbs = (
     });
   }
 
-  // Set the home navigation for the first item
-  if (items.length > 0 && onNavigateHome) {
-    items[0] = { ...items[0], onClick: onNavigateHome };
-  }
 
   return items;
 };
