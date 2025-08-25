@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { ArrowLeft, Loader2, FileText, User, Phone, Briefcase, Building2, DollarSign, Calendar, Shield } from "lucide-react";
 import { 
   Form, 
@@ -55,7 +55,6 @@ export function EnhancedGenericDocumentForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Record<string, any>>({});
   // Removed selectedFormats state - using Form state only for instant responsiveness
   const [pasteError, setPasteError] = useState<string | null>(null);
   const [pasteSuccess, setPasteSuccess] = useState<string | null>(null);
@@ -96,32 +95,29 @@ export function EnhancedGenericDocumentForm({
     }
   }, [success]);
 
-  // Get form sections for this document type
-  const formSectionsList = createFormSections(documentType);
+  // Get form sections for this document type - memoized to prevent recalculation
+  const formSectionsList = useMemo(() => createFormSections(documentType), [documentType]);
 
-  // Helper function to get icon component
-  const getIconComponent = (iconKey: string) => {
-    const iconMap: { [key: string]: React.ComponentType<any> } = {
-      'user': User,
-      'phone': Phone,
-      'briefcase': Briefcase,
-      'building': Building2,
-      'dollar-sign': DollarSign,
-      'calendar': Calendar,
-      'shield': Shield,
-      'file-text': FileText
-    };
-    
+  // Helper function to get icon component - memoized icon map
+  const iconMap = useMemo(() => ({
+    'user': User,
+    'phone': Phone,
+    'briefcase': Briefcase,
+    'building': Building2,
+    'dollar-sign': DollarSign,
+    'calendar': Calendar,
+    'shield': Shield,
+    'file-text': FileText
+  }), []);
+  
+  const getIconComponent = useCallback((iconKey: string) => {
     return iconMap[iconKey] || FileText;
-  };
+  }, [iconMap]);
 
-  const handleInputChange = (key: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
-  };
 
   // Removed handleFormatChange - Form handles state directly for instant responsiveness
 
-  const handlePasteData = (pastedData: Record<string, any>) => {
+  const handlePasteData = useCallback((pastedData: Record<string, any>) => {
     setPasteError(null);
     setPasteSuccess(null);
     setMappingResult(null);
@@ -133,9 +129,7 @@ export function EnhancedGenericDocumentForm({
     const result = mapFieldNames(pastedData, validFieldKeys);
     setMappingResult(result);
 
-    // Update form data with mapped fields
-    const newFormData = { ...formData, ...result.mappedData };
-    setFormData(newFormData);
+    // Update form directly with mapped fields
     form.setFieldsValue(result.mappedData);
 
     // Provide detailed user feedback
@@ -183,9 +177,9 @@ export function EnhancedGenericDocumentForm({
       setPasteSuccess(null);
       setPasteError(null);
     }, 6000);
-  };
+  }, [form, documentType]);
 
-  const handlePasteError = (errorMessage: string) => {
+  const handlePasteError = useCallback((errorMessage: string) => {
     setPasteError(errorMessage);
     setPasteSuccess(null);
 
@@ -193,7 +187,7 @@ export function EnhancedGenericDocumentForm({
     setTimeout(() => {
       setPasteError(null);
     }, 5000);
-  };
+  }, []);
 
   // Handle form validation failures
   const handleFinishFailed = (errorInfo: any) => {
@@ -208,7 +202,7 @@ export function EnhancedGenericDocumentForm({
     }
   };
 
-  const handleSubmit = async (values: Record<string, any>) => {
+  const handleSubmit = useCallback(async (values: Record<string, any>) => {
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -288,7 +282,7 @@ export function EnhancedGenericDocumentForm({
     } finally {
       setLoading(false);
     }
-  };
+  }, [documentType]);
 
   // Form layout configuration
   const formLayout = {
@@ -393,14 +387,11 @@ export function EnhancedGenericDocumentForm({
           {...formLayout}
           onFinish={handleSubmit}
           onFinishFailed={handleFinishFailed}
-          onValuesChange={(changedValues, allValues) => {
-            setFormData(allValues);
-          }}
           size="middle"
           requiredMark="optional"
           colon={false}
           scrollToFirstError={{ behavior: 'smooth', block: 'center', inline: 'center' }}
-          validateTrigger={['onChange', 'onBlur']}
+          validateTrigger={['onBlur']}
         >
           <Space direction="vertical" size="large" style={{ width: "100%" }}>
             {/* Paste Button Section */}
