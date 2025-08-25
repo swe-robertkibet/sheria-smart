@@ -712,13 +712,17 @@ export function EnhancedGenericDocumentForm({
                               rows={4}
                               style={{ 
                                 borderRadius: token.borderRadius,
-                                fontSize: token.fontSize
+                                fontSize: token.fontSize,
+                                backgroundColor: `${accentColor}15`
                               }}
                             />
                           ) : field.type === "select" ? (
                             <Select
                               placeholder={`Select ${field.label.toLowerCase()}`}
-                              style={{ borderRadius: token.borderRadius }}
+                              style={{ 
+                                borderRadius: token.borderRadius,
+                                backgroundColor: `${accentColor}15`
+                              }}
                               size="large"
                             >
                               {(field as any).options?.map((option: string) => (
@@ -736,7 +740,14 @@ export function EnhancedGenericDocumentForm({
                               ))}
                             </Select>
                           ) : field.type === "radio" ? (
-                            <Radio.Group size="large">
+                            <Radio.Group 
+                              size="large"
+                              style={{
+                                padding: token.paddingSM,
+                                borderRadius: token.borderRadius,
+                                backgroundColor: `${accentColor}15`
+                              }}
+                            >
                               <Space direction="vertical" size="middle">
                                 {(field as any).options?.map((option: string) => (
                                   <Radio key={option} value={option}>
@@ -755,7 +766,8 @@ export function EnhancedGenericDocumentForm({
                               placeholder={(field as any).placeholder || `Enter ${field.label.toLowerCase()}`}
                               style={{ 
                                 borderRadius: token.borderRadius,
-                                fontSize: token.fontSize
+                                fontSize: token.fontSize,
+                                backgroundColor: `${accentColor}15`
                               }}
                               size="large"
                             />
