@@ -352,7 +352,7 @@ export function EnhancedDocumentSelector({
                       }}
                       onClick={() => handleCreateDocument(docType.id, docType.isActive)}
                     >
-                      <CardContent className="p-6" style={{ color: gradient.text }}>
+                      <CardContent className="p-6 h-80 flex flex-col justify-between" style={{ color: gradient.text }}>
                         {/* Status badges */}
                         <div className="absolute top-3 right-3 flex gap-1">
                           {!docType.isActive && (
@@ -372,54 +372,56 @@ export function EnhancedDocumentSelector({
                           )}
                         </div>
 
-                        {/* Icon */}
-                        <div 
-                          className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300"
-                          style={{ backgroundColor: gradient.iconBg }}
-                        >
-                          <Icon className="w-6 h-6" style={{ color: gradient.text }} />
-                        </div>
-
                         {/* Content */}
-                        <div className="text-center space-y-3">
-                          <h3 className="text-lg font-bold" style={{ color: gradient.text }}>
-                            {docType.name}
-                          </h3>
-                          <p className="text-sm leading-relaxed" style={{ color: gradient.text === 'white' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(45, 55, 72, 0.8)' }}>
-                            {docType.description}
-                          </p>
-
-                          {/* Metadata */}
-                          <div className="flex justify-center items-center gap-3 text-xs">
-                            <Badge 
-                              variant="outline" 
-                              className="border-0"
-                              style={{ 
-                                backgroundColor: gradient.text === 'white' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(45, 55, 72, 0.2)',
-                                color: gradient.text
-                              }}
-                            >
-                              {docType.complexity}
-                            </Badge>
-                            <div className="flex items-center" style={{ color: gradient.text === 'white' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(45, 55, 72, 0.7)' }}>
-                              <Clock className="w-3 h-3 mr-1" />
-                              {getEstimatedTime(docType.complexity)}
-                            </div>
+                        <div className="text-center flex flex-col items-center">
+                          {/* Icon */}
+                          <div 
+                            className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300"
+                            style={{ backgroundColor: gradient.iconBg }}
+                          >
+                            <Icon className="w-6 h-6" style={{ color: gradient.text }} />
                           </div>
 
-                          {/* Action button */}
-                          <Button
-                            size="sm"
-                            disabled={!docType.isActive}
-                            className="font-semibold px-6 py-2 rounded-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-0"
-                            style={{
-                              backgroundColor: gradient.text === 'white' ? 'white' : '#2D3748',
-                              color: gradient.text === 'white' ? (gradient.bg.includes('#7C9885') ? '#7C9885' : gradient.bg.includes('#C99383') ? '#C99383' : '#F7DC6F') : 'white'
-                            }}
-                          >
-                            {docType.isActive ? "Create Document" : "Coming Soon"}
-                          </Button>
+                          <div className="space-y-3">
+                            <h3 className="text-lg font-bold" style={{ color: gradient.text }}>
+                              {docType.name}
+                            </h3>
+                            <p className="text-sm leading-relaxed" style={{ color: gradient.text === 'white' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(45, 55, 72, 0.8)' }}>
+                              {docType.description}
+                            </p>
+
+                            {/* Metadata */}
+                            <div className="flex justify-center items-center gap-3 text-xs">
+                              <Badge 
+                                variant="outline" 
+                                className="border-0"
+                                style={{ 
+                                  backgroundColor: gradient.text === 'white' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(45, 55, 72, 0.2)',
+                                  color: gradient.text
+                                }}
+                              >
+                                {docType.complexity}
+                              </Badge>
+                              <div className="flex items-center" style={{ color: gradient.text === 'white' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(45, 55, 72, 0.7)' }}>
+                                <Clock className="w-3 h-3 mr-1" />
+                                {getEstimatedTime(docType.complexity)}
+                              </div>
+                            </div>
+                          </div>
                         </div>
+
+                        {/* Action button */}
+                        <Button
+                          size="sm"
+                          disabled={!docType.isActive}
+                          className="font-semibold px-6 py-2 rounded-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-0"
+                          style={{
+                            backgroundColor: gradient.text === 'white' ? 'white' : '#2D3748',
+                            color: gradient.text === 'white' ? (gradient.bg.includes('#7C9885') ? '#7C9885' : gradient.bg.includes('#C99383') ? '#C99383' : '#F7DC6F') : 'white'
+                          }}
+                        >
+                          {docType.isActive ? "Create Document" : "Coming Soon"}
+                        </Button>
                       </CardContent>
                     </Card>
                   );
@@ -471,17 +473,17 @@ export function EnhancedDocumentSelector({
                       }}
                       onClick={() => setSelectedCategory(category.id)}
                     >
-                      <CardContent className="p-8 text-center" style={{ color: gradient.text }}>
-                        {/* Icon */}
-                        <div 
-                          className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300"
-                          style={{ backgroundColor: gradient.iconBg }}
-                        >
-                          <Icon className="w-8 h-8" style={{ color: gradient.text }} />
-                        </div>
-
+                      <CardContent className="p-8 text-center h-80 flex flex-col justify-between" style={{ color: gradient.text }}>
                         {/* Content */}
-                        <div className="space-y-4">
+                        <div className="flex flex-col items-center">
+                          {/* Icon */}
+                          <div 
+                            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300"
+                            style={{ backgroundColor: gradient.iconBg }}
+                          >
+                            <Icon className="w-8 h-8" style={{ color: gradient.text }} />
+                          </div>
+
                           <div className="space-y-3">
                             <h3 className="text-xl font-bold" style={{ color: gradient.text }}>
                               {category.name}
@@ -498,19 +500,20 @@ export function EnhancedDocumentSelector({
                               </span>
                             </div>
                           </div>
-
-                          <Button
-                            size="lg"
-                            className="font-semibold px-6 py-3 rounded-xl transform hover:scale-105 transition-all duration-300 w-full border-0"
-                            style={{
-                              backgroundColor: gradient.text === 'white' ? 'white' : '#2D3748',
-                              color: gradient.text === 'white' ? gradient.bg.includes('#7C9885') ? '#7C9885' : gradient.bg.includes('#C99383') ? '#C99383' : '#F7DC6F' : 'white'
-                            }}
-                          >
-                            Browse Documents
-                            <ChevronRight className="w-4 h-4 ml-2" />
-                          </Button>
                         </div>
+
+                        {/* Button */}
+                        <Button
+                          size="lg"
+                          className="font-semibold px-6 py-3 rounded-xl transform hover:scale-105 transition-all duration-300 w-full border-0"
+                          style={{
+                            backgroundColor: gradient.text === 'white' ? 'white' : '#2D3748',
+                            color: gradient.text === 'white' ? gradient.bg.includes('#7C9885') ? '#7C9885' : gradient.bg.includes('#C99383') ? '#C99383' : '#F7DC6F' : 'white'
+                          }}
+                        >
+                          Browse Documents
+                          <ChevronRight className="w-4 h-4 ml-2" />
+                        </Button>
                       </CardContent>
                     </Card>
                   );
