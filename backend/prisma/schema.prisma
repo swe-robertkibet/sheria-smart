@@ -26,6 +26,7 @@ model User {
   accounts          Account[]
   chatSessions      ChatSession[]
   documentRequests  DocumentRequest[]
+  rateLimits        RateLimit[]
   
   @@map("users")
 }
@@ -174,4 +175,26 @@ enum RequestStatus {
   FAILED
   EMAIL_QUEUED
   EMAIL_SENT
+}
+
+model RateLimit {
+  id           String      @id @default(cuid())
+  userId       String
+  featureType  FeatureType
+  usageCount   Int         @default(0)
+  resetDate    DateTime    // Date when usage count resets (daily)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, featureType])
+  @@index([resetDate])
+  @@map("rate_limits")
+}
+
+enum FeatureType {
+  QUICK_CHAT
+  STRUCTURED_ANALYSIS
+  DOCUMENT_GENERATION
 }

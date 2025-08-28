@@ -3,7 +3,9 @@ import { GeminiService } from '../services/gemini';
 import { StructuredGeminiService } from '../services/structured-gemini';
 import DatabaseService from '../services/database';
 import TitleGeneratorService from '../services/title-generator';
+import RateLimitingService from '../services/rate-limiting';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
+import { FeatureType } from '@prisma/client';
 
 const router = express.Router();
 const structuredGeminiService = new StructuredGeminiService();
@@ -282,6 +284,21 @@ router.post('/send-stream', authenticateToken, async (req: AuthenticatedRequest,
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
+    // Check rate limit for Quick Chat
+    const rateLimitResult = await RateLimitingService.checkAndIncrementRateLimit(
+      req.user.userId,
+      FeatureType.QUICK_CHAT
+    );
+
+    if (!rateLimitResult.allowed) {
+      const rateLimitError = RateLimitingService.createRateLimitError(rateLimitResult);
+      return res.status(429).json({
+        error: 'Rate limit exceeded',
+        ...rateLimitError,
+        timeUntilReset: RateLimitingService.getTimeUntilReset(rateLimitResult.resetTime),
+      });
+    }
+
     const { sessionId, message } = req.body;
 
     console.log('🔍 [DEBUG] Request validation:', {
@@ -435,6 +452,21 @@ router.post('/send-structured', authenticateToken, async (req: AuthenticatedRequ
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
+    // Check rate limit for Structured Analysis
+    const rateLimitResult = await RateLimitingService.checkAndIncrementRateLimit(
+      req.user.userId,
+      FeatureType.STRUCTURED_ANALYSIS
+    );
+
+    if (!rateLimitResult.allowed) {
+      const rateLimitError = RateLimitingService.createRateLimitError(rateLimitResult);
+      return res.status(429).json({
+        error: 'Rate limit exceeded',
+        ...rateLimitError,
+        timeUntilReset: RateLimitingService.getTimeUntilReset(rateLimitResult.resetTime),
+      });
+    }
+
     const { sessionId, message } = req.body;
 
     if (!message) {
@@ -528,6 +560,38 @@ router.get('/history/:sessionId', authenticateToken, async (req: AuthenticatedRe
   } catch (error) {
     console.error('Error fetching chat history:', error);
     res.status(500).json({ error: 'Failed to fetch chat history' });
+  }
+});
+
+// Get rate limit status for all chat features
+router.get('/rate-limits', authenticateToken, async (req: AuthenticatedRequest, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    const rateLimits = await RateLimitingService.getAllRateLimitStatus(req.user.userId);
+    
+    // Add time until reset for each feature
+    const rateLimitsWithTime = {
+      QUICK_CHAT: {
+        ...rateLimits.QUICK_CHAT,
+        timeUntilReset: RateLimitingService.getTimeUntilReset(rateLimits.QUICK_CHAT.resetTime),
+      },
+      STRUCTURED_ANALYSIS: {
+        ...rateLimits.STRUCTURED_ANALYSIS,
+        timeUntilReset: RateLimitingService.getTimeUntilReset(rateLimits.STRUCTURED_ANALYSIS.resetTime),
+      },
+      DOCUMENT_GENERATION: {
+        ...rateLimits.DOCUMENT_GENERATION,
+        timeUntilReset: RateLimitingService.getTimeUntilReset(rateLimits.DOCUMENT_GENERATION.resetTime),
+      },
+    };
+
+    res.json({ rateLimits: rateLimitsWithTime });
+  } catch (error) {
+    console.error('Error fetching rate limits:', error);
+    res.status(500).json({ error: 'Failed to fetch rate limits' });
   }
 });
 

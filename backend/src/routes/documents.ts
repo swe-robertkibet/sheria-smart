@@ -2,6 +2,7 @@ import express from 'express';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import DocumentOrchestrator from '../services/document-orchestrator';
 import DocumentCatalog from '../services/document-catalog';
+import RateLimitingService from '../services/rate-limiting';
 import { documentGeneratorRegistry } from '../generators/document-generator-registry';
 import { 
   DocumentType, 
@@ -9,6 +10,7 @@ import {
   DocumentGenerationRequest,
   DocumentUserInput
 } from '../types/document';
+import { FeatureType } from '@prisma/client';
 
 const router = express.Router();
 
@@ -39,6 +41,21 @@ router.post('/generate', authenticateToken, async (req: AuthenticatedRequest, re
   try {
     if (!req.user) {
       return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    // Check rate limit for Document Generation
+    const rateLimitResult = await RateLimitingService.checkAndIncrementRateLimit(
+      req.user.userId,
+      FeatureType.DOCUMENT_GENERATION
+    );
+
+    if (!rateLimitResult.allowed) {
+      const rateLimitError = RateLimitingService.createRateLimitError(rateLimitResult);
+      return res.status(429).json({
+        error: 'Rate limit exceeded',
+        ...rateLimitError,
+        timeUntilReset: RateLimitingService.getTimeUntilReset(rateLimitResult.resetTime),
+      });
     }
 
     const {

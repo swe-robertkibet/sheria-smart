@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, Send, Mic, Plus, Menu, LogOut, ChevronDown } from "lucide-react"
+import { ArrowLeft, Send, Mic, Plus, Menu, LogOut, ChevronDown, AlertTriangle } from "lucide-react"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeSanitize from 'rehype-sanitize'
@@ -19,6 +19,7 @@ import {
 import Image from "next/image"
 import { useAuth } from "@/contexts/auth-context"
 import { useRouter } from "next/navigation"
+import RateLimitStatus from "@/components/rate-limit-status"
 
 interface Message {
   id: string
@@ -43,6 +44,7 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
   const [isWaitingForStream, setIsWaitingForStream] = useState(false)
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(true)
   const [isAtBottom, setIsAtBottom] = useState(true)
+  const [rateLimitError, setRateLimitError] = useState<string | null>(null)
   const { user, logout } = useAuth()
   const router = useRouter()
   
@@ -202,6 +204,7 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
     // Start waiting for stream
     setIsWaitingForStream(true)
     setStreamingMessage("")
+    setRateLimitError(null) // Clear any previous rate limit errors
 
     // Wait for DOM update, then scroll user message to top
     setTimeout(() => {
@@ -432,9 +435,26 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
         {/* Welcome Message - Only show when no conversation started */}
         {showWelcomeMessage && (
           <div className="flex-1 flex items-center justify-center p-4">
-            <div className="max-w-2xl text-center">
+            <div className="max-w-2xl text-center space-y-4">
               <div className="bg-[#F8FAF9] text-[#2D3748] border border-[#E2E8F0] px-6 py-4 rounded-3xl">
                 <p className="text-lg">Hello! I'm your AI legal assistant. How can I help you with your legal question today?</p>
+              </div>
+              
+              {/* Rate Limit Status */}
+              <div className="bg-white border border-[#E2E8F0] px-4 py-3 rounded-2xl">
+                <RateLimitStatus feature="QUICK_CHAT" compact />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Rate limit error display */}
+        {rateLimitError && (
+          <div className="p-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="bg-red-50 border border-red-200 px-4 py-3 rounded-2xl flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+                <span className="text-red-700 text-sm">{rateLimitError}</span>
               </div>
             </div>
           </div>

@@ -15,7 +15,7 @@ export function AuthLoading({
   showProgress = true 
 }: AuthLoadingProps) {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="min-h-screen bg-[#FEFCF3] flex items-center justify-center">
       <div className="text-center max-w-md mx-auto px-6">
         {/* Logo */}
         <div className="flex items-center justify-center space-x-3 mb-8">

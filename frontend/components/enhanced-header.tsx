@@ -26,6 +26,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 
@@ -74,7 +75,7 @@ export function EnhancedHeader({
       <div className="container mx-auto px-4 lg:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
+          <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer">
             <Image
               src="/sheria-smart-ico.png"
               alt="Sheria Smart Icon"
@@ -86,7 +87,7 @@ export function EnhancedHeader({
               <span style={{ color: '#7C9885' }}>Sheria</span>
               <span style={{ color: '#C99383' }}> Smart</span>
             </div>
-          </div>
+          </Link>
 
 
           {/* Search Bar (Desktop) */}

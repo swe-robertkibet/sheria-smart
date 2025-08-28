@@ -15,6 +15,7 @@ import { AuthLoading } from "@/components/auth-loading"
 import { AuthError } from "@/components/auth-error"
 import { DocumentType } from "@/types/document"
 import { semanticColors, getColorValue } from "@/lib/theme-config"
+import RateLimitConfirmDialog from "@/components/rate-limit-confirm-dialog"
 
 type ViewType = "dashboard" | "chat" | "structured-chat" | "documents" | "document-form";
 
@@ -26,6 +27,8 @@ export default function DashboardPage() {
   const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState<string>("")
+  const [rateLimitDialogOpen, setRateLimitDialogOpen] = useState(false)
+  const [pendingFeatureType, setPendingFeatureType] = useState<'QUICK_CHAT' | 'STRUCTURED_ANALYSIS' | 'DOCUMENT_GENERATION' | null>(null)
   const router = useRouter()
   const { user, logout, isLoading, isAuthenticated, authError, isValidatingToken, loadingContext, clearAuthError } = useAuth()
   
@@ -85,17 +88,31 @@ export default function DashboardPage() {
   }
 
   const handleStartChat = () => {
-    setCurrentSessionId(undefined)
-    setCurrentView("chat")
+    setPendingFeatureType('QUICK_CHAT')
+    setRateLimitDialogOpen(true)
   }
 
   const handleStartStructuredChat = () => {
-    setCurrentSessionId(undefined)
-    setCurrentView("structured-chat")
+    setPendingFeatureType('STRUCTURED_ANALYSIS')
+    setRateLimitDialogOpen(true)
   }
 
   const handleCreateDocument = () => {
-    setCurrentView("documents")
+    setPendingFeatureType('DOCUMENT_GENERATION')
+    setRateLimitDialogOpen(true)
+  }
+
+  const handleRateLimitConfirm = () => {
+    if (pendingFeatureType === 'QUICK_CHAT') {
+      setCurrentSessionId(undefined)
+      setCurrentView("chat")
+    } else if (pendingFeatureType === 'STRUCTURED_ANALYSIS') {
+      setCurrentSessionId(undefined)
+      setCurrentView("structured-chat")
+    } else if (pendingFeatureType === 'DOCUMENT_GENERATION') {
+      setCurrentView("documents")
+    }
+    setPendingFeatureType(null)
   }
 
   const handleBackToDashboard = () => {
@@ -518,6 +535,16 @@ export default function DashboardPage() {
           </Card>
         </div>
       </main>
+
+      {/* Rate Limit Confirmation Dialog */}
+      {pendingFeatureType && (
+        <RateLimitConfirmDialog
+          open={rateLimitDialogOpen}
+          onOpenChange={setRateLimitDialogOpen}
+          featureType={pendingFeatureType}
+          onConfirm={handleRateLimitConfirm}
+        />
+      )}
 
     </div>
   )
