@@ -13,6 +13,7 @@ import { ChatSidebar, ChatSidebarRef } from "@/components/chat-sidebar"
 import { useAuth } from "@/contexts/auth-context"
 import { AuthLoading } from "@/components/auth-loading"
 import { AuthError } from "@/components/auth-error"
+import { DashboardSkeleton } from "@/components/dashboard-skeleton"
 import { DocumentType } from "@/types/document"
 import { semanticColors, getColorValue } from "@/lib/theme-config"
 import RateLimitConfirmDialog from "@/components/rate-limit-confirm-dialog"
@@ -60,9 +61,9 @@ export default function DashboardPage() {
     router.push('/login')
   }
 
-  // Show loading while validating token on app load
+  // Show skeleton loading while validating token - progressive loading approach
   if (isValidatingToken) {
-    return <AuthLoading {...loadingContext} />
+    return <DashboardSkeleton />
   }
 
   // Show auth error with user-friendly message

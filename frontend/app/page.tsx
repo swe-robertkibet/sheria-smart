@@ -62,10 +62,8 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Show loading while validating token on app load
-  if (isValidatingToken) {
-    return <AuthLoading {...loadingContext} />;
-  }
+  // Note: Removed loading screen from home page as it's public content
+  // Authentication state is checked but doesn't block page rendering
 
   return (
     <div className="min-h-screen bg-[#FEFCF3] overflow-x-hidden">
