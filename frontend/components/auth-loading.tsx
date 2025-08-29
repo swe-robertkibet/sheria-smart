@@ -10,8 +10,8 @@ interface AuthLoadingProps {
 }
 
 export function AuthLoading({ 
-  message = "Logging you in...", 
-  subtitle = "Please wait a moment...",
+  message = "Sheria Smart", 
+  subtitle = "Checking your session and Quote",
   showProgress = true 
 }: AuthLoadingProps) {
   return (
