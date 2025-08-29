@@ -15,12 +15,14 @@ import { TestimonialCarousel } from "@/components/testimonial-carousel"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import { AuthLoading } from "@/components/auth-loading"
+import { getRandomLawQuote } from "@/lib/law-quotes"
 
 export default function LoginPage() {
   // OAuth-only authentication - no password field needed
   const [isLoading, setIsLoading] = useState(false)
   const [showRedirecting, setShowRedirecting] = useState(false)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [sessionQuote] = useState(() => getRandomLawQuote())
   // OAuth-only authentication - no email form needed
 
   const router = useRouter()
@@ -62,7 +64,7 @@ export default function LoginPage() {
 
   // Show loading during token validation or redirecting
   if (isValidatingToken) {
-    return <AuthLoading {...loadingContext} />
+    return <AuthLoading {...loadingContext} quote={sessionQuote} />
   }
 
   // Show redirecting message when authenticated and about to redirect
@@ -72,6 +74,7 @@ export default function LoginPage() {
         message="Redirecting to dashboard..."
         subtitle="Taking you to your account..."
         showProgress={true}
+        quote={sessionQuote}
       />
     )
   }

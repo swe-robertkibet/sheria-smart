@@ -55,7 +55,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [authError, setAuthError] = useState<AuthError | null>(null)
   const [isValidatingToken, setIsValidatingToken] = useState(true) // Show loading on app load
   const [loadingContext, setLoadingContext] = useState<AuthLoadingContext>({
-    message: "Logging you in...",
+    message: "Sheria Smart",
     subtitle: "Please wait a moment...",
     showProgress: true
   })
@@ -228,7 +228,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     console.log('🔍 AUTH: App loaded, starting token validation...')
     setLoadingContext({
-      message: "Logging you in...",
+      message: "Sheria Smart",
       subtitle: "Checking your session...",
       showProgress: true
     })
