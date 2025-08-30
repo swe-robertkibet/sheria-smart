@@ -11,9 +11,7 @@ import { EnhancedGenericDocumentForm } from "@/components/enhanced-generic-docum
 import { EnhancedHeader } from "@/components/enhanced-header"
 import { ChatSidebar, ChatSidebarRef } from "@/components/chat-sidebar"
 import { useAuth } from "@/contexts/auth-context"
-import { AuthLoading } from "@/components/auth-loading"
 import { AuthError } from "@/components/auth-error"
-import { DashboardSkeleton } from "@/components/dashboard-skeleton"
 import { DocumentType } from "@/types/document"
 import { semanticColors, getColorValue } from "@/lib/theme-config"
 import RateLimitConfirmDialog from "@/components/rate-limit-confirm-dialog"
@@ -61,9 +59,9 @@ export default function DashboardPage() {
     router.push('/login')
   }
 
-  // Show skeleton loading while validating token - progressive loading approach
+  // Return null while validating token
   if (isValidatingToken) {
-    return <DashboardSkeleton />
+    return null
   }
 
   // Show auth error with user-friendly message
@@ -78,9 +76,9 @@ export default function DashboardPage() {
     )
   }
 
-  // Show loading during explicit loading operations (like logout)
+  // Return null during explicit loading operations (like logout)
   if (isLoading) {
-    return <AuthLoading message="Processing..." />
+    return null
   }
 
   // Return null if not authenticated (redirect handled in useEffect)

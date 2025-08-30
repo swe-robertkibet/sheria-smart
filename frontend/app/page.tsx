@@ -44,7 +44,6 @@ import { CounterAnimation } from "@/components/counter-animation";
 import { ScrollReveal } from "@/components/scroll-reveal";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
-import { AuthLoading } from "@/components/auth-loading";
 import { FaXTwitter } from "react-icons/fa6";
 
 export default function HomePage() {
