@@ -91,6 +91,71 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /* Pre-hydration loading animations - hardware accelerated */
+  .animate-shimmer {
+    animation: shimmer 2s ease-in-out infinite;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    will-change: transform;
+  }
+
+  .animate-skeleton-pulse {
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+    will-change: opacity;
+  }
+
+  .animate-wave {
+    animation: wave 1.6s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 3s linear infinite;
+    will-change: transform;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out forwards;
+    will-change: opacity;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.4s ease-out forwards;
+    will-change: transform, opacity;
+  }
+
+  /* Skeleton loading states */
+  .skeleton-loading {
+    background: linear-gradient(
+      90deg,
+      #f0f0f0 25%,
+      #e0e0e0 50%,
+      #f0f0f0 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.2s ease-in-out infinite;
+    border-radius: 4px;
+    will-change: background-position;
+  }
+
+  .skeleton-loading-dark {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.1) 25%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.1) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.2s ease-in-out infinite;
+    border-radius: 4px;
+    will-change: background-position;
+  }
 }
 
 @keyframes pulse-gentle {
@@ -120,6 +185,78 @@
   }
   50% {
     transform: translateY(-20px);
+  }
+}
+
+/* Pre-hydration keyframes - optimized for performance */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes wave {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 

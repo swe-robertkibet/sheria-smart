@@ -4,6 +4,7 @@ import "@ant-design/v5-patch-for-react-19";
 import { AuthProvider } from "@/contexts/auth-context";
 import { ConfigProvider } from 'antd';
 import { antdTheme } from '@/lib/theme-config';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: "Sheria Smart",
@@ -21,7 +22,9 @@ export default function RootLayout({
       <body>
         <ConfigProvider theme={antdTheme}>
           <AuthProvider>
-            {children}
+            <Suspense>
+              {children}
+            </Suspense>
           </AuthProvider>
         </ConfigProvider>
       </body>

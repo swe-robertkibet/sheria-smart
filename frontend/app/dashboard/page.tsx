@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
 import { MessageCircle, FileText, Scale, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Button, Card, theme } from "antd"
@@ -12,6 +12,7 @@ import { EnhancedHeader } from "@/components/enhanced-header"
 import { ChatSidebar, ChatSidebarRef } from "@/components/chat-sidebar"
 import { useAuth } from "@/contexts/auth-context"
 import { AuthError } from "@/components/auth-error"
+import { AuthLoading } from "@/components/auth-loading"
 import { DocumentType } from "@/types/document"
 import { semanticColors, getColorValue } from "@/lib/theme-config"
 import RateLimitConfirmDialog from "@/components/rate-limit-confirm-dialog"
@@ -59,9 +60,9 @@ export default function DashboardPage() {
     router.push('/login')
   }
 
-  // Return null while validating token
+  // Show loading animation while validating token
   if (isValidatingToken) {
-    return null
+    return <AuthLoading {...loadingContext} />
   }
 
   // Show auth error with user-friendly message
@@ -200,22 +201,33 @@ export default function DashboardPage() {
   if (currentView === "chat") {
     return (
       <div className="relative h-screen">
-        <ChatSidebar 
-          ref={quickChatSidebarRef}
-          isOpen={isSidebarOpen}
-          onToggle={handleToggleSidebar}
-          currentSessionId={currentSessionId}
-          onSessionSelect={handleSessionSelect}
-          onNewChat={handleNewChat}
-          chatType="QUICK_CHAT"
-        />
-        <div className={`transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64 xl:ml-80' : ''}`}>
-          <ChatInterface 
-            onBack={handleBackToDashboard}
-            sessionId={currentSessionId}
-            onToggleSidebar={handleToggleSidebar}
-            onSessionCreated={handleSessionCreated}
+        <Suspense fallback={<div className="w-64 bg-gray-100 animate-skeleton-pulse"></div>}>
+          <ChatSidebar 
+            ref={quickChatSidebarRef}
+            isOpen={isSidebarOpen}
+            onToggle={handleToggleSidebar}
+            currentSessionId={currentSessionId}
+            onSessionSelect={handleSessionSelect}
+            onNewChat={handleNewChat}
+            chatType="QUICK_CHAT"
           />
+        </Suspense>
+        <div className={`transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64 xl:ml-80' : ''}`}>
+          <Suspense fallback={
+            <div className="h-screen bg-white flex items-center justify-center">
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 border-4 border-[#7C9885]/20 border-t-[#7C9885] rounded-full animate-spin-slow mx-auto"></div>
+                <p className="text-[#718096]">Loading chat interface...</p>
+              </div>
+            </div>
+          }>
+            <ChatInterface 
+              onBack={handleBackToDashboard}
+              sessionId={currentSessionId}
+              onToggleSidebar={handleToggleSidebar}
+              onSessionCreated={handleSessionCreated}
+            />
+          </Suspense>
         </div>
       </div>
     )
@@ -224,23 +236,34 @@ export default function DashboardPage() {
   if (currentView === "structured-chat") {
     return (
       <div className="relative h-screen">
-        <ChatSidebar 
-          ref={structuredChatSidebarRef}
-          isOpen={isSidebarOpen}
-          onToggle={handleToggleSidebar}
-          currentSessionId={currentSessionId}
-          onSessionSelect={handleSessionSelect}
-          onNewChat={handleNewChat}
-          chatType="STRUCTURED_ANALYSIS"
-        />
-        <div className={`transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64 xl:ml-80' : ''}`}>
-          <StructuredChatInterface 
-            onBack={handleBackToDashboard}
-            sessionId={currentSessionId}
-            onToggleSidebar={handleToggleSidebar}
-            onSessionCreated={handleSessionCreated}
-            onNavigateToDocument={handleNavigateToDocumentFromChat}
+        <Suspense fallback={<div className="w-64 bg-gray-100 animate-skeleton-pulse"></div>}>
+          <ChatSidebar 
+            ref={structuredChatSidebarRef}
+            isOpen={isSidebarOpen}
+            onToggle={handleToggleSidebar}
+            currentSessionId={currentSessionId}
+            onSessionSelect={handleSessionSelect}
+            onNewChat={handleNewChat}
+            chatType="STRUCTURED_ANALYSIS"
           />
+        </Suspense>
+        <div className={`transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64 xl:ml-80' : ''}`}>
+          <Suspense fallback={
+            <div className="h-screen bg-white flex items-center justify-center">
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 border-4 border-[#C99383]/20 border-t-[#C99383] rounded-full animate-spin-slow mx-auto"></div>
+                <p className="text-[#718096]">Loading legal analysis interface...</p>
+              </div>
+            </div>
+          }>
+            <StructuredChatInterface 
+              onBack={handleBackToDashboard}
+              sessionId={currentSessionId}
+              onToggleSidebar={handleToggleSidebar}
+              onSessionCreated={handleSessionCreated}
+              onNavigateToDocument={handleNavigateToDocumentFromChat}
+            />
+          </Suspense>
         </div>
       </div>
     )
@@ -248,21 +271,41 @@ export default function DashboardPage() {
 
   if (currentView === "documents") {
     return (
-      <EnhancedDocumentSelector 
-        onBack={handleBackToDashboard} 
-        onSelectDocument={handleSelectDocument}
-        onNavigateToChat={handleStartChat}
-        onNavigateToAnalysis={handleStartStructuredChat}
-        initialCategory={selectedCategory as any}
-        initialSearchQuery={searchQuery}
-      />
+      <Suspense fallback={
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 border-4 border-[#F7DC6F]/20 border-t-[#F7DC6F] rounded-full animate-spin-slow mx-auto"></div>
+            <p className="text-[#718096]">Loading documents...</p>
+          </div>
+        </div>
+      }>
+        <EnhancedDocumentSelector 
+          onBack={handleBackToDashboard} 
+          onSelectDocument={handleSelectDocument}
+          onNavigateToChat={handleStartChat}
+          onNavigateToAnalysis={handleStartStructuredChat}
+          initialCategory={selectedCategory as any}
+          initialSearchQuery={searchQuery}
+        />
+      </Suspense>
     )
   }
 
   // NDA form removed - document type has been discontinued
 
   if (currentView === "document-form" && selectedDocumentType) {
-    return <EnhancedGenericDocumentForm onBack={handleBackToDocuments} documentType={selectedDocumentType} />
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 border-4 border-[#7C9885]/20 border-t-[#7C9885] rounded-full animate-spin-slow mx-auto"></div>
+            <p className="text-[#718096]">Loading document generator...</p>
+          </div>
+        </div>
+      }>
+        <EnhancedGenericDocumentForm onBack={handleBackToDocuments} documentType={selectedDocumentType} />
+      </Suspense>
+    )
   }
 
   return (
