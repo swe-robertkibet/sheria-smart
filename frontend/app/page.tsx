@@ -777,13 +777,13 @@ export default function HomePage() {
                       useCase.action === "chat" ||
                       useCase.action === "analysis"
                     ) {
-                      if (isAuthenticated) {
+                      if (isMounted && !isValidatingToken && isAuthenticated) {
                         router.push("/dashboard");
                       } else {
                         router.push("/login");
                       }
                     } else {
-                      if (isAuthenticated) {
+                      if (isMounted && !isValidatingToken && isAuthenticated) {
                         router.push("/dashboard");
                       } else {
                         router.push("/login");
@@ -831,7 +831,9 @@ export default function HomePage() {
                                 : "border-white text-white hover:bg-white hover:text-[#2D3748]"
                             } transition-all duration-300 bg-transparent`}
                           >
-                            {isAuthenticated
+                            {!isMounted || isValidatingToken
+                              ? "Loading..."
+                              : isAuthenticated
                               ? "Go to Dashboard"
                               : "Get Started"}
                           </Button>
