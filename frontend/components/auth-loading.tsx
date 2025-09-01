@@ -39,19 +39,9 @@ export function AuthLoading({
           </div>
         </div>
 
-        {/* Enhanced Loading Animation */}
+        {/* Simple Loading Animation */}
         <div className="mb-6">
-          <div className="relative">
-            <div className="w-16 h-16 mx-auto relative">
-              {/* Outer spinning ring */}
-              <div className="absolute inset-0 border-4 border-[#7C9885]/20 border-t-[#7C9885] rounded-full animate-spin-slow"></div>
-              
-              {/* Inner logo area */}
-              <div className="absolute inset-2 bg-gradient-to-br from-[#7C9885] to-[#5D7A6B] rounded-full flex items-center justify-center animate-skeleton-pulse">
-                <div className="text-white font-bold text-sm">S</div>
-              </div>
-            </div>
-          </div>
+          <div className="w-12 h-12 border-4 border-[#7C9885]/20 border-t-[#7C9885] rounded-full animate-spin mx-auto"></div>
         </div>
 
         {/* Loading Message */}
@@ -78,16 +68,10 @@ export function AuthLoading({
           </div>
         </div>
 
-        {/* Enhanced Progress Indicator */}
+        {/* Simple Progress Indicator */}
         {showProgress && (
-          <div className="mt-8 space-y-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            {/* Progress bar */}
-            <div className="w-48 h-1 bg-gray-200 rounded-full mx-auto overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-[#7C9885] to-[#C99383] rounded-full animate-wave"></div>
-            </div>
-            
-            {/* Loading dots */}
-            <div className="flex justify-center space-x-2">
+          <div className="mt-8">
+            <div className="flex justify-center space-x-1">
               <div className="w-2 h-2 bg-[#7C9885] rounded-full animate-bounce"></div>
               <div className="w-2 h-2 bg-[#C99383] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
               <div className="w-2 h-2 bg-[#F7DC6F] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>

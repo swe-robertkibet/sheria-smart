@@ -201,7 +201,7 @@ export default function DashboardPage() {
   if (currentView === "chat") {
     return (
       <div className="relative h-screen">
-        <Suspense fallback={<div className="w-64 bg-gray-100 animate-skeleton-pulse"></div>}>
+        <Suspense fallback={<div className="w-64 bg-gray-100 animate-pulse"></div>}>
           <ChatSidebar 
             ref={quickChatSidebarRef}
             isOpen={isSidebarOpen}
@@ -216,8 +216,8 @@ export default function DashboardPage() {
           <Suspense fallback={
             <div className="h-screen bg-white flex items-center justify-center">
               <div className="text-center space-y-4">
-                <div className="w-16 h-16 border-4 border-[#7C9885]/20 border-t-[#7C9885] rounded-full animate-spin-slow mx-auto"></div>
-                <p className="text-[#718096]">Loading chat interface...</p>
+                <div className="w-12 h-12 border-4 border-[#7C9885]/20 border-t-[#7C9885] rounded-full animate-spin mx-auto"></div>
+                <p className="text-[#718096]">Loading...</p>
               </div>
             </div>
           }>
@@ -236,7 +236,7 @@ export default function DashboardPage() {
   if (currentView === "structured-chat") {
     return (
       <div className="relative h-screen">
-        <Suspense fallback={<div className="w-64 bg-gray-100 animate-skeleton-pulse"></div>}>
+        <Suspense fallback={<div className="w-64 bg-gray-100 animate-pulse"></div>}>
           <ChatSidebar 
             ref={structuredChatSidebarRef}
             isOpen={isSidebarOpen}
@@ -251,8 +251,8 @@ export default function DashboardPage() {
           <Suspense fallback={
             <div className="h-screen bg-white flex items-center justify-center">
               <div className="text-center space-y-4">
-                <div className="w-16 h-16 border-4 border-[#C99383]/20 border-t-[#C99383] rounded-full animate-spin-slow mx-auto"></div>
-                <p className="text-[#718096]">Loading legal analysis interface...</p>
+                <div className="w-12 h-12 border-4 border-[#C99383]/20 border-t-[#C99383] rounded-full animate-spin mx-auto"></div>
+                <p className="text-[#718096]">Loading...</p>
               </div>
             </div>
           }>
@@ -274,8 +274,8 @@ export default function DashboardPage() {
       <Suspense fallback={
         <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 border-4 border-[#F7DC6F]/20 border-t-[#F7DC6F] rounded-full animate-spin-slow mx-auto"></div>
-            <p className="text-[#718096]">Loading documents...</p>
+            <div className="w-12 h-12 border-4 border-[#F7DC6F]/20 border-t-[#F7DC6F] rounded-full animate-spin mx-auto"></div>
+            <p className="text-[#718096]">Loading...</p>
           </div>
         </div>
       }>
@@ -299,7 +299,7 @@ export default function DashboardPage() {
         <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="text-center space-y-4">
             <div className="w-16 h-16 border-4 border-[#7C9885]/20 border-t-[#7C9885] rounded-full animate-spin-slow mx-auto"></div>
-            <p className="text-[#718096]">Loading document generator...</p>
+            <p className="text-[#718096]">Loading...</p>
           </div>
         </div>
       }>
