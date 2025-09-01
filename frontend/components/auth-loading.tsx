@@ -2,8 +2,6 @@
 
 import { Loader2 } from "lucide-react"
 import Image from "next/image"
-import { useEffect, useState } from "react"
-import { getRandomLawQuote, type LawQuote } from "@/lib/law-quotes"
 
 interface AuthLoadingProps {
   message?: string
@@ -16,11 +14,6 @@ export function AuthLoading({
   subtitle = "Checking your session...",
   showProgress = true
 }: AuthLoadingProps) {
-  const [lawQuote, setLawQuote] = useState<LawQuote | null>(null)
-
-  useEffect(() => {
-    setLawQuote(getRandomLawQuote())
-  }, [])
   return (
     <div className="min-h-screen bg-[#FEFCF3] flex items-center justify-center">
       <div className="text-center max-w-md mx-auto px-6">
@@ -47,25 +40,6 @@ export function AuthLoading({
         {/* Loading Message */}
         <div className="space-y-3">
           <p className="text-sm text-[#718096]">{subtitle}</p>
-          
-          {/* Random Law Quote */}
-          <div className="border-t border-[#E2E8F0] pt-4 mt-4">
-            {lawQuote ? (
-              <div className="animate-fade-in">
-                <blockquote className="text-sm italic text-[#718096] leading-relaxed">
-                  "{lawQuote.text}"
-                </blockquote>
-                <cite className="text-xs text-[#A0AEC0] mt-2 block">
-                  — {lawQuote.author}
-                </cite>
-              </div>
-            ) : (
-              <div className="animate-pulse">
-                <div className="h-4 bg-[#F7FAFC] rounded mb-2"></div>
-                <div className="h-3 bg-[#F7FAFC] rounded w-24"></div>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Simple Progress Indicator */}
