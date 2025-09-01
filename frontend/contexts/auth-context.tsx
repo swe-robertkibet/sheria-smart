@@ -25,6 +25,7 @@ type AuthLoadingContext = {
 interface AuthContextType {
   user: User | null
   isLoading: boolean
+  isLoggingOut: boolean
   isAuthenticated: boolean
   authError: AuthError | null
   isValidatingToken: boolean
@@ -52,6 +53,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [authError, setAuthError] = useState<AuthError | null>(null)
   const [isValidatingToken, setIsValidatingToken] = useState(true) // Show loading on app load
   const [loadingContext, setLoadingContext] = useState<AuthLoadingContext>({
@@ -207,8 +209,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const logout = async () => {
+    const startTime = Date.now()
     try {
-      setIsLoading(true)
+      setIsLoggingOut(true)
+      setLoadingContext({
+        message: "Sheria Smart",
+        subtitle: "Signing you out...",
+        showProgress: true
+      })
+      
       await fetch('http://localhost:5000/api/auth/logout', {
         method: 'POST',
         credentials: 'include'
@@ -216,12 +225,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null)
       setAuthError(null)
       console.log('🔍 AUTH: Logout successful')
+      
+      // Ensure minimum loading duration of 3 seconds
+      await ensureMinimumLoadingDuration(startTime, 3000)
+      
     } catch (error) {
       console.error('🔍 AUTH: Logout error:', error)
       // Still clear user state even if logout call fails
       setUser(null)
+      
+      // Ensure minimum loading duration even on error
+      await ensureMinimumLoadingDuration(startTime, 3000)
     } finally {
-      setIsLoading(false)
+      setIsLoggingOut(false)
     }
   }
 
@@ -307,6 +323,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const value: AuthContextType = {
     user,
     isLoading,
+    isLoggingOut,
     isAuthenticated: !!user,
     authError,
     isValidatingToken,

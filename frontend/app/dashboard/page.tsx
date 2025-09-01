@@ -30,7 +30,7 @@ export default function DashboardPage() {
   const [rateLimitDialogOpen, setRateLimitDialogOpen] = useState(false)
   const [pendingFeatureType, setPendingFeatureType] = useState<'QUICK_CHAT' | 'STRUCTURED_ANALYSIS' | 'DOCUMENT_GENERATION' | null>(null)
   const router = useRouter()
-  const { user, logout, isLoading, isAuthenticated, authError, isValidatingToken, loadingContext, clearAuthError } = useAuth()
+  const { user, logout, isLoading, isLoggingOut, isAuthenticated, authError, isValidatingToken, loadingContext, clearAuthError } = useAuth()
   
   // Refs for sidebar components
   const quickChatSidebarRef = useRef<ChatSidebarRef>(null)
@@ -62,6 +62,11 @@ export default function DashboardPage() {
 
   // Show loading animation while validating token
   if (isValidatingToken) {
+    return <AuthLoading {...loadingContext} />
+  }
+
+  // Show loading animation while logging out
+  if (isLoggingOut) {
     return <AuthLoading {...loadingContext} />
   }
 
