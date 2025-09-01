@@ -56,7 +56,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isValidatingToken, setIsValidatingToken] = useState(true) // Show loading on app load
   const [loadingContext, setLoadingContext] = useState<AuthLoadingContext>({
     message: "Sheria Smart",
-    subtitle: "Please wait a moment...",
+    subtitle: "Checking your session...",
     showProgress: true
   })
   const [isRedirecting, setIsRedirecting] = useState(false)
