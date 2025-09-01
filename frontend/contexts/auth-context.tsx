@@ -61,6 +61,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   })
   const [isRedirecting, setIsRedirecting] = useState(false)
   const [loadingStartTime, setLoadingStartTime] = useState<number | null>(null)
+  const [hasMounted, setHasMounted] = useState(false)
   const router = useRouter()
 
   const clearAuthError = () => {
@@ -224,6 +225,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Track client-side mounting to prevent hydration mismatches
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
   // NEW: Auto-login validation on app load
   useEffect(() => {
     console.log('🔍 AUTH: App loaded, starting token validation...')
@@ -237,6 +243,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Handle OAuth callback with enhanced error handling
   useEffect(() => {
+    // Only run OAuth callback detection on client-side to prevent hydration mismatches
+    if (!hasMounted) return
+    
     const urlParams = new URLSearchParams(window.location.search)
     const authStatus = urlParams.get('auth')
     const errorParam = urlParams.get('error')
@@ -290,7 +299,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname)
     }
-  }, [])
+  }, [hasMounted])
 
   // Auto-redirect to login page after showing error message
   useEffect(() => {

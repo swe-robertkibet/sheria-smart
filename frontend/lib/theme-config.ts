@@ -198,7 +198,7 @@ export const antdTheme: ThemeConfig = {
     
     // Line height
     lineHeight: typography.lineHeight.normal,
-    lineHeightHeading: typography.lineHeight.tight,
+    lineHeightHeading1: typography.lineHeight.tight,
     
     // Animation - Removed delays for instant responsiveness
     motionDurationFast: '0s',
@@ -296,8 +296,6 @@ export const antdTheme: ThemeConfig = {
       motionDurationFast: '0s',
       motionDurationMid: '0s',
       motionDurationSlow: '0s',
-      // Override any transition properties
-      transition: 'none',
     },
 
     // Radio theming - Remove all delays  
@@ -307,8 +305,6 @@ export const antdTheme: ThemeConfig = {
       motionDurationFast: '0s',
       motionDurationMid: '0s', 
       motionDurationSlow: '0s',
-      // Override any transition properties
-      transition: 'none',
     },
   },
   

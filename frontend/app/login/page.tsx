@@ -64,7 +64,7 @@ export default function LoginPage() {
 
   // Show loading during token validation or redirecting
   if (isValidatingToken) {
-    return <AuthLoading {...loadingContext} quote={sessionQuote} />
+    return <AuthLoading {...loadingContext} />
   }
 
   // Show redirecting message when authenticated and about to redirect
@@ -74,7 +74,6 @@ export default function LoginPage() {
         message="Redirecting to dashboard..."
         subtitle="Taking you to your account..."
         showProgress={true}
-        quote={sessionQuote}
       />
     )
   }

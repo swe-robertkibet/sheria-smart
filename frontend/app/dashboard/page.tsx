@@ -331,7 +331,7 @@ export default function DashboardPage() {
             fontWeight: token.fontWeightStrong,
             color: '#2D3748',
             marginBottom: token.marginXL,
-            lineHeight: token.lineHeightHeading
+            lineHeight: token.lineHeightHeading1
           }}>
             What legal help do you need?
           </h1>
