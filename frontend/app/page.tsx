@@ -49,6 +49,7 @@ import { FaXTwitter } from "react-icons/fa6";
 export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
   const { isAuthenticated, isValidatingToken, loadingContext } = useAuth();
 
@@ -59,6 +60,11 @@ export default function HomePage() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Track when component has mounted on client to prevent hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
   }, []);
 
   // Note: Removed loading screen from home page as it's public content
@@ -121,7 +127,13 @@ export default function HomePage() {
 
             {/* Desktop Auth Buttons */}
             <div className="hidden md:flex items-center space-x-4">
-              {isAuthenticated ? (
+              {!isMounted || isValidatingToken ? (
+                // Show loading state during SSR and auth validation
+                <div className="flex items-center space-x-4">
+                  <div className="h-10 w-20 bg-gray-200 animate-pulse rounded"></div>
+                  <div className="h-10 w-28 bg-gray-200 animate-pulse rounded"></div>
+                </div>
+              ) : isAuthenticated ? (
                 <Button
                   onClick={() => router.push("/dashboard")}
                   className="bg-[#7C9885] hover:bg-[#5D7A6B] text-white transition-all duration-300"
@@ -206,7 +218,13 @@ export default function HomePage() {
 
                     {/* Auth Buttons */}
                     <div className="space-y-3 pt-6 border-t border-gray-200">
-                      {isAuthenticated ? (
+                      {!isMounted || isValidatingToken ? (
+                        // Show loading state during SSR and auth validation
+                        <div className="space-y-3">
+                          <div className="w-full h-12 bg-gray-200 animate-pulse rounded"></div>
+                          <div className="w-full h-12 bg-gray-200 animate-pulse rounded"></div>
+                        </div>
+                      ) : isAuthenticated ? (
                         <Button
                           onClick={() => {
                             router.push("/dashboard");
@@ -277,7 +295,7 @@ export default function HomePage() {
                   <Button
                     size="lg"
                     onClick={() => {
-                      if (isAuthenticated) {
+                      if (isMounted && !isValidatingToken && isAuthenticated) {
                         router.push("/dashboard");
                       } else {
                         router.push("/login");
@@ -285,7 +303,9 @@ export default function HomePage() {
                     }}
                     className="bg-gradient-to-r from-[#7C9885] to-[#5D7A6B] hover:from-[#5D7A6B] hover:to-[#4A6356] text-white px-8 py-4 text-lg rounded-xl transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-xl animate-pulse-gentle"
                   >
-                    {isAuthenticated
+                    {!isMounted || isValidatingToken
+                      ? "Loading..."
+                      : isAuthenticated
                       ? "Go to Dashboard"
                       : "Get Started Free"}
                   </Button>
@@ -909,7 +929,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   onClick={() => {
-                    if (isAuthenticated) {
+                    if (isMounted && !isValidatingToken && isAuthenticated) {
                       router.push("/dashboard");
                     } else {
                       router.push("/login");
@@ -917,7 +937,11 @@ export default function HomePage() {
                   }}
                   className="bg-[#F7DC6F] hover:bg-[#F4D03F] text-[#2D3748] px-12 py-4 text-xl rounded-xl transform hover:-translate-y-1 transition-all duration-300 shadow-2xl hover:shadow-3xl font-bold"
                 >
-                  {isAuthenticated ? "Go to Dashboard" : "Get Started Now"}
+                  {!isMounted || isValidatingToken
+                    ? "Loading..."
+                    : isAuthenticated
+                    ? "Go to Dashboard"
+                    : "Get Started Now"}
                 </Button>
                 <Button
                   variant="outline"
