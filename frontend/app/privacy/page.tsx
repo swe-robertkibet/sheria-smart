@@ -1,34 +1,11 @@
-"use client"
-
-import React, { useState } from 'react'
+import React from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Shield, Eye, Lock, Globe, Users, FileText, AlertTriangle, Mail } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 export default function PrivacyPolicy() {
-  const router = useRouter()
-  const [isNavigating, setIsNavigating] = useState(false)
-
-  const handleBackClick = async () => {
-    setIsNavigating(true)
-    try {
-      // Check if there's history to go back to
-      if (typeof window !== 'undefined' && window.history.length > 1) {
-        router.back()
-      } else {
-        // Fallback to home page
-        router.push('/')
-      }
-    } catch (error) {
-      // Fallback on error
-      router.push('/')
-    } finally {
-      setTimeout(() => setIsNavigating(false), 500) // Brief delay to show loading state
-    }
-  }
   return (
     <div className="min-h-screen bg-[#FEFCF3]">
       {/* Header */}
@@ -50,15 +27,16 @@ export default function PrivacyPolicy() {
               </div>
             </Link>
 
-            {/* Dynamic Back Button */}
+            {/* Back Button */}
             <Button 
+              asChild
               variant="outline" 
-              onClick={handleBackClick}
-              disabled={isNavigating}
-              className="border-[#7C9885] text-[#7C9885] hover:bg-[#7C9885] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className="border-[#7C9885] text-[#7C9885] hover:bg-[#7C9885] hover:text-white"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {isNavigating ? "Going Back..." : "Back"}
+              <Link href="/dashboard" className="flex items-center">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Link>
             </Button>
           </div>
         </nav>

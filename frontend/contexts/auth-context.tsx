@@ -54,10 +54,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [authError, setAuthError] = useState<AuthError | null>(null)
   const [isValidatingToken, setIsValidatingToken] = useState(true) // Show loading on app load
-  const [loadingContext, setLoadingContext] = useState<AuthLoadingContext>({
-    message: "Sheria Smart",
-    subtitle: "Checking your session...",
-    showProgress: true
+  const [loadingContext, setLoadingContext] = useState<AuthLoadingContext>(() => {
+    // Initialize with consistent state for server/client
+    // URL-based logic will only run after mount to prevent hydration mismatches
+    return {
+      message: "Sheria Smart",
+      subtitle: "Checking your session...",
+      showProgress: true
+    }
   })
   const [isRedirecting, setIsRedirecting] = useState(false)
   const [loadingStartTime, setLoadingStartTime] = useState<number | null>(null)
@@ -232,6 +236,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // NEW: Auto-login validation on app load
   useEffect(() => {
+    // Only run after client-side mount to prevent hydration mismatches
+    if (!hasMounted) return
+    
     console.log('🔍 AUTH: App loaded, starting token validation...')
     setLoadingContext({
       message: "Sheria Smart",
@@ -239,7 +246,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       showProgress: true
     })
     validateToken()
-  }, [])
+  }, [hasMounted])
 
   // Handle OAuth callback with enhanced error handling
   useEffect(() => {
@@ -253,6 +260,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     if (authStatus === 'success') {
       console.log('🔍 AUTH: OAuth callback success - validating token')
+      // Update loading context immediately after mount for OAuth callback
       setLoadingContext({
         message: "Completing sign up...",
         subtitle: "Setting up your account...",
