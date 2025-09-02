@@ -19,6 +19,7 @@ model User {
   name          String?
   picture       String?
   googleId      String        @unique
+  isAdmin       Boolean       @default(false)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   

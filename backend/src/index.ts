@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import chatRoutes from './routes/chat';
 import authRoutes from './routes/auth';
 import documentsRoutes from './routes/documents';
+import adminRoutes from './routes/admin';
 import DatabaseService from './services/database';
 
 dotenv.config();
@@ -24,6 +25,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/documents', documentsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Basic health check endpoint
 app.get('/api/health', (req, res) => {

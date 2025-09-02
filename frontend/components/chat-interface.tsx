@@ -13,7 +13,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
@@ -48,60 +47,55 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
   const { user, logout } = useAuth()
   const router = useRouter()
   
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
   const lastUserMessageRef = useRef<HTMLDivElement>(null)
-  const scrollAnchorRef = useRef<HTMLDivElement>(null)
+  const [shouldAnchorUserMessage, setShouldAnchorUserMessage] = useState(false)
 
   // Reset scroll position when component mounts
   useScrollToTop()
 
-  const checkIfAtBottom = () => {
-    if (!scrollContainerRef.current) return true
-    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current
-    const threshold = 100
-    return scrollTop + clientHeight >= scrollHeight - threshold
-  }
 
-  const scrollToBottom = () => {
-    if (scrollAnchorRef.current && isAtBottom && !isStreaming) {
-      scrollAnchorRef.current.scrollIntoView({ behavior: "smooth" })
-    }
-  }
 
-  const checkIfUserMessageVisible = () => {
-    if (!lastUserMessageRef.current || !scrollContainerRef.current) return true
-    
-    const messageRect = lastUserMessageRef.current.getBoundingClientRect()
-    const containerRect = scrollContainerRef.current.getBoundingClientRect()
-    
-    return messageRect.top >= containerRect.top && messageRect.top <= containerRect.bottom
-  }
 
-  const scrollUserMessageToTop = () => {
-    if (lastUserMessageRef.current) {
-      lastUserMessageRef.current.scrollIntoView({ 
-        behavior: "smooth", 
-        block: "start"
-      })
-    }
-  }
 
   const handleScroll = () => {
-    const atBottom = checkIfAtBottom()
-    const userMessageVisible = checkIfUserMessageVisible()
+    if (!scrollAreaRef.current) return
+
+    const { scrollTop, scrollHeight, clientHeight } = scrollAreaRef.current
+    const atBottom = scrollHeight - clientHeight <= scrollTop + 1
+
+    setIsAtBottom(atBottom)
+  }
+
+  // ChatGPT-style user message anchoring
+  const anchorUserMessageToTop = () => {
+    if (!scrollAreaRef.current || !lastUserMessageRef.current) return
     
-    if (atBottom && !userMessageVisible && !isStreaming) {
-      setIsAtBottom(true)
-    } else if (isStreaming || isWaitingForStream) {
-      setIsAtBottom(false)
-    } else {
-      setIsAtBottom(atBottom)
-    }
+    const scrollContainer = scrollAreaRef.current
+    const userMessage = lastUserMessageRef.current
+    
+    // Get container height to calculate optimal positioning
+    const containerHeight = scrollContainer.clientHeight
+    
+    // Position user message in the upper portion of viewport
+    // About 15-20% from the top, giving room for previous context
+    const topOffset = Math.max(20, containerHeight * 0.15)
+    
+    // Calculate scroll position to place user message at desired location
+    const targetScrollPosition = userMessage.offsetTop - topOffset
+    
+    scrollContainer.scrollTo({
+      top: Math.max(0, targetScrollPosition),
+      behavior: 'smooth'
+    })
+    
+    // Update scroll state
+    setIsAtBottom(false)
   }
 
   // Throttled scroll handler for performance
   useEffect(() => {
-    const container = scrollContainerRef.current
+    const container = scrollAreaRef.current
     if (container) {
       let ticking = false
       const throttledScroll = () => {
@@ -119,14 +113,19 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
     }
   }, [])
 
-  // Auto-scroll during streaming
+  // Handle user message anchoring after DOM updates
   useEffect(() => {
-    if (!isStreaming && isAtBottom) {
-      requestAnimationFrame(() => {
-        scrollToBottom()
-      })
+    if (shouldAnchorUserMessage) {
+      // Wait for DOM to update with new message
+      const timer = setTimeout(() => {
+        anchorUserMessageToTop()
+        setShouldAnchorUserMessage(false)
+      }, 50)
+      
+      return () => clearTimeout(timer)
     }
-  }, [streamingMessage, isStreaming, isAtBottom])
+  }, [shouldAnchorUserMessage, messages.length])
+
 
   // NEW ARCHITECTURE: Initialize chat session loading if sessionId provided
   useEffect(() => {
@@ -206,11 +205,8 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
     setStreamingMessage("")
     setRateLimitError(null) // Clear any previous rate limit errors
 
-    // Wait for DOM update, then scroll user message to top
-    setTimeout(() => {
-      scrollUserMessageToTop()
-      setIsAtBottom(false)
-    }, 50)
+    // Set flag to anchor user message after DOM updates
+    setShouldAnchorUserMessage(true)
 
     try {
       const requestBody = {
@@ -463,18 +459,19 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
         {/* Messages Container - Scrollable */}
         {!showWelcomeMessage && (
           <div 
-            ref={scrollContainerRef}
+            ref={scrollAreaRef}
             className="flex-1 overflow-y-auto p-4 response-scroll"
             style={{ 
               paddingBottom: '20px'
             }}
+            onScroll={handleScroll}
           >
             <div className="max-w-4xl mx-auto space-y-6">
               {messages.map((message, index) => (
                 <div 
-                  key={message.id} 
+                  key={message.id}
                   ref={message.sender === "user" && index === messages.length - 1 ? lastUserMessageRef : null}
-                  className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex chat-message-anchor ${message.sender === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
                     className={`max-w-xs md:max-w-2xl px-6 py-4 rounded-3xl ${
@@ -568,8 +565,6 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
                 </div>
               )}
               
-              {/* Scroll anchor for auto-scroll */}
-              <div ref={scrollAnchorRef} id="scroll-anchor" />
             </div>
           </div>
         )}
@@ -584,7 +579,7 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
                   onChange={(e) => setInputMessage(e.target.value)}
                   placeholder="Ask your legal question..."
                   className="h-14 pr-12 border-[#E2E8F0] focus:border-[#7C9885] focus:ring-[#7C9885]/20 rounded-2xl text-base touch-manipulation"
-                  onKeyPress={(e) => e.key === "Enter" && !isStreaming && !isWaitingForStream && handleSendMessage()}
+                  onKeyDown={(e) => e.key === "Enter" && !isStreaming && !isWaitingForStream && handleSendMessage()}
                 />
                 <Button
                   size="sm"
