@@ -1,17 +1,20 @@
+---
 deployment:
   tasks:
-    # FRONTEND
-    - export FRONTEND_PATH=/home2/robertki/sheria.robertkibet.com
+    # FRONTEND DEPLOYMENT
+    - export FRONTEND_DEPLOYPATH=/home2/robertki/sheria.robertkibet.com
     - cd frontend
     - /usr/local/bin/npm install
     - /usr/local/bin/npm run build
     - /usr/local/bin/npm run export
-    - /bin/rsync -av out/ $FRONTEND_PATH
+    - /bin/rsync -av out/ $FRONTEND_DEPLOYPATH
 
-    # BACKEND
+    # BACKEND DEPLOYMENT
+    - export BACKEND_PATH=/home2/robertki/sheria-smart/backend
     - cd ../backend
     - /usr/local/bin/npm install
-    # Build
     - /usr/local/bin/npm run build || true
-    # Restart
-    - touch tmp/restart.txt || true
+
+    # Restart backend
+    - mkdir -p $BACKEND_PATH/tmp
+    - touch $BACKEND_PATH/tmp/restart.txt
