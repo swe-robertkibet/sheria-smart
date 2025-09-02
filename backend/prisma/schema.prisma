@@ -194,6 +194,16 @@ model RateLimit {
   @@map("rate_limits")
 }
 
+model RateLimitConfig {
+  id           String      @id @default(cuid())
+  featureType  FeatureType @unique
+  limit        Int
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  
+  @@map("rate_limit_configs")
+}
+
 enum FeatureType {
   QUICK_CHAT
   STRUCTURED_ANALYSIS

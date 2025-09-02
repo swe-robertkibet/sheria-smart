@@ -1,5 +1,5 @@
 import { PrismaClient, FeatureType } from '@prisma/client';
-import { RATE_LIMITS } from './rate-limiting';
+import RateLimitingService from './rate-limiting';
 
 const prisma = new PrismaClient();
 
@@ -79,40 +79,42 @@ export class AdminService {
   }
 
   /**
-   * Get current rate limit configuration
+   * Get current rate limit configuration from database
    */
   static async getRateLimitConfig(): Promise<RateLimitConfig[]> {
-    return [
-      {
-        featureType: FeatureType.QUICK_CHAT,
-        limit: RATE_LIMITS[FeatureType.QUICK_CHAT],
-        description: 'Quick Chat - Instant legal answers'
-      },
-      {
-        featureType: FeatureType.STRUCTURED_ANALYSIS,
-        limit: RATE_LIMITS[FeatureType.STRUCTURED_ANALYSIS],
-        description: 'Structured Analysis - Detailed legal guidance'
-      },
-      {
-        featureType: FeatureType.DOCUMENT_GENERATION,
-        limit: RATE_LIMITS[FeatureType.DOCUMENT_GENERATION],
-        description: 'Document Generation - Create legal documents'
-      }
-    ];
+    const configs = await prisma.rateLimitConfig.findMany();
+    
+    const descriptions = {
+      [FeatureType.QUICK_CHAT]: 'Quick Chat - Instant legal answers',
+      [FeatureType.STRUCTURED_ANALYSIS]: 'Structured Analysis - Detailed legal guidance',
+      [FeatureType.DOCUMENT_GENERATION]: 'Document Generation - Create legal documents'
+    };
+
+    return configs.map(config => ({
+      featureType: config.featureType,
+      limit: config.limit,
+      description: descriptions[config.featureType]
+    }));
   }
 
   /**
    * Update rate limit for a specific feature
-   * Note: This updates the in-memory configuration. In a production environment,
-   * you would want to store this in the database or environment variables.
+   * Persists changes to database for persistence across server restarts
    */
   static async updateRateLimit(featureType: FeatureType, newLimit: number): Promise<RateLimitConfig> {
     if (newLimit < 0 || newLimit > 100) {
       throw new Error('Rate limit must be between 0 and 100');
     }
 
-    // Update the in-memory configuration
-    (RATE_LIMITS as any)[featureType] = newLimit;
+    // Update in database
+    await prisma.rateLimitConfig.upsert({
+      where: { featureType },
+      update: { limit: newLimit },
+      create: { featureType, limit: newLimit }
+    });
+
+    // Invalidate the cache so new limits are loaded
+    RateLimitingService.invalidateCache();
 
     // Return the updated configuration
     const descriptions = {

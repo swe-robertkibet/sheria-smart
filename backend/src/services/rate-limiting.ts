@@ -2,12 +2,23 @@ import { PrismaClient, FeatureType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Rate limit configuration
-export const RATE_LIMITS: Record<FeatureType, number> = {
+// Default fallback rate limits (used if database is unavailable)
+const DEFAULT_RATE_LIMITS: Record<FeatureType, number> = {
   [FeatureType.QUICK_CHAT]: 2,
   [FeatureType.STRUCTURED_ANALYSIS]: 2,
   [FeatureType.DOCUMENT_GENERATION]: 1,
 };
+
+// In-memory cache for rate limits (loaded from database)
+export let RATE_LIMITS: Record<FeatureType, number> = { ...DEFAULT_RATE_LIMITS };
+
+// Load rate limits from database with caching
+let rateLimitCache: { data: Record<FeatureType, number> | null; lastFetch: number } = {
+  data: null,
+  lastFetch: 0
+};
+
+const CACHE_TTL = 60000; // 1 minute cache
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -26,6 +37,44 @@ export interface RateLimitError {
   currentUsage: number;
 }
 
+async function loadRateLimitsFromDb(): Promise<Record<FeatureType, number>> {
+  try {
+    const configs = await prisma.rateLimitConfig.findMany();
+    const limits: Record<FeatureType, number> = { ...DEFAULT_RATE_LIMITS };
+    
+    for (const config of configs) {
+      limits[config.featureType] = config.limit;
+    }
+    
+    return limits;
+  } catch (error) {
+    console.error('Failed to load rate limits from database:', error);
+    return DEFAULT_RATE_LIMITS;
+  }
+}
+
+async function getRateLimits(): Promise<Record<FeatureType, number>> {
+  const now = Date.now();
+  
+  // Return cached data if still valid
+  if (rateLimitCache.data && (now - rateLimitCache.lastFetch) < CACHE_TTL) {
+    return rateLimitCache.data;
+  }
+  
+  // Load fresh data from database
+  const limits = await loadRateLimitsFromDb();
+  
+  // Update cache and global RATE_LIMITS
+  rateLimitCache = {
+    data: limits,
+    lastFetch: now
+  };
+  
+  RATE_LIMITS = { ...limits };
+  
+  return limits;
+}
+
 export class RateLimitingService {
   /**
    * Check if user can perform action and increment usage if allowed
@@ -34,7 +83,8 @@ export class RateLimitingService {
     userId: string,
     featureType: FeatureType
   ): Promise<RateLimitResult> {
-    const limit = RATE_LIMITS[featureType];
+    const limits = await getRateLimits();
+    const limit = limits[featureType];
     const now = new Date();
     const resetTime = this.getNextResetTime(now);
 
@@ -108,7 +158,8 @@ export class RateLimitingService {
     userId: string,
     featureType: FeatureType
   ): Promise<RateLimitResult> {
-    const limit = RATE_LIMITS[featureType];
+    const limits = await getRateLimits();
+    const limit = limits[featureType];
     const now = new Date();
     const resetTime = this.getNextResetTime(now);
 
@@ -210,6 +261,16 @@ export class RateLimitingService {
       return `${hours}h ${minutes}m`;
     }
     return `${minutes}m`;
+  }
+
+  /**
+   * Invalidate the rate limit cache (called when limits are updated)
+   */
+  static invalidateCache(): void {
+    rateLimitCache = {
+      data: null,
+      lastFetch: 0
+    };
   }
 
   /**
