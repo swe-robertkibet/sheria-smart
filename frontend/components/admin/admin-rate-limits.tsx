@@ -22,7 +22,7 @@ export function AdminRateLimits({ className = "" }: AdminRateLimitsProps) {
   const fetchRateLimits = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/admin/rate-limits', {
+      const response = await fetch('http://localhost:5000/api/admin/rate-limits', {
         credentials: 'include'
       })
 
@@ -56,7 +56,7 @@ export function AdminRateLimits({ className = "" }: AdminRateLimitsProps) {
         newLimit
       }))
 
-      const response = await fetch('/api/admin/rate-limits', {
+      const response = await fetch('http://localhost:5000/api/admin/rate-limits', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

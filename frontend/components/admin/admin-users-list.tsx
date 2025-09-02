@@ -35,7 +35,7 @@ export function AdminUsersList({ className = "" }: AdminUsersListProps) {
         ...(search && { search })
       })
       
-      const response = await fetch(`/api/admin/users?${params}`, {
+      const response = await fetch(`http://localhost:5000/api/admin/users?${params}`, {
         credentials: 'include'
       })
 

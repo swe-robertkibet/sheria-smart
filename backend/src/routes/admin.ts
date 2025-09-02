@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response } from 'express';
 import { requireAdminAuth, AuthenticatedRequest } from '../middleware/auth';
 import AdminService, { RateLimitUpdate } from '../services/admin';
 import { FeatureType } from '@prisma/client';
@@ -9,7 +9,7 @@ const router = express.Router();
  * GET /api/admin/users
  * Get paginated list of users with search functionality
  */
-router.get('/users', requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+router.get('/users', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
@@ -31,7 +31,7 @@ router.get('/users', requireAdminAuth, async (req: AuthenticatedRequest, res) =>
  * GET /api/admin/users/:userId
  * Get specific user details
  */
-router.get('/users/:userId', requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+router.get('/users/:userId', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { userId } = req.params;
     
@@ -54,7 +54,7 @@ router.get('/users/:userId', requireAdminAuth, async (req: AuthenticatedRequest,
  * GET /api/admin/rate-limits
  * Get current rate limit configuration
  */
-router.get('/rate-limits', requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+router.get('/rate-limits', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     console.log('👑 ADMIN API: Getting rate limit configuration');
     const config = await AdminService.getRateLimitConfig();
@@ -72,7 +72,7 @@ router.get('/rate-limits', requireAdminAuth, async (req: AuthenticatedRequest, r
  * Update rate limit configuration
  * Body: { featureType: string, newLimit: number } or { updates: RateLimitUpdate[] }
  */
-router.put('/rate-limits', requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+router.put('/rate-limits', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { featureType, newLimit, updates } = req.body;
     
@@ -121,7 +121,7 @@ router.put('/rate-limits', requireAdminAuth, async (req: AuthenticatedRequest, r
  * POST /api/admin/users/:userId/toggle-admin
  * Toggle admin status for a user
  */
-router.post('/users/:userId/toggle-admin', requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+router.post('/users/:userId/toggle-admin', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { userId } = req.params;
     
@@ -132,9 +132,9 @@ router.post('/users/:userId/toggle-admin', requireAdminAuth, async (req: Authent
     res.json({ success: true, user: updatedUser });
   } catch (error) {
     console.error('👑 ADMIN API: Error toggling admin status:', error);
-    if (error.message === 'User not found') {
+    if (error instanceof Error && error.message === 'User not found') {
       res.status(404).json({ error: 'User not found' });
-    } else if (error.message === 'Cannot remove admin privileges from primary admin') {
+    } else if (error instanceof Error && error.message === 'Cannot remove admin privileges from primary admin') {
       res.status(400).json({ error: error.message });
     } else {
       res.status(500).json({ error: 'Failed to toggle admin status' });
@@ -146,7 +146,7 @@ router.post('/users/:userId/toggle-admin', requireAdminAuth, async (req: Authent
  * GET /api/admin/stats
  * Get platform statistics for admin dashboard
  */
-router.get('/stats', requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+router.get('/stats', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     console.log('👑 ADMIN API: Getting platform statistics');
     const stats = await AdminService.getPlatformStats();
@@ -163,7 +163,7 @@ router.get('/stats', requireAdminAuth, async (req: AuthenticatedRequest, res) =>
  * GET /api/admin/health
  * Simple health check endpoint for admin routes
  */
-router.get('/health', requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+router.get('/health', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   console.log('👑 ADMIN API: Health check accessed by:', req.user?.email);
   res.json({ 
     status: 'healthy', 
