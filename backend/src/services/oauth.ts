@@ -31,6 +31,10 @@ export class OAuthService {
       throw new Error('Google OAuth credentials not found in environment variables');
     }
 
+    if (!process.env.BACKEND_URL) {
+      throw new Error('BACKEND_URL not found in environment variables. Required for OAuth redirect URI.');
+    }
+
     this.redirectUri = `${process.env.BACKEND_URL}/api/auth/google/callback`;
     
     this.oauth2Client = new google.auth.OAuth2(

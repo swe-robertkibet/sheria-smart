@@ -163,7 +163,6 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
         setMessages(chatMessages)
       }
     } catch (error) {
-      console.error('Failed to load chat history:', error)
     }
   }
 
@@ -214,14 +213,6 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
         message: currentMessage,
       }
       
-      console.log('🔍 [DEBUG] Sending chat request:', {
-        url: 'http://localhost:5000/api/chat/send-stream',
-        method: 'POST',
-        sessionId,
-        messageLength: currentMessage.length,
-        messagePreview: currentMessage.substring(0, 100) + (currentMessage.length > 100 ? '...' : ''),
-        timestamp: new Date().toISOString()
-      })
       
       const response = await fetch('http://localhost:5000/api/chat/send-stream', {
         method: 'POST',
@@ -232,13 +223,6 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
         body: JSON.stringify(requestBody),
       })
       
-      console.log('🔍 [DEBUG] Response received:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
-        url: response.url,
-        timestamp: new Date().toISOString()
-      })
 
       if (response.ok && response.body) {
         const reader = response.body.getReader()
@@ -260,7 +244,6 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
             const sessionIdMatch = chunk.match(/__SESSION_ID__:([a-zA-Z0-9\-]+)/)
             if (sessionIdMatch) {
               const newSessionId = sessionIdMatch[1]
-              console.log('Received new session ID:', newSessionId)
               setSessionId(newSessionId)
               
               // Notify parent component about session creation
@@ -292,19 +275,11 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
         setMessages((prev) => [...prev, aiMessage])
       } else {
         // Handle error
-        console.error('🚨 [ERROR] Non-OK response:', {
-          status: response.status,
-          statusText: response.statusText,
-          url: response.url,
-          timestamp: new Date().toISOString()
-        })
         
         // Try to get error details from response
         try {
           const errorText = await response.text()
-          console.error('🚨 [ERROR] Response body:', errorText)
         } catch (e) {
-          console.error('🚨 [ERROR] Could not read response body:', e)
         }
         
         const errorMessage: Message = {
@@ -316,12 +291,6 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
         setMessages((prev) => [...prev, errorMessage])
       }
     } catch (error) {
-      console.error('🚨 [ERROR] Exception during fetch:', {
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : 'No stack trace',
-        name: error instanceof Error ? error.name : 'Unknown error',
-        timestamp: new Date().toISOString()
-      })
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),

@@ -77,14 +77,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const remainingTime = minDuration - elapsedTime
     
     if (remainingTime > 0) {
-      console.log(`🔍 AUTH: Waiting additional ${remainingTime}ms to meet minimum loading duration`)
       await new Promise(resolve => setTimeout(resolve, remainingTime))
     }
   }
 
   // NEW: Secure token validation with backend verification
   const validateToken = async (context?: Partial<AuthLoadingContext>): Promise<boolean> => {
-    console.log('🔍 AUTH: Starting token validation...')
     const startTime = Date.now()
     setLoadingStartTime(startTime)
     setIsValidatingToken(true)
@@ -100,11 +98,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         credentials: 'include'
       })
       
-      console.log('🔍 AUTH: Token validation response:', response.status)
 
       if (response.ok) {
         const data = await response.json()
-        console.log('🔍 AUTH: Token valid, user authenticated:', data.user.email)
         setUser(data.user)
         
         // Ensure minimum loading duration for better UX
@@ -121,7 +117,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
           errorData = { error: 'Unknown authentication error', code: 'UNKNOWN' }
         }
 
-        console.log('🔍 AUTH: Token validation failed:', errorData)
         
         // Clear user state
         setUser(null)
@@ -163,7 +158,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return false
       }
     } catch (error) {
-      console.error('🔍 AUTH: Token validation network error:', error)
       setUser(null)
       setAuthError({
         message: 'Unable to verify your session. Please check your connection and try again.',
@@ -193,13 +187,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       if (response.ok) {
         const data = await response.json()
-        console.log('🔍 AUTH: Redirecting to Google OAuth')
         window.location.href = data.url
       } else {
         throw new Error('Failed to get authentication URL')
       }
     } catch (error) {
-      console.error('🔍 AUTH: Login error:', error)
       setAuthError({
         message: 'Unable to start login process. Please try again.',
         code: 'LOGIN_FAILED',
@@ -225,13 +217,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       })
       setUser(null)
       setAuthError(null)
-      console.log('🔍 AUTH: Logout successful')
       
       // Ensure minimum loading duration of 3 seconds
       await ensureMinimumLoadingDuration(startTime, 3000)
       
     } catch (error) {
-      console.error('🔍 AUTH: Logout error:', error)
       // Still clear user state even if logout call fails
       setUser(null)
       
@@ -258,7 +248,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const errorDetails = urlParams.get('details')
     
     if (authStatus === 'success') {
-      console.log('🔍 AUTH: OAuth callback success - validating token')
       // Keep consistent loading message for both OAuth and normal flows
       validateToken().then((isValid) => {
         if (isValid) {
@@ -267,7 +256,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       })
     } else if (errorParam) {
-      console.error('🔍 AUTH: OAuth callback error:', errorParam, errorDetails)
       
       // Map OAuth errors to user-friendly messages
       let errorMessage = ''
@@ -302,7 +290,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       window.history.replaceState({}, document.title, window.location.pathname)
     } else {
       // Normal page load - start token validation
-      console.log('🔍 AUTH: App loaded, starting token validation...')
       validateToken()
     }
   }, [hasMounted])

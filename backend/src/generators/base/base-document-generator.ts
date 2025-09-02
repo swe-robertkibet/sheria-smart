@@ -13,7 +13,7 @@ export abstract class BaseDocumentGenerator {
   protected outputDir: string;
 
   constructor() {
-    this.outputDir = path.join(__dirname, '../../../generated-documents');
+    this.outputDir = process.env.DOCUMENT_OUTPUT_DIR || path.join(process.cwd(), 'generated-documents');
     this.ensureOutputDirectory();
   }
 

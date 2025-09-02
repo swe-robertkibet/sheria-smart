@@ -7,6 +7,10 @@
     "dev": "ts-node src/index.ts",
     "build": "tsc",
     "build:clean": "rm -rf dist && tsc",
+    "build:prod": "npm run build:clean && npx prisma generate",
+    "deploy:prep": "npm run build:prod && npm prune --production",
+    "db:deploy": "npx prisma migrate deploy",
+    "db:generate": "npx prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

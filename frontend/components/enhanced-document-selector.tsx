@@ -109,7 +109,6 @@ export function EnhancedDocumentSelector({
       const data = await response.json();
       setCategories(data.categories);
     } catch (err) {
-      console.error("Error fetching document categories:", err);
       setError("Failed to load document categories");
     } finally {
       setLoading(false);

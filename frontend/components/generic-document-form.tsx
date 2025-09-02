@@ -198,15 +198,6 @@ export function GenericDocumentForm({
       );
 
       // Debug logging to see what's being sent
-      console.log("📋 FORM DEBUG: Request data being sent to backend:", {
-        documentType,
-        userInputKeys: Object.keys(processedUserInput),
-        userInputValues: processedUserInput,
-        formats: selectedFormats,
-        allRequiredFields: getRequiredFields(documentType)
-          .filter((f) => f.required)
-          .map((f) => f.key),
-      });
 
       const response = await fetch(
         "http://localhost:5000/api/documents/generate",
@@ -239,7 +230,6 @@ export function GenericDocumentForm({
         `Your legal document has been successfully generated and will be delivered to your registered email address. Request ID: ${result.requestId}`
       );
     } catch (err) {
-      console.error("Error generating document:", err);
       setError(
         err instanceof Error ? err.message : "Failed to generate document"
       );

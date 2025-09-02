@@ -38,7 +38,6 @@ export default function LoginPage() {
   // Redirect if already authenticated (after token validation is complete)
   useEffect(() => {
     if (isAuthenticated && !isValidatingToken && !authLoading) {
-      console.log('Already authenticated, redirecting to dashboard')
       setShowRedirecting(true)
       // Add a brief delay to show "Redirecting..." message
       setTimeout(() => {
@@ -55,7 +54,6 @@ export default function LoginPage() {
     try {
       await login()
     } catch (error) {
-      console.error('Google login failed:', error)
       setIsLoading(false)
     }
   }

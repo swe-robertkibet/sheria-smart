@@ -44,7 +44,6 @@ export default function AdminPage() {
       setStats(data)
     } catch (err) {
       setStatsError(err instanceof Error ? err.message : 'Failed to fetch statistics')
-      console.error('Error fetching admin stats:', err)
     } finally {
       setStatsLoading(false)
     }

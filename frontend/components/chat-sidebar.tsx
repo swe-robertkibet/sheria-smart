@@ -99,13 +99,10 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
         setCursor(data.nextCursor)
       } else if (response.status === 401) {
         // User not authenticated
-        console.error('User not authenticated')
         window.location.href = '/login?error=authentication_required'
       } else {
-        console.error('Failed to load sessions:', response.status, response.statusText)
       }
     } catch (error) {
-      console.error('Error loading sessions:', error)
     } finally {
       setIsLoading(false)
     }
@@ -141,7 +138,6 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
         setHasMore(false)
       }
     } catch (error) {
-      console.error('Error searching sessions:', error)
     } finally {
       setIsLoading(false)
     }
@@ -165,7 +161,6 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
         ))
       }
     } catch (error) {
-      console.error('Error updating title:', error)
     }
   }
 
@@ -181,7 +176,6 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
         setSessions(prev => prev.filter(session => session.id !== sessionId))
       }
     } catch (error) {
-      console.error('Error archiving chat:', error)
     }
   }
 
@@ -197,7 +191,6 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(({
         setSessions(prev => prev.filter(session => session.id !== sessionId))
       }
     } catch (error) {
-      console.error('Error deleting chat:', error)
     }
   }
 

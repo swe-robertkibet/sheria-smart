@@ -191,14 +191,12 @@ export function EnhancedGenericDocumentForm({
 
   // Handle form validation failures
   const handleFinishFailed = (errorInfo: any) => {
-    console.log('Form validation failed:', errorInfo);
     
     // Don't set error messages for field validation failures
     // Let Ant Design's scrollToFirstError handle the UX
     // Only log for debugging purposes
     const errorFields = errorInfo.errorFields;
     if (errorFields && errorFields.length > 0) {
-      console.log('Field validation errors detected, letting form handle scroll to fields');
     }
   };
 
@@ -234,15 +232,6 @@ export function EnhancedGenericDocumentForm({
       );
 
       // Debug logging to see what's being sent
-      console.log("📋 FORM DEBUG: Request data being sent to backend:", {
-        documentType,
-        userInputKeys: Object.keys(processedUserInput),
-        userInputValues: processedUserInput,
-        formats: formats,
-        allRequiredFields: getRequiredFields(documentType)
-          .filter((f) => f.required)
-          .map((f) => f.key),
-      });
 
       const response = await fetch(
         "http://localhost:5000/api/documents/generate",
@@ -275,7 +264,6 @@ export function EnhancedGenericDocumentForm({
         `Your legal document has been successfully generated and will be delivered to your registered email address. Request ID: ${result.requestId}`
       );
     } catch (err) {
-      console.error("Error generating document:", err);
       setError(
         err instanceof Error ? err.message : "Failed to generate document"
       );

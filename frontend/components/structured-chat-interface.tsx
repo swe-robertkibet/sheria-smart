@@ -168,7 +168,6 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
         setMessages(chatMessages)
       }
     } catch (error) {
-      console.error('Failed to load chat history:', error)
     }
   }
 
@@ -233,14 +232,6 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
         message: currentMessage,
       }
       
-      console.log('🔍 [DEBUG] Sending structured chat request:', {
-        url: 'http://localhost:5000/api/chat/send-structured',
-        method: 'POST',
-        sessionId,
-        messageLength: currentMessage.length,
-        messagePreview: currentMessage.substring(0, 100) + (currentMessage.length > 100 ? '...' : ''),
-        timestamp: new Date().toISOString()
-      })
       
       const response = await fetch('http://localhost:5000/api/chat/send-structured', {
         method: 'POST',
@@ -251,20 +242,12 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
         body: JSON.stringify(requestBody),
       })
       
-      console.log('🔍 [DEBUG] Structured response received:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
-        url: response.url,
-        timestamp: new Date().toISOString()
-      })
 
       if (response.ok) {
         const data: StructuredChatResponse = await response.json()
         
         // NEW ARCHITECTURE: Update sessionId if this was the first message
         if (!sessionId && data.sessionId) {
-          console.log('Received new structured session ID:', data.sessionId)
           setSessionId(data.sessionId)
           
           // Notify parent component about session creation
@@ -293,19 +276,11 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
         }
       } else {
         // Handle other errors
-        console.error('🚨 [ERROR] Non-OK structured response:', {
-          status: response.status,
-          statusText: response.statusText,
-          url: response.url,
-          timestamp: new Date().toISOString()
-        })
         
         // Try to get error details from response
         try {
           const errorText = await response.text()
-          console.error('🚨 [ERROR] Structured response body:', errorText)
         } catch (e) {
-          console.error('🚨 [ERROR] Could not read structured response body:', e)
         }
         
         const errorMessage: Message = {
@@ -317,12 +292,6 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
         setMessages((prev) => [...prev, errorMessage])
       }
     } catch (error) {
-      console.error('🚨 [ERROR] Exception during structured fetch:', {
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : 'No stack trace',
-        name: error instanceof Error ? error.name : 'Unknown error',
-        timestamp: new Date().toISOString()
-      })
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -609,7 +578,6 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
                       if (onNavigateToDocument) {
                         onNavigateToDocument(suggestion.documentType, suggestion.category);
                       } else {
-                        console.log('Navigate to document:', suggestion.documentType);
                       }
                     }}
                   >
