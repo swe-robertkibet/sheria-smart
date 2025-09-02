@@ -10,6 +10,7 @@ export interface AuthenticatedRequest extends Request {
     email: string;
     name: string;
     picture: string;
+    isAdmin: boolean;
   };
 }
 
@@ -52,7 +53,8 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
       userId: user.id,
       email: user.email,
       name: user.name || '',
-      picture: user.picture || ''
+      picture: user.picture || '',
+      isAdmin: user.isAdmin || false
     };
     
     console.log('🔐 AUTH MIDDLEWARE: req.user object set to:', JSON.stringify(req.user, null, 2));
@@ -82,7 +84,8 @@ export const optionalAuth = async (req: AuthenticatedRequest, res: Response, nex
           userId: user.id,
           email: user.email,
           name: user.name || '',
-          picture: user.picture || ''
+          picture: user.picture || '',
+          isAdmin: user.isAdmin || false
         };
       } else {
         // Clear invalid cookie
@@ -96,3 +99,33 @@ export const optionalAuth = async (req: AuthenticatedRequest, res: Response, nex
 
   next();
 };
+
+export const requireAdmin = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  console.log('👑 ADMIN MIDDLEWARE: Checking admin privileges');
+  
+  if (!req.user) {
+    console.log('👑 ADMIN MIDDLEWARE: No user found, authentication required');
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  // Check if user has admin privileges (both database flag and hardcoded email)
+  const isAdminByEmail = req.user.email === 'swe.robertkibet@gmail.com';
+  const isAdminByFlag = req.user.isAdmin === true;
+  
+  console.log('👑 ADMIN MIDDLEWARE: Email check:', req.user.email, '-> isAdmin:', isAdminByEmail);
+  console.log('👑 ADMIN MIDDLEWARE: Database flag check:', isAdminByFlag);
+  
+  if (!isAdminByEmail && !isAdminByFlag) {
+    console.log('👑 ADMIN MIDDLEWARE: Access denied - user is not admin');
+    return res.status(403).json({ 
+      error: 'Admin access required',
+      message: 'You do not have permission to access this resource'
+    });
+  }
+  
+  console.log('👑 ADMIN MIDDLEWARE: Admin access granted for', req.user.email);
+  next();
+};
+
+// Convenience middleware that combines authentication and admin check
+export const requireAdminAuth = [authenticateToken, requireAdmin];
