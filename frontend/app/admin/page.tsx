@@ -10,11 +10,45 @@ import { AdminRateLimits } from "@/components/admin/admin-rate-limits"
 
 type AdminSection = 'overview' | 'users' | 'rate-limits'
 
+interface PlatformStats {
+  totalUsers: number
+  totalChatSessions: number
+  totalDocumentRequests: number
+  recentUsers: number
+}
+
 export default function AdminPage() {
   const { user, isLoading, isLoggingOut, isAuthenticated, authError, isValidatingToken, loadingContext, clearAuthError } = useAuth()
   const router = useRouter()
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true)
   const [activeSection, setActiveSection] = useState<AdminSection>('overview')
+  const [stats, setStats] = useState<PlatformStats | null>(null)
+  const [statsLoading, setStatsLoading] = useState(false)
+  const [statsError, setStatsError] = useState<string | null>(null)
+
+  // Fetch platform statistics
+  const fetchStats = async () => {
+    try {
+      setStatsLoading(true)
+      setStatsError(null)
+      
+      const response = await fetch('http://localhost:5000/api/admin/stats', {
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch platform statistics')
+      }
+
+      const data: PlatformStats = await response.json()
+      setStats(data)
+    } catch (err) {
+      setStatsError(err instanceof Error ? err.message : 'Failed to fetch statistics')
+      console.error('Error fetching admin stats:', err)
+    } finally {
+      setStatsLoading(false)
+    }
+  }
 
   // Check if user is admin
   useEffect(() => {
@@ -33,6 +67,33 @@ export default function AdminPage() {
       router.push('/login')
     }
   }, [isAuthenticated, user, isValidatingToken, isLoading, authError, router])
+
+  // Fetch stats when overview section is active and user is authenticated
+  useEffect(() => {
+    if (isAuthenticated && user && activeSection === 'overview' && !isCheckingAdmin) {
+      fetchStats()
+    }
+  }, [isAuthenticated, user, activeSection, isCheckingAdmin])
+
+  // Helper function to format numbers
+  const formatNumber = (num: number): string => {
+    return num.toLocaleString()
+  }
+
+  // Helper function to get card value
+  const getCardValue = (type: 'users' | 'sessions' | 'documents' | 'recent'): string => {
+    if (statsLoading) return 'Loading...'
+    if (statsError) return 'Error'
+    if (!stats) return 'Loading...'
+    
+    switch (type) {
+      case 'users': return formatNumber(stats.totalUsers)
+      case 'sessions': return formatNumber(stats.totalChatSessions)
+      case 'documents': return formatNumber(stats.totalDocumentRequests)
+      case 'recent': return formatNumber(stats.recentUsers)
+      default: return 'N/A'
+    }
+  }
 
   const handleRetryAuth = () => {
     clearAuthError()
@@ -151,13 +212,46 @@ export default function AdminPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeSection === 'overview' && (
           <div>
+            {/* Stats Header with Refresh Button */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Platform Overview</h2>
+              <button
+                onClick={fetchStats}
+                disabled={statsLoading}
+                className="px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                <svg className={`w-4 h-4 ${statsLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>{statsLoading ? 'Loading...' : 'Refresh'}</span>
+              </button>
+            </div>
+
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <AdminStatsCard title="Total Users" value="Loading..." color="blue" />
-              <AdminStatsCard title="Chat Sessions" value="Loading..." color="green" />
-              <AdminStatsCard title="Documents" value="Loading..." color="purple" />
-              <AdminStatsCard title="New Users (30d)" value="Loading..." color="orange" />
+              <AdminStatsCard title="Total Users" value={getCardValue('users')} color="blue" />
+              <AdminStatsCard title="Chat Sessions" value={getCardValue('sessions')} color="green" />
+              <AdminStatsCard title="Documents" value={getCardValue('documents')} color="purple" />
+              <AdminStatsCard title="New Users (30d)" value={getCardValue('recent')} color="orange" />
             </div>
+
+            {/* Show error message if stats failed to load */}
+            {statsError && (
+              <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-red-800">{statsError}</span>
+                  <button
+                    onClick={fetchStats}
+                    className="ml-auto px-3 py-1 bg-red-100 text-red-800 text-sm rounded hover:bg-red-200"
+                  >
+                    Retry
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Quick Actions */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
