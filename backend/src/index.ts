@@ -25,6 +25,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/documents', documentsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Basic health check endpoint
 app.get('/api/health', (req, res) => {
