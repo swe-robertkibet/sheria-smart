@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import chatRoutes from './routes/chat';
 import authRoutes from './routes/auth';
 import documentsRoutes from './routes/documents';
+import adminRoutes from './routes/admin';
 import DatabaseService from './services/database';
 
 dotenv.config();
