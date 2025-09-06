@@ -1,28 +1,23 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import AIServiceManager from '../lib/ai-service-manager';
 import { StructuredLegalResponse, QuestionClassification, LegalArea, UrgencyLevel, ActionType, DocumentSuggestion } from '../types/legal';
 import DocumentCatalog from './document-catalog';
 
-export class StructuredGeminiService {
-  private genAI: GoogleGenerativeAI;
+class StructuredGeminiService {
   private model: any;
 
   constructor() {
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY is not set in environment variables');
-    }
-    
-    console.log('Structured Gemini API Service initialized');
-    
-    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    console.log('🔧 Initializing StructuredGeminiService with shared AI manager');
     
     // Use a single model with JSON output
-    this.model = this.genAI.getGenerativeModel({
+    this.model = AIServiceManager.getModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
         temperature: 0.7,
         maxOutputTokens: 4096,
       },
     });
+    
+    console.log('✅ StructuredGeminiService initialized successfully');
   }
 
   async classifyQuestion(userMessage: string): Promise<QuestionClassification> {
@@ -258,3 +253,6 @@ Important guidelines:
     }
   }
 }
+
+// Export singleton instance to prevent per-request instantiation
+export default new StructuredGeminiService();

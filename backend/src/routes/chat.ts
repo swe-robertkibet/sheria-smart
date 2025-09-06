@@ -1,6 +1,6 @@
 import express from 'express';
-import { GeminiService } from '../services/gemini';
-import { StructuredGeminiService } from '../services/structured-gemini';
+import geminiService from '../services/gemini';
+import structuredGeminiService from '../services/structured-gemini';
 import DatabaseService from '../services/database';
 import TitleGeneratorService from '../services/title-generator';
 import RateLimitingService from '../services/rate-limiting';
@@ -8,7 +8,6 @@ import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import { FeatureType } from '@prisma/client';
 
 const router = express.Router();
-const structuredGeminiService = new StructuredGeminiService();
 
 /**
  * DEPRECATED: Old session creation endpoint - removed in new architecture
@@ -364,7 +363,6 @@ router.post('/send-stream', authenticateToken, async (req: AuthenticatedRequest,
 
     // Generate streaming AI response
     console.log('🔍 [DEBUG] Starting AI response generation');
-    const geminiService = new GeminiService();
     let fullResponse = '';
     
     try {

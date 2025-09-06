@@ -1,17 +1,12 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import AIServiceManager from '../lib/ai-service-manager';
 
-export class TitleGeneratorService {
+class TitleGeneratorService {
   private model;
-  private genAI;
 
   constructor() {
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY is not set in environment variables');
-    }
+    console.log('🔧 Initializing TitleGeneratorService with shared AI manager');
     
-    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    
-    this.model = this.genAI.getGenerativeModel({ 
+    this.model = AIServiceManager.getModel({ 
       model: 'gemini-2.0-flash',
       generationConfig: {
         temperature: 0.3,
@@ -20,6 +15,8 @@ export class TitleGeneratorService {
         maxOutputTokens: 50,
       },
     });
+    
+    console.log('✅ TitleGeneratorService initialized successfully');
   }
 
   async generateChatTitle(firstUserMessage: string): Promise<string> {

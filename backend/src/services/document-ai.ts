@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import AIServiceManager from '../lib/ai-service-manager';
 
 // Generic legal system prompt for Kenyan law (NDA-specific content removed)
 const KENYAN_LEGAL_SYSTEM_PROMPT = `You are a specialized legal document assistant for Kenyan law. Your role is to generate professional, legally sound content for various legal documents that comply with Kenyan legal standards.
@@ -21,18 +21,13 @@ Legal Framework Context:
 
 Important: Generate production-ready legal documents without disclaimers or recommendations to seek legal counsel, as these will be handled separately in the application's terms and conditions.`;
 
-export class DocumentAIService {
+class DocumentAIService {
   private model;
-  private genAI;
 
   constructor() {
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY is not set in environment variables');
-    }
+    console.log('🔧 Initializing DocumentAIService with shared AI manager');
     
-    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    
-    this.model = this.genAI.getGenerativeModel({ 
+    this.model = AIServiceManager.getModel({ 
       model: 'gemini-2.0-flash',
       generationConfig: {
         temperature: 0.3, // Lower temperature for legal documents
@@ -41,6 +36,8 @@ export class DocumentAIService {
         maxOutputTokens: 4096,
       },
     });
+    
+    console.log('✅ DocumentAIService initialized successfully');
   }
 
   // NDA-specific methods removed - document type has been discontinued

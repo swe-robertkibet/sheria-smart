@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import AIServiceManager from '../lib/ai-service-manager';
 import DocumentCatalog from './document-catalog';
 
 const LEGAL_SYSTEM_PROMPT = `You are a legal assistant specialized in Kenyan law. Your role is to:
@@ -21,9 +21,8 @@ Important guidelines:
 
 Please respond in a friendly, professional manner while maintaining accuracy and helpfulness.`;
 
-export class GeminiService {
+class GeminiService {
   private model;
-  private genAI;
 
   private detectLegalArea(userMessage: string): string {
     const messageLower = userMessage.toLowerCase();
@@ -167,16 +166,9 @@ export class GeminiService {
   }
 
   constructor() {
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY is not set in environment variables');
-    }
+    console.log('🔧 Initializing GeminiService with shared AI manager');
     
-    console.log('Gemini API Key loaded successfully');
-    
-    // Initialize GoogleGenerativeAI here, after dotenv.config() has been called
-    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    
-    this.model = this.genAI.getGenerativeModel({ 
+    this.model = AIServiceManager.getModel({ 
       model: 'gemini-2.0-flash',
       generationConfig: {
         temperature: 0.7,
@@ -185,6 +177,8 @@ export class GeminiService {
         maxOutputTokens: 2048,
       },
     });
+    
+    console.log('✅ GeminiService initialized successfully');
   }
 
   async generateResponse(userMessage: string, conversationHistory: Array<{role: string, content: string}> = []): Promise<string> {
@@ -247,6 +241,17 @@ Assistant:`;
         if (chunkText) {
           yield chunkText;
         }
+        
+        // Add garbage collection hints to prevent memory accumulation
+        // This helps with the for-await loop memory leak issue
+        if (global.gc && Math.random() < 0.1) { // 10% chance to trigger GC
+          process.nextTick(() => {
+            if (global.gc) global.gc();
+          });
+        }
+        
+        // Yield control to event loop to prevent blocking
+        await new Promise(resolve => process.nextTick(resolve));
       }
       
       // Add document suggestions at the end of streaming
@@ -262,3 +267,6 @@ Assistant:`;
     }
   }
 }
+
+// Export singleton instance instead of class to prevent per-request instantiation
+export default new GeminiService();

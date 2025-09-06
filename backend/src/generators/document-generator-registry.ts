@@ -91,64 +91,168 @@ export const DOCUMENT_CATEGORIES: Record<DocumentType, DocumentCategory> = {
 // Document generator registry
 export class DocumentGeneratorRegistry {
   private generators: Map<DocumentType, BaseDocumentGenerator> = new Map();
+  private generatorFactories: Map<DocumentType, () => BaseDocumentGenerator> = new Map();
+  private lastUsed: Map<DocumentType, number> = new Map();
+  private cleanupInterval: NodeJS.Timeout | null = null;
+  private readonly CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
+  private readonly GENERATOR_TTL = 10 * 60 * 1000; // 10 minutes
 
   constructor() {
-    this.registerGenerators();
+    console.log('🔧 Initializing DocumentGeneratorRegistry with lazy loading');
+    this.registerGeneratorFactories();
+    this.startCleanupTimer();
+    console.log('✅ DocumentGeneratorRegistry initialized with lazy loading');
   }
 
-  private registerGenerators() {
+  /**
+   * Register generator factories instead of creating instances immediately
+   * This reduces startup memory usage from 22 instances to 0
+   */
+  private registerGeneratorFactories() {
+    console.log('📝 Registering generator factories (lazy instantiation)');
+    
     // Business generators
-    this.generators.set(DocumentType.SALES_PURCHASE_AGREEMENT, new SalesPurchaseGenerator());
-    this.generators.set(DocumentType.DISTRIBUTION_AGREEMENT, new DistributionAgreementGenerator());
-    this.generators.set(DocumentType.PARTNERSHIP_AGREEMENT, new PartnershipAgreementGenerator());
-    this.generators.set(DocumentType.SERVICE_AGREEMENT, new ServiceAgreementGenerator());
+    this.generatorFactories.set(DocumentType.SALES_PURCHASE_AGREEMENT, () => new SalesPurchaseGenerator());
+    this.generatorFactories.set(DocumentType.DISTRIBUTION_AGREEMENT, () => new DistributionAgreementGenerator());
+    this.generatorFactories.set(DocumentType.PARTNERSHIP_AGREEMENT, () => new PartnershipAgreementGenerator());
+    this.generatorFactories.set(DocumentType.SERVICE_AGREEMENT, () => new ServiceAgreementGenerator());
     
     // Employment generators
-    this.generators.set(DocumentType.ENHANCED_EMPLOYMENT_CONTRACT, new EnhancedEmploymentContractGenerator());
-    this.generators.set(DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT, new IndependentContractorGenerator());
-    this.generators.set(DocumentType.NON_COMPETE_AGREEMENT, new NonCompeteGenerator());
+    this.generatorFactories.set(DocumentType.ENHANCED_EMPLOYMENT_CONTRACT, () => new EnhancedEmploymentContractGenerator());
+    this.generatorFactories.set(DocumentType.INDEPENDENT_CONTRACTOR_AGREEMENT, () => new IndependentContractorGenerator());
+    this.generatorFactories.set(DocumentType.NON_COMPETE_AGREEMENT, () => new NonCompeteGenerator());
     
     // Property generators
-    this.generators.set(DocumentType.ENHANCED_LEASE_AGREEMENT, new EnhancedLeaseGenerator());
-    this.generators.set(DocumentType.SALE_OF_LAND_AGREEMENT, new SaleOfLandGenerator());
-    this.generators.set(DocumentType.PROPERTY_MANAGEMENT_AGREEMENT, new PropertyManagementGenerator());
+    this.generatorFactories.set(DocumentType.ENHANCED_LEASE_AGREEMENT, () => new EnhancedLeaseGenerator());
+    this.generatorFactories.set(DocumentType.SALE_OF_LAND_AGREEMENT, () => new SaleOfLandGenerator());
+    this.generatorFactories.set(DocumentType.PROPERTY_MANAGEMENT_AGREEMENT, () => new PropertyManagementGenerator());
     
     // Family Law generators
-    this.generators.set(DocumentType.PRENUPTIAL_AGREEMENT, new PrenuptialGenerator());
-    this.generators.set(DocumentType.POSTNUPTIAL_AGREEMENT, new PostnuptialGenerator());
-    this.generators.set(DocumentType.CHILD_CUSTODY_SUPPORT_AGREEMENT, new ChildCustodyGenerator());
+    this.generatorFactories.set(DocumentType.PRENUPTIAL_AGREEMENT, () => new PrenuptialGenerator());
+    this.generatorFactories.set(DocumentType.POSTNUPTIAL_AGREEMENT, () => new PostnuptialGenerator());
+    this.generatorFactories.set(DocumentType.CHILD_CUSTODY_SUPPORT_AGREEMENT, () => new ChildCustodyGenerator());
     
     // Intellectual Property generators
-    this.generators.set(DocumentType.COPYRIGHT_ASSIGNMENT_AGREEMENT, new CopyrightAssignmentGenerator());
-    this.generators.set(DocumentType.TRADEMARK_LICENSE_AGREEMENT, new TrademarkLicenseGenerator());
-    this.generators.set(DocumentType.PATENT_LICENSING_AGREEMENT, new PatentLicensingGenerator());
+    this.generatorFactories.set(DocumentType.COPYRIGHT_ASSIGNMENT_AGREEMENT, () => new CopyrightAssignmentGenerator());
+    this.generatorFactories.set(DocumentType.TRADEMARK_LICENSE_AGREEMENT, () => new TrademarkLicenseGenerator());
+    this.generatorFactories.set(DocumentType.PATENT_LICENSING_AGREEMENT, () => new PatentLicensingGenerator());
     
     // Corporate Governance generators
-    this.generators.set(DocumentType.ARTICLES_OF_ASSOCIATION, new ArticlesOfAssociationGenerator());
-    this.generators.set(DocumentType.SHAREHOLDER_AGREEMENT, new ShareholderAgreementGenerator());
-    this.generators.set(DocumentType.BOARD_RESOLUTION, new BoardResolutionGenerator());
+    this.generatorFactories.set(DocumentType.ARTICLES_OF_ASSOCIATION, () => new ArticlesOfAssociationGenerator());
+    this.generatorFactories.set(DocumentType.SHAREHOLDER_AGREEMENT, () => new ShareholderAgreementGenerator());
+    this.generatorFactories.set(DocumentType.BOARD_RESOLUTION, () => new BoardResolutionGenerator());
     
     // Litigation & Dispute Resolution generators
-    this.generators.set(DocumentType.SETTLEMENT_AGREEMENT, new SettlementAgreementGenerator());
-    this.generators.set(DocumentType.ARBITRATION_AGREEMENT, new ArbitrationAgreementGenerator());
-    this.generators.set(DocumentType.MEDIATION_AGREEMENT, new MediationAgreementGenerator());
+    this.generatorFactories.set(DocumentType.SETTLEMENT_AGREEMENT, () => new SettlementAgreementGenerator());
+    this.generatorFactories.set(DocumentType.ARBITRATION_AGREEMENT, () => new ArbitrationAgreementGenerator());
+    this.generatorFactories.set(DocumentType.MEDIATION_AGREEMENT, () => new MediationAgreementGenerator());
     
     // Regulatory & Compliance generators
-    this.generators.set(DocumentType.DATA_PROTECTION_COMPLIANCE_AGREEMENT, new DataProtectionComplianceGenerator());
-    this.generators.set(DocumentType.ANTI_MONEY_LAUNDERING_COMPLIANCE, new AntiMoneyLaunderingGenerator());
-    this.generators.set(DocumentType.ENVIRONMENTAL_COMPLIANCE_AGREEMENT, new EnvironmentalComplianceGenerator());
+    this.generatorFactories.set(DocumentType.DATA_PROTECTION_COMPLIANCE_AGREEMENT, () => new DataProtectionComplianceGenerator());
+    this.generatorFactories.set(DocumentType.ANTI_MONEY_LAUNDERING_COMPLIANCE, () => new AntiMoneyLaunderingGenerator());
+    this.generatorFactories.set(DocumentType.ENVIRONMENTAL_COMPLIANCE_AGREEMENT, () => new EnvironmentalComplianceGenerator());
+
+    console.log(`📋 Registered ${this.generatorFactories.size} generator factories`);
   }
 
+  /**
+   * Start cleanup timer to remove unused generators
+   */
+  private startCleanupTimer() {
+    this.cleanupInterval = setInterval(() => {
+      this.cleanupUnusedGenerators();
+    }, this.CLEANUP_INTERVAL);
+
+    console.log('🕐 Started generator cleanup timer');
+  }
+
+  /**
+   * Clean up generators that haven't been used recently
+   */
+  private cleanupUnusedGenerators() {
+    const now = Date.now();
+    const beforeCount = this.generators.size;
+    
+    for (const [docType, lastUsedTime] of this.lastUsed.entries()) {
+      if (now - lastUsedTime > this.GENERATOR_TTL) {
+        this.generators.delete(docType);
+        this.lastUsed.delete(docType);
+      }
+    }
+
+    const afterCount = this.generators.size;
+    if (beforeCount > afterCount) {
+      console.log(`🧹 Cleaned up ${beforeCount - afterCount} unused generators (${afterCount} remaining active)`);
+    }
+  }
+
+  /**
+   * Get generator instance, creating it lazily if needed
+   */
   getGenerator(documentType: DocumentType): BaseDocumentGenerator | null {
-    return this.generators.get(documentType) || null;
+    // Check if we already have an active generator
+    if (this.generators.has(documentType)) {
+      this.lastUsed.set(documentType, Date.now());
+      return this.generators.get(documentType) || null;
+    }
+
+    // Create new generator if we have a factory for it
+    const factory = this.generatorFactories.get(documentType);
+    if (!factory) {
+      return null;
+    }
+
+    console.log(`🔨 Creating new generator for ${documentType} (lazy instantiation)`);
+    const generator = factory();
+    this.generators.set(documentType, generator);
+    this.lastUsed.set(documentType, Date.now());
+    
+    return generator;
   }
 
   isDocumentTypeSupported(documentType: DocumentType): boolean {
-    return this.generators.has(documentType);
+    return this.generatorFactories.has(documentType);
   }
 
   getSupportedDocumentTypes(): DocumentType[] {
-    return Array.from(this.generators.keys());
+    return Array.from(this.generatorFactories.keys());
+  }
+
+  /**
+   * Get current status for monitoring
+   */
+  getStatus(): {
+    activeGenerators: number;
+    registeredTypes: number;
+    lastCleanup: string;
+  } {
+    return {
+      activeGenerators: this.generators.size,
+      registeredTypes: this.generatorFactories.size,
+      lastCleanup: new Date().toISOString()
+    };
+  }
+
+  /**
+   * Manual cleanup method for testing or forced cleanup
+   */
+  forceCleanup(): void {
+    this.cleanupUnusedGenerators();
+  }
+
+  /**
+   * Cleanup on shutdown
+   */
+  shutdown(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+      console.log('🛑 Generator cleanup timer stopped');
+    }
+    
+    this.generators.clear();
+    this.lastUsed.clear();
+    console.log('🧹 All generators cleaned up on shutdown');
   }
 
   getDocumentCategory(documentType: DocumentType): DocumentCategory {
