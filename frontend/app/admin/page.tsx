@@ -32,7 +32,7 @@ export default function AdminPage() {
       setStatsLoading(true)
       setStatsError(null)
       
-      const response = await fetch('http://localhost:5000/api/admin/stats', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/admin/stats`, {
         credentials: 'include'
       })
 

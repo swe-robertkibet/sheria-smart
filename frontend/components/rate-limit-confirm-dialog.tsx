@@ -94,7 +94,7 @@ export function RateLimitConfirmDialog({
     try {
       setLoading(true)
       setError(null)
-      const response = await fetch('http://localhost:5000/api/chat/rate-limits', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/chat/rate-limits`, {
         credentials: 'include',
       })
 

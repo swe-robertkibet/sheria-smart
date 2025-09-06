@@ -1,0 +1,212 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x", "rhel-openssl-1.0.x", "linux-musl"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  name          String?
+  picture       String?
+  googleId      String        @unique
+  isAdmin       Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  // Relations
+  accounts          Account[]
+  chatSessions      ChatSession[]
+  documentRequests  DocumentRequest[]
+  rateLimits        RateLimit[]
+  
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model ChatSession {
+  id              String      @id @default(cuid())
+  userId          String
+  title           String?
+  lastMessageAt   DateTime    @default(now()) @updatedAt
+  messageCount    Int         @default(0)
+  chatType        ChatType    @default(QUICK_CHAT)
+  isArchived      Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  messages        Message[]
+  
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, updatedAt(sort: Desc)])
+  @@index([userId, isArchived, lastMessageAt(sort: Desc)])
+  @@map("chat_sessions")
+}
+
+model Message {
+  id          String      @id @default(cuid())
+  content     String      @db.Text
+  role        MessageRole
+  sessionId   String
+  msgCursor   Int         @default(autoincrement()) @unique
+  createdAt   DateTime    @default(now())
+  
+  session     ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  @@index([sessionId, createdAt(sort: Desc)])
+  @@index([sessionId, role, createdAt(sort: Desc)])
+  @@index([sessionId, msgCursor(sort: Desc)])
+  @@map("messages")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+enum ChatType {
+  QUICK_CHAT
+  STRUCTURED_ANALYSIS
+}
+
+model DocumentRequest {
+  id              String          @id @default(cuid())
+  userId          String
+  documentType    DocumentType
+  status          RequestStatus   @default(PENDING)
+  userInput       String          @db.Text
+  backstory       String          @db.Text
+  generatedContent String?        @db.Text
+  formats         String          // JSON array of requested formats ["pdf", "docx"]
+  emailSent       Boolean         @default(false)
+  emailAddress    String
+  filePaths       String?         @db.Text // JSON array of generated file paths
+  emailRetryCount Int             @default(0)
+  lastEmailAttempt DateTime?
+  emailError      String?         @db.Text // Store last email error message
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status])
+  @@map("document_requests")
+}
+
+enum DocumentType {
+  // Original
+  EMPLOYMENT_CONTRACT
+  SERVICE_AGREEMENT
+  LEASE_AGREEMENT
+  
+  // Business & Commercial Contracts
+  SALES_PURCHASE_AGREEMENT
+  DISTRIBUTION_AGREEMENT
+  PARTNERSHIP_AGREEMENT
+  
+  // Employment & HR Documents
+  ENHANCED_EMPLOYMENT_CONTRACT
+  INDEPENDENT_CONTRACTOR_AGREEMENT
+  NON_COMPETE_AGREEMENT
+  
+  // Property & Real Estate
+  ENHANCED_LEASE_AGREEMENT
+  SALE_OF_LAND_AGREEMENT
+  PROPERTY_MANAGEMENT_AGREEMENT
+  
+  // Family Law Documents
+  PRENUPTIAL_AGREEMENT
+  POSTNUPTIAL_AGREEMENT
+  CHILD_CUSTODY_SUPPORT_AGREEMENT
+  
+  // Intellectual Property
+  COPYRIGHT_ASSIGNMENT_AGREEMENT
+  TRADEMARK_LICENSE_AGREEMENT
+  PATENT_LICENSING_AGREEMENT
+  
+  // Corporate Governance
+  ARTICLES_OF_ASSOCIATION
+  SHAREHOLDER_AGREEMENT
+  BOARD_RESOLUTION
+  
+  // Litigation & Dispute Resolution
+  SETTLEMENT_AGREEMENT
+  ARBITRATION_AGREEMENT
+  MEDIATION_AGREEMENT
+  
+  // Regulatory & Compliance
+  DATA_PROTECTION_COMPLIANCE_AGREEMENT
+  ANTI_MONEY_LAUNDERING_COMPLIANCE
+  ENVIRONMENTAL_COMPLIANCE_AGREEMENT
+}
+
+enum RequestStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  EMAIL_QUEUED
+  EMAIL_SENT
+}
+
+model RateLimit {
+  id           String      @id @default(cuid())
+  userId       String
+  featureType  FeatureType
+  usageCount   Int         @default(0)
+  resetDate    DateTime    // Date when usage count resets (daily)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, featureType])
+  @@index([resetDate])
+  @@map("rate_limits")
+}
+
+model RateLimitConfig {
+  id           String      @id @default(cuid())
+  featureType  FeatureType @unique
+  limit        Int
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  
+  @@map("rate_limit_configs")
+}
+
+enum FeatureType {
+  QUICK_CHAT
+  STRUCTURED_ANALYSIS
+  DOCUMENT_GENERATION
+}

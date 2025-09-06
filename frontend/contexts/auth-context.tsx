@@ -94,7 +94,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/validate-token', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/auth/validate-token`, {
         credentials: 'include'
       })
       
@@ -181,7 +181,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Clear any stale authentication state first
       setUser(null)
       
-      const response = await fetch('http://localhost:5000/api/auth/google', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/auth/google`, {
         credentials: 'include'
       })
       
@@ -211,7 +211,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         showProgress: true
       })
       
-      await fetch('http://localhost:5000/api/auth/logout', {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       })

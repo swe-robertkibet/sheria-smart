@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import OAuthService from '../services/oauth';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 export interface AuthenticatedRequest extends Request {
   user?: {

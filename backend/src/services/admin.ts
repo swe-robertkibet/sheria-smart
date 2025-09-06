@@ -1,7 +1,6 @@
-import { PrismaClient, FeatureType } from '@prisma/client';
+import { FeatureType } from '@prisma/client';
 import RateLimitingService from './rate-limiting';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 export interface UserListItem {
   id: string;

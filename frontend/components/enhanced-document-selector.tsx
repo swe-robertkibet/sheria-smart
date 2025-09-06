@@ -98,7 +98,7 @@ export function EnhancedDocumentSelector({
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/documents/categories", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/documents/categories`, {
         credentials: "include",
       });
 

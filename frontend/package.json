@@ -6,7 +6,9 @@
   "build": "next build",
   "dev": "next dev",
   "lint": "next lint",
-  "start": "NODE_ENV=production node server.js"
+  "start": "NODE_ENV=production node server.js",
+  "build:cpanel": "next build && npm run package:cpanel",
+  "package:cpanel": "echo 'Frontend built and ready for cPanel deployment. Upload: .next/, server.js, package.json, public/, .env.local'"
   },
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",

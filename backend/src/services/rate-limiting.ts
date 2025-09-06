@@ -1,6 +1,5 @@
-import { PrismaClient, FeatureType } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { FeatureType } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 // Default fallback rate limits (used if database is unavailable)
 const DEFAULT_RATE_LIMITS: Record<FeatureType, number> = {

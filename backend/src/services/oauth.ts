@@ -1,9 +1,8 @@
 import { google } from 'googleapis';
-import { PrismaClient, User, Account } from '@prisma/client';
+import { User, Account } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 interface GoogleUserInfo {
   id: string;

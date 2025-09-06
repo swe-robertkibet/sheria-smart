@@ -152,7 +152,7 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
   // Load chat history for existing session
   const loadChatHistory = async (sessionId: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/chat/history/${sessionId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/chat/history/${sessionId}`, {
         credentials: 'include',
       })
       
@@ -233,7 +233,7 @@ export function StructuredChatInterface({ onBack, sessionId: propSessionId, onTo
       }
       
       
-      const response = await fetch('http://localhost:5000/api/chat/send-structured', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/chat/send-structured`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

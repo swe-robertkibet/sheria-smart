@@ -1,9 +1,7 @@
 import express from 'express';
 import OAuthService from '../services/oauth';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 const router = express.Router();
 

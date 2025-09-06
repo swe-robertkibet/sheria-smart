@@ -1,4 +1,3 @@
-import { PrismaClient } from '@prisma/client';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { 
@@ -14,8 +13,7 @@ import DocumentGeneratorService from './document-generator';
 import DocumentAIService from './document-ai';
 import EmailService from './email-service';
 import DocumentValidators from '../validators/document-validators';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 export class DocumentOrchestrator {
   constructor() {

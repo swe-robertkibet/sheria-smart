@@ -13,3 +13,14 @@ generated-docs-screenshots
 src/**/*.js
 
 *.txt
+
+# Zip files
+*.zip
+
+# Deployment folder
+cpanel-deploy/
+
+# For cPanel deployment: Uncomment these lines to include pre-built Prisma Client
+# This allows Prisma Client to be committed and deployed without generation
+# !node_modules/.prisma/
+# !node_modules/@prisma/client/

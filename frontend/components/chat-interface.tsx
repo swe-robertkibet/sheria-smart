@@ -148,7 +148,7 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
   // Load chat history for existing session
   const loadChatHistory = async (sessionId: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/chat/history/${sessionId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/chat/history/${sessionId}`, {
         credentials: 'include',
       })
       
@@ -214,7 +214,7 @@ export function ChatInterface({ onBack, sessionId: propSessionId, onToggleSideba
       }
       
       
-      const response = await fetch('http://localhost:5000/api/chat/send-stream', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/chat/send-stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

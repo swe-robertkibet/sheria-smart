@@ -200,7 +200,7 @@ export function GenericDocumentForm({
       // Debug logging to see what's being sent
 
       const response = await fetch(
-        "http://localhost:5000/api/documents/generate",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/documents/generate`,
         {
           method: "POST",
           headers: {
